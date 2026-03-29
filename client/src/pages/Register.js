@@ -1,10 +1,13 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-export default function Register() {
+export default function Register({ onRegister }) {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mensagem, setMensagem] = useState('');
+
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -20,13 +23,17 @@ export default function Register() {
       const data = await response.json();
 
       if (!response.ok) {
-        return setMensagem(data.message || 'Erro ao registrar');
+        return setMensagem(data.mensagem || 'Erro ao registrar');
       }
+
+      onRegister(data.token)
 
       setMensagem('Usuário registrado com sucesso!');
       setNome('');
       setEmail('');
       setSenha('');
+      
+      navigate('/home');
     } catch (error) {
       setMensagem('Erro ao conectar com o servidor');
     }

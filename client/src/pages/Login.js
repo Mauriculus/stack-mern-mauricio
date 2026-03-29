@@ -55,7 +55,7 @@ export default function Login({ onLogin }) {
                   {mensagem && <p className="text-danger">{mensagem}</p>}
 
                   <div className="form-group">
-                    <label htmlFor="username" className="text-info">Usuário:</label><br />
+                    <label htmlFor="username" className="text-info">Email:</label><br />
                     <input
                       type="text"
                       name="username"

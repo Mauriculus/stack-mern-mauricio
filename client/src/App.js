@@ -17,7 +17,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={token ? <Home /> : <Navigate to="/login" replace />} />
         <Route path="/login" element={<Login onLogin={(token) => { localStorage.setItem('token', token); setToken(token); }} />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/register" element={<Register onRegister={(token) => {localStorage.setItem('token', token); setToken(token) }}/>} />
         <Route path="/agendar" element={token ? <NewAppointment /> : <Navigate to="/login" replace />} />
         <Route path="/agendamentos/pendentes" element={token ? <PendingAppointments /> : <Navigate to="/login" replace />} />
         <Route path="/agendamentos/concluidos" element={token ? <CompletedAppointments /> : <Navigate to="/login" replace />} />

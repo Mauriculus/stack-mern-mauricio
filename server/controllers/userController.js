@@ -56,7 +56,14 @@ const registerUser = async (req, res) => {
 
     await novoUsuario.save();
 
-    res.status(201).json({ mensagem: 'Usuário cadastrado com sucesso' });
+    const token = jwt.sign(
+      { userId: novoUsuario._id, tipo: novoUsuario.tipo },
+      JWT_SECRET,
+      { expiresIn: '2h' }
+    );
+
+    res.status(201).json({ mensagem: 'Usuário cadastrado com sucesso', token });
+    
   } catch (erro) {
     console.error(erro);
     res.status(500).json({ mensagem: 'Erro no servidor' });
