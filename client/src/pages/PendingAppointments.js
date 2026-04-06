@@ -14,7 +14,7 @@ export default function PendingAppointments() {
   const fetchAppointments = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:7777/api/agendamentos?status=pendente', {
+      const response = await fetch('http://localhost:7777/api/appointments?status=pendente', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -40,7 +40,7 @@ export default function PendingAppointments() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:7777/api/agendamentos/${id}`, {
+      const response = await fetch(`http://localhost:7777/api/appointments/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,

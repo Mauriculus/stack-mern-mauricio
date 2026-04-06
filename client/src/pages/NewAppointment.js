@@ -17,7 +17,7 @@ export default function NewAppointment() {
     try {
       const token = localStorage.getItem('token');
 
-      const response = await fetch('http://localhost:7777/api/agendamentos', {
+      const response = await fetch('http://localhost:7777/api/appointments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

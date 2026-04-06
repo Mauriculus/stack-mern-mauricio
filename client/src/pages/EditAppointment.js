@@ -14,7 +14,7 @@ export default function EditAppointment() {
     const fetchAppointment = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`http://localhost:7777/api/agendamentos/${id}`, {
+        const response = await fetch(`http://localhost:7777/api/appointments/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -43,7 +43,7 @@ export default function EditAppointment() {
     try {
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`http://localhost:7777/api/agendamentos/${id}`, {
+      const response = await fetch(`http://localhost:7777/api/appointments/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

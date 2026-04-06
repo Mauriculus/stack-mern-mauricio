@@ -9,7 +9,7 @@ export default function CompletedAppointments() {
     const fetchAppointments = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:7777/api/agendamentos?status=concluido', {
+        const response = await fetch('http://localhost:7777/api/appointments?status=concluido', {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!response.ok) {

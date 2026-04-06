@@ -5,10 +5,10 @@ const connectDB = require('./mongo');
 const userRoutes = require('./routes/userRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const { PORT } = require('./config');
-
 const dns = require('dns');
-dns.setServers(['8.8.8.8', '8.8.4.4']);
 
+
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 connectDB();
 
 const app = express();
@@ -17,6 +17,6 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/users', userRoutes);
-app.use('/api/agendamentos', appointmentRoutes);
+app.use('/api/appointments', appointmentRoutes);
 
 app.listen(PORT, () => console.log(`Servidor rodando na porta http://localhost:${PORT}`));
