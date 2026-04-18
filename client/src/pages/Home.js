@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import Sidebar from './Sidebar';
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
       className="d-flex justify-content-center align-items-center"
     >
       <div className="card shadow p-4 bg-light" style={{ maxWidth: '400px', width: '100%', opacity: 0.95 }}>
+        <Sidebar></Sidebar>
         <h1 className="card-title text-center mb-4 text-primary">Bem-vindo(a)!</h1>
         <nav>
           <ul className="list-unstyled">

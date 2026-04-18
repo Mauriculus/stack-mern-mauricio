@@ -9,6 +9,7 @@ import PendingAppointments from './pages/PendingAppointments';
 import CompletedAppointments from './pages/CompletedAppointments';
 import EditAppointment from './pages/EditAppointment';
 
+
 export default function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
 
