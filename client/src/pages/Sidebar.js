@@ -1,12 +1,10 @@
-// IMPORT?
-
 import { Link } from "react-router-dom"
 
 export default function Sidebar () {
     const blue = "#161E6B"
     const white = "#F0F0F0"
     const iconLogoStyle = {width: "80px", height: "auto", cursor: "pointer"}
-    const iconConfigStyle = {width: "50px", height: "auto", cursor: "pointer"}
+    const iconBigStyle = {width: "50px", height: "auto", cursor: "pointer"}
     const iconStyle = {width: "40px", height: "auto", cursor: "pointer"}
     return (
         <div
@@ -28,7 +26,7 @@ export default function Sidebar () {
 
             <div className="d-flex flex-column gap-4 align-items-center">
                 <Link to="/perfil">
-                    <img src="/icons/perfil.svg" alt="perfil" style={iconStyle} className=""/>
+                    <img src="/icons/perfil.svg" alt="perfil" style={iconBigStyle} className=""/>
                 </Link>
                 <Link to="/">
                     <img src="/icons/caderno.svg" style={iconStyle} alt="criar aula" className=""/>
@@ -43,7 +41,7 @@ export default function Sidebar () {
                     <img src="/icons/lua.svg" style={iconStyle} alt="modo escuro" className=""/>
                 </button>
                 <Link to="/">
-                    <img src="/icons/config.svg" style={iconConfigStyle} alt="configurações" className=""/>
+                    <img src="/icons/config.svg" style={iconBigStyle} alt="configurações" className=""/>
                 </Link>
             </div>
         </div>
