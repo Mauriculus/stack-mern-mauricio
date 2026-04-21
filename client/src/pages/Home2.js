@@ -26,7 +26,7 @@ const buttonStyle = {
 
 function PrimeiroCard() {
     return (
-        <div className='card w-75 mx-auto home2-card' style={cardStyle}>
+        <div className='card w-75 mx-auto content-card' style={cardStyle}>
             <div className='card-body d-flex flex-column justify-content-between p-4'>
                 <h2
                     className='text-center mb-0'
@@ -41,7 +41,7 @@ function PrimeiroCard() {
 
                 <div className='d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-end gap-3 mt-4'>
                     <p
-                        className='mb-0 home2-card-text'
+                        className='mb-0'
                         style={{
                             ...headingStyle,
                             fontSize: '18pt',
@@ -49,7 +49,7 @@ function PrimeiroCard() {
                     >
                         Assita à aulas criadas pela comunidade sobre temas cruciais para manter seu lar!
                     </p>
-                    <button className='btn home2-card-button' style={buttonStyle}>
+                    <button className='btn' style={buttonStyle}>
                         Aprender
                     </button>
                 </div>
@@ -60,7 +60,7 @@ function PrimeiroCard() {
 
 function SegundoCard() {
     return (
-        <div className='card w-75 mx-auto home2-card' style={cardStyle}>
+        <div className='card w-75 mx-auto content-card' style={cardStyle}>
             <div className='card-body d-flex flex-column justify-content-between p-4'>
                 <h2
                     className='text-center mb-0'
@@ -75,7 +75,7 @@ function SegundoCard() {
 
                 <div className='d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-end gap-3 mt-4'>
                     <p
-                        className='mb-0 home2-card-text'
+                        className='mb-0'
                         style={{
                             ...headingStyle,
                             fontSize: '18pt',
@@ -83,7 +83,7 @@ function SegundoCard() {
                     >
                         Quer ensinar outras pessoas como você? Crie uma aula você mesmo! Lembre-se de seguir as diretrizes da comunidade 
                     </p>
-                    <button className='btn home2-card-button' style={buttonStyle}>
+                    <button className='btn' style={buttonStyle}>
                         Criar
                     </button>
                 </div>
@@ -94,10 +94,10 @@ function SegundoCard() {
 
 export default function Home2() {
     return (
-        <div className='w-100 min-vh-100' style={{ backgroundColor: 'var(--brancoPrincipal)' }}>
+        <div className='w-100 min-vh-100 home2-page' style={{ backgroundColor: 'var(--brancoPrincipal)' }}>
             <Sidebar />
             <main
-                className='d-flex flex-column align-items-center gap-4 px-3 home2-main'
+                className='d-flex flex-column align-items-center gap-4 px-3 main-layout'
             >
                 <h1
                     className='text-center mb-0'
@@ -110,18 +110,22 @@ export default function Home2() {
                     Sobrevivência Doméstica
                 </h1>
 
-                <section className='w-100 pb-4 pt-3 home2-content'>
-                    <div className='d-flex flex-column home2-cards-gap'>
-                        <div className='home2-first-card'>
-                            <PrimeiroCard />
-                        </div>
+                <section className='w-100 pb-4 pt-3 content-wrap'>
+                    <div className='d-flex flex-column cards-gap'>
+                        <PrimeiroCard />
                         <SegundoCard />
                     </div>
+                    <img
+                        src='/images/imagemHome2.png'
+                        alt=''
+                        aria-hidden='true'
+                        className='right-image'
+                    />
                 </section>
             </main>
 
-            <div className='home2-bottom-bar d-flex align-items-center justify-content-center text-center'>
-                <span className='home2-bottom-bar-text'>Envie feedback ou aplique para se tornar um administrador para mauroscan20@gmail.com</span>
+            <div className='bottom-bar d-flex align-items-center justify-content-center text-center'>
+                <span className='bottom-bar-text'>Envie feedback ou aplique para se tornar um administrador para mauroscan20@gmail.com</span>
             </div>
         </div>
     );

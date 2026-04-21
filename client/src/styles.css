@@ -6,7 +6,12 @@
     --cinzaPrincipal: #404040;
 }
 
-.home2-main {
+.home2-page {
+    height: 100vh;
+    overflow: hidden;
+}
+
+.main-layout {
     margin-left: 100px;
     min-height: 100vh;
     width: calc(100% - 100px);
@@ -15,28 +20,46 @@
     box-sizing: border-box;
 }
 
-.home2-content {
+.content-wrap {
     max-width: 960px;
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    overflow: visible;
 }
 
-.home2-card {
+.content-card {
     width: 68%;
     max-width: 640px;
 }
 
-.home2-card-text {
+.content-card p {
     max-width: 70%;
 }
 
-.home2-cards-gap {
-        row-gap: 90px;
+.cards-gap {
+    row-gap: 90px;
+    position: relative;
+    z-index: 2;
 }
 
-.home2-first-card {
-        margin-top: 60px;
+.cards-gap > :first-child {
+    margin-top: 60px;
 }
 
-.home2-bottom-bar {
+.right-image {
+    position: absolute;
+    right: clamp(-230px, -14.5vw, -115px);
+    top: 50%;
+    width: auto;
+    max-width: none;
+    height: auto;
+    transform: translateY(-50%) scale(1.5);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.bottom-bar {
     position: fixed;
     left: 100px;
     bottom: 0;
@@ -46,7 +69,7 @@
     z-index: 10;
 }
 
-.home2-bottom-bar-text {
+.bottom-bar-text {
     color: #ffffff;
     font-family: 'Bricolage Grotesque', sans-serif;
     font-size: 12pt;
@@ -54,45 +77,58 @@
 }
 
 @media (max-width: 992px) {
-    .home2-card {
+    .content-card {
         width: 82%;
         max-width: 700px;
     }
 
-    .home2-card-text {
+    .right-image {
+        right: clamp(-160px, -16vw, -95px);
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .content-card p {
         max-width: 100%;
     }
 }
 
 @media (max-width: 576px) {
-    .home2-main {
+    .main-layout {
         margin-left: 100px;
         width: calc(100% - 100px);
         padding-top: 36px;
         padding-bottom: 72px;
     }
 
-    .home2-card {
+    .content-card {
         width: 100%;
     }
 
-    .home2-card-button {
+    .content-card .btn {
         width: 100%;
     }
 
-    .home2-first-card {
+    .cards-gap > :first-child {
         margin-top: 32px;
     }
 
-    .home2-cards-gap {
+    .cards-gap {
         row-gap: 40px;
     }
 
-    .home2-bottom-bar {
+    .right-image {
+        width: 132px;
+        right: 2px;
+        top: 44%;
+        transform: translateY(-50%);
+        opacity: 0.9;
+    }
+
+    .bottom-bar {
         height: 40px;
     }
 
-    .home2-bottom-bar-text {
+    .bottom-bar-text {
         font-size: 15pt;
     }
 }
