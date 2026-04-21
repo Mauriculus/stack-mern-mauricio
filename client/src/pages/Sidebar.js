@@ -1,15 +1,13 @@
 import { Link } from "react-router-dom"
 
 export default function Sidebar () {
-    const blue = "#161E6B"
-    const white = "#F0F0F0"
     const iconLogoStyle = {width: "80px", height: "auto", cursor: "pointer"}
     const iconBigStyle = {width: "50px", height: "auto", cursor: "pointer"}
     const iconStyle = {width: "40px", height: "auto", cursor: "pointer"}
     return (
         <div
             style={{
-                backgroundColor: blue,
+                backgroundColor: "var(--azulPrincipal)",
                 height: "100vh",
                 width: "100px",
                 position: "fixed",

@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap');
+
+:root {
+    --azulPrincipal: #161e6b;
+    --brancoPrincipal: #f0f0f0;
+    --cinzaPrincipal: #404040;
+}
+
+.home2-main {
+    margin-left: 100px;
+    min-height: 100vh;
+    width: calc(100% - 100px);
+    padding-top: 75px;
+    padding-bottom: 72px;
+    box-sizing: border-box;
+}
+
+.home2-content {
+    max-width: 960px;
+}
+
+.home2-card {
+    width: 68%;
+    max-width: 640px;
+}
+
+.home2-card-text {
+    max-width: 70%;
+}
+
+.home2-cards-gap {
+        row-gap: 90px;
+}
+
+.home2-first-card {
+        margin-top: 60px;
+}
+
+.home2-bottom-bar {
+    position: fixed;
+    left: 100px;
+    bottom: 0;
+    width: calc(100% - 100px);
+    height: 40px;
+    background-color: rgba(64, 64, 64, 0.8);
+    z-index: 10;
+}
+
+.home2-bottom-bar-text {
+    color: #ffffff;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-size: 12pt;
+    font-weight: 400;
+}
+
+@media (max-width: 992px) {
+    .home2-card {
+        width: 82%;
+        max-width: 700px;
+    }
+
+    .home2-card-text {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .home2-main {
+        margin-left: 100px;
+        width: calc(100% - 100px);
+        padding-top: 36px;
+        padding-bottom: 72px;
+    }
+
+    .home2-card {
+        width: 100%;
+    }
+
+    .home2-card-button {
+        width: 100%;
+    }
+
+    .home2-first-card {
+        margin-top: 32px;
+    }
+
+    .home2-cards-gap {
+        row-gap: 40px;
+    }
+
+    .home2-bottom-bar {
+        height: 40px;
+    }
+
+    .home2-bottom-bar-text {
+        font-size: 15pt;
+    }
+}
