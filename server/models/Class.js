@@ -14,11 +14,15 @@ const pageSchema = new mongoose.Schema ({
 })
 
 const classSchema = new mongoose.Schema({
-    //Sem a média das notas
-    //Data de publicação nos timestamps
     author: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
 
     title: {type: String, required: true},
+
+    ratingCount: {type: Number, default: 0},
+
+    ratingSum: {type: Number, default: 0},
+
+    ratingAverage: {type: Number, default: 0, min: 0, max: 5},
 
     subject: {
         type: String,

@@ -15,9 +15,11 @@ export default function NewAppointment() {
     setMensagem('');
 
     try {
+      //checa pra ver se tem token
       const token = localStorage.getItem('token');
 
-      const response = await fetch('http://localhost:7777/api/appointments', {
+      //manda para o appointmentController
+      const response = await fetch(`http://localhost:/api/appointments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

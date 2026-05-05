@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Register({ onRegister }) {
-  const [nome, setNome] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
+  const [password, setPassword] = useState('');
   const [mensagem, setMensagem] = useState('');
 
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ export default function Register({ onRegister }) {
       const response = await fetch('http://localhost:7777/api/users/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, email, senha }),
+        body: JSON.stringify({ username, email, password }),
       });
 
       const data = await response.json();
@@ -29,9 +29,9 @@ export default function Register({ onRegister }) {
       onRegister(data.token)
 
       setMensagem('Usuário registrado com sucesso!');
-      setNome('');
+      setUsername('');
       setEmail('');
-      setSenha('');
+      setPassword('');
       
       navigate('/home');
     } catch (error) {
@@ -63,14 +63,14 @@ export default function Register({ onRegister }) {
                   {mensagem && <p className="text-danger">{mensagem}</p>}
 
                   <div className="form-group">
-                    <label htmlFor="nome" className="text-info">Nome:</label><br />
+                    <label htmlFor="username" className="text-info">Nome:</label><br />
                     <input
                       type="text"
-                      name="nome"
-                      id="nome"
+                      name="username"
+                      id="username"
                       className="form-control"
-                      value={nome}
-                      onChange={(e) => setNome(e.target.value)}
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
                       required
                     />
                   </div>
@@ -89,14 +89,14 @@ export default function Register({ onRegister }) {
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="senha" className="text-info">Senha:</label><br />
+                    <label htmlFor="password" className="text-info">Senha:</label><br />
                     <input
                       type="password"
-                      name="senha"
-                      id="senha"
+                      name="password"
+                      id="password"
                       className="form-control"
-                      value={senha}
-                      onChange={(e) => setSenha(e.target.value)}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       required
                     />
                   </div>

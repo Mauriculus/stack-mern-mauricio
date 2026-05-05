@@ -5,7 +5,7 @@ const { JWT_SECRET } = require('../config');
 
 // Realizar login
 const loginUser = async (req, res) => {
-  const { email, senha } = req.body;
+  const { email, password } = req.body;
 
   try {
     const usuario = await User.findOne({ email });
@@ -14,14 +14,14 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ mensagem: 'Usuário não encontrado' });
     }
 
-    const senhaValida = await bcrypt.compare(senha, usuario.senha);
+    const senhaValida = await bcrypt.compare(password, usuario.password);
 
     if (!senhaValida) {
       return res.status(400).json({ mensagem: 'Senha inválida' });
     }
 
     const token = jwt.sign(
-      { userId: usuario._id, tipo: usuario.tipo },
+      { userId: usuario._id, type: usuario.type },
       JWT_SECRET,
       { expiresIn: '2h' }
     );
@@ -35,7 +35,7 @@ const loginUser = async (req, res) => {
 
 //Realizar registro
 const registerUser = async (req, res) => {
-  const { nome, email, senha, tipo } = req.body;
+  const { username, email, password, type } = req.body;
 
   try {
     const userExistente = await User.findOne({ email });
@@ -45,19 +45,19 @@ const registerUser = async (req, res) => {
     }
 
     const salt = await bcrypt.genSalt(10);
-    const senhaHash = await bcrypt.hash(senha, salt);
+    const passwordHash = await bcrypt.hash(password, salt);
 
     const novoUsuario = new User({
-      nome,
+      username,
       email,
-      senha: senhaHash,
-      tipo,
+      password: passwordHash,
+      type,
     });
 
     await novoUsuario.save();
 
     const token = jwt.sign(
-      { userId: novoUsuario._id, tipo: novoUsuario.tipo },
+      { userId: novoUsuario._id, type: novoUsuario.type },
       JWT_SECRET,
       { expiresIn: '2h' }
     );
@@ -66,6 +66,9 @@ const registerUser = async (req, res) => {
     
   } catch (erro) {
     console.error(erro);
+    if (erro.name === 'ValidationError') {
+      return res.status(400).json({ mensagem: erro.message });
+    }
     res.status(500).json({ mensagem: 'Erro no servidor' });
   }
 };

@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 
-
 export default function Login({ onLogin }) {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [mensagem, setMensagem] = useState('');
   const navigate = useNavigate();
@@ -17,7 +15,7 @@ export default function Login({ onLogin }) {
       const response = await fetch('http://localhost:7777/api/users/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: username, senha: password }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
@@ -55,14 +53,14 @@ export default function Login({ onLogin }) {
                   {mensagem && <p className="text-danger">{mensagem}</p>}
 
                   <div className="form-group">
-                    <label htmlFor="username" className="text-info">Email:</label><br />
+                    <label htmlFor="email" className="text-info">Email:</label><br />
                     <input
                       type="text"
-                      name="username"
-                      id="username"
+                      name="email"
+                      id="email"
                       className="form-control"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       required
                     />
                   </div>
