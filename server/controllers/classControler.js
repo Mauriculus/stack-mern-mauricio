@@ -19,3 +19,7 @@ const createClass = async (req, res) => {
         res.status(500).json({ message: 'Erro ao criar aula' });
     }
 };
+
+module.exports = {
+    createClass
+}

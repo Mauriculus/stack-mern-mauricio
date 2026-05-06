@@ -9,6 +9,8 @@ import NewAppointment from './pages/NewAppointment';
 import PendingAppointments from './pages/PendingAppointments';
 import CompletedAppointments from './pages/CompletedAppointments';
 import EditAppointment from './pages/EditAppointment';
+import NewClass from './pages/NewClass';
+import NewPage from './pages/NewPage';
 
 
 export default function App() {
@@ -24,6 +26,8 @@ export default function App() {
         <Route path="/agendamentos/pendentes" element={token ? <PendingAppointments /> : <Navigate to="/login" replace />} />
         <Route path="/agendamentos/concluidos" element={token ? <CompletedAppointments /> : <Navigate to="/login" replace />} />
         <Route path="/agendamentos/editar/:id" element={token ? <EditAppointment /> : <Navigate to="/login" replace />} />
+        <Route path="/new-page" element={token ? <NewPage /> : <Navigate to="/login" replace />} />
+        <Route path="/new-class" element={token ? <NewClass /> : <Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
