@@ -2,7 +2,7 @@ const Class = require('../models/Class');
 
 // Criar nova aula
 const createClass = async (req, res) => {
-    const { title, subject, danger, dangerLevel, pages } = req.body;
+    const { title, subject, danger, dangerLevel, content } = req.body;
     try {
         const newClass = new Class({ 
             author: req.userId,
@@ -10,7 +10,7 @@ const createClass = async (req, res) => {
             subject,
             danger,
             dangerLevel,
-            pages
+            content
         })
         await newClass.save();
         res.status(201).json(newClass);
