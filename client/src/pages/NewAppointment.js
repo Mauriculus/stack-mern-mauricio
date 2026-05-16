@@ -15,7 +15,7 @@ export default function NewAppointment() {
     setMensagem('');
 
     try {
-      //checa pra ver se tem token
+      //pega o token e coloca na constante token
       const token = localStorage.getItem('token');
 
       //manda para o appointmentController

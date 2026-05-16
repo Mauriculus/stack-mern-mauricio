@@ -1,6 +1,5 @@
 const Class = require('../models/Class');
 
-// Criar nova aula
 const createClass = async (req, res) => {
     const { title, subject, danger, dangerLevel, content } = req.body;
     try {

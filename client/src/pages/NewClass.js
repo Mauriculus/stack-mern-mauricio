@@ -1,68 +1,59 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { PORT } from '@/server/.env';
 
 export default function NewClass() { 
     const [title, setTitle] = useState('');
     const [subject, setSubject] = useState('');
     const [danger, setDanger] = useState('');
-    const [dangerLevel, setDangerLevel] = useState('Baixo Risco');
-    const [pages, setPages] = useState([]);
-    const [mensagem, setMensagem] = useState('');
+    const [dangerLevel, setDangerLevel] = useState('');
+    const [content, setContent] = useState('');
+    const [message, setMessage] = useState('');
 
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const savedPages = sessionStorage.getItem('classPages');
-        if (savedPages) {
-            setPages(JSON.parse(savedPages));
-        } else {
-            // If there are no pages, maybe redirect back to the start
-            navigate('/new-page');
-        }
-    }, [navigate]);
-
-    const handleSubmitClass = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const token = localStorage.getItem('token');
-
-        if (!token) {
-            setMensagem("Autenticação necessária.");
-            return;
-        }
+        setMessage('');
 
         try {
-            const response = await fetch('http://localhost:7777/api/classes', {
-                method: 'POST',
+            const token = localStorage.getItem('token');
+
+            //manda pro controlador
+            const response = await fetch('http://localhost:${PORT}/api/classes', {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': "aplication/json",
+                    'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify({
-                    title,
-                    subject,
-                    danger,
-                    dangerLevel,
-                    pages
-                })
-            });
+                    title: title,
+                    subject: subject,
+                    danger: danger,
+                    dangerLevel: dangerLevel,
+                    content: content,
+                }),
+            })
 
-            const data = await response.json();
+            const resData = await response.json()
 
-            if (response.ok) {
-                setMensagem("Aula criada com sucesso!");
-                sessionStorage.removeItem('classPages');
-                setTimeout(() => navigate('/'), 2000); // Redirect after 2s
-            } else {
-                setMensagem(data.message || "Erro ao criar a aula.");
+            if (!response.ok) {
+                return setMessage(resData.message || "Erro ao publicar aula")
             }
-        } catch (error) {
-            console.error("Erro ao criar aula:", error);
-            setMensagem("Ocorreu um erro na comunicação com o servidor.");
-        }
-    };
+            setMessage("Aula publicada com sucesso")
 
+            setTitle("")
+            setSubject("")
+            setDanger("")
+            setDangerLevel("")
+            setContent("")
+
+            navigate("/")
+        } catch (error) {
+            console.log(error)
+            setMensagem("Erro ao conectar com o servidor")
+        }
+    }
     // JSX will be added later
     return null;
 }
