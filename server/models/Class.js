@@ -1,5 +1,18 @@
 const mongoose = require("mongoose")
 
+const mediaSchema = new mongoose.Schema({
+    type: {
+        type: String,
+        enum: ["imagem", "youtube"],
+        required: true
+    },
+
+    value: {
+        type: String,
+        required: true
+    }
+}, { _id: false })
+
 const classSchema = new mongoose.Schema({
     author: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
 
@@ -13,13 +26,17 @@ const classSchema = new mongoose.Schema({
     
     content: {type: String},
 
-    image1Url: {type: String},
+    midias: {
+        type: [mediaSchema],
+        default: [],
+        validate: {
+            validator: function (midias) {
+                return midias.length <= 2
+            },
+            message: 'É permitido cadastrar no máximo duas mídias por aula'
+        }
+    },
 
-    image2Url: {type: String},
-
-    video1Id: {type: String},
-
-    video2Id: {type: String},
 
     subject: {
         type: String,
