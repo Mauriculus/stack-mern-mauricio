@@ -7,9 +7,15 @@ const userSchema = new mongoose.Schema({
 
   password: { type: String, required: true },
 
+  profilePicture: { type: String, default: '' },
+
   type: { type: String, enum: ['usuario', 'admin'], default: 'usuario' },
 
-  banido: { type: Boolean, default: false }
+  following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+
+  followers: { type: Number, default: 0 },
+
+  banned: { type: Boolean, default: false },
 
 }, { timestamps: true });
 

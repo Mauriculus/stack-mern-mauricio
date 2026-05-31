@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const { JWT_SECRET } = require('../config');
 
@@ -88,8 +89,59 @@ const registerUser = async (req, res) => {
   }
 };
 
+const followUser = async (req, res) => {
+  const followerId = req.userId || (req.user && req.user._id ? req.user._id.toString() : req.params.userId);
+  const { followingId } = req.body;
+
+  if (!followingId) {
+    return res.status(400).json({ mensagem: 'O ID do usuário a ser seguido é obrigatório' });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(followerId) || !mongoose.Types.ObjectId.isValid(followingId)) {
+    return res.status(400).json({ mensagem: 'ID inválido' });
+  }
+
+  if (followerId === followingId) {
+    return res.status(400).json({ mensagem: 'Não é possível seguir a si mesmo' });
+  }
+
+  try {
+    // Tenta adicionar ao conjunto apenas se ainda não estiver seguindo
+    const addRes = await User.updateOne(
+      { _id: followerId, following: { $ne: followingId } },
+      { $addToSet: { following: followingId } }
+    );
+    //modifiedCount é a quantidade de documentos alterados
+    const added = (addRes.modifiedCount ?? addRes.nModified ?? 0) > 0;
+    if (!added) {
+      return res.status(400).json({ mensagem: 'Você já está seguindo este usuário' });
+    }
+
+    // Incrementa contador de followers do usuário seguido
+    const incRes = await User.updateOne({ _id: followingId }, { $inc: { followers: 1 } });
+    const incUpdated = (incRes.modifiedCount ?? incRes.nModified ?? 0) > 0;
+
+    if (!incUpdated) {
+      // rollback: remove o following adicionado para evitar dessincronização
+      await User.updateOne({ _id: followerId }, { $pull: { following: followingId } });
+      return res.status(404).json({ mensagem: 'Usuário a ser seguido não encontrado' });
+    }
+
+    return res.json({ mensagem: 'Usuário seguido com sucesso' });
+  } catch (erro) {
+    console.error('Erro ao seguir usuário:', erro);
+    // tenta rollback conservador caso tenha sido adicionado
+    try {
+      await User.updateOne({ _id: followerId }, { $pull: { following: followingId } });
+    } catch (e) {
+      console.error('Rollback falhou:', e);
+    }
+    return res.status(500).json({ mensagem: 'Erro no servidor' });
+  }
+};
 
 module.exports = {
   loginUser,
   registerUser,
+  followUser,
 };
