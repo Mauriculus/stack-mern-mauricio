@@ -196,9 +196,44 @@ const unfollowUser = async (req, res) => {
   }
 };
 
+const getFollowingList = async (req, res) => {
+  const { userId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ mensagem: 'ID inválido' });
+  }
+  
+  try {
+    const usuario = await User.findById(userId)
+      .select('following')
+      .populate('following', 'username profilePicture');
+
+    if (!usuario) {
+      return res.status(404).json({ mensagem: 'Usuário não encontrado' });
+    }
+
+    const followingList = Array.isArray(usuario.following)
+      ? usuario.following.map((user) => ({
+          username: user.username,
+          profilePicture: user.profilePicture,
+        }))
+      : [];
+
+    return res.json(followingList);
+  } catch (erro) {
+    console.error('Erro ao buscar lista de seguidos:', erro);
+    return res.status(500).json({ mensagem: 'Erro no servidor' });
+  }
+};
+  
+
+
+
+
 module.exports = {
   loginUser,
   registerUser,
   followUser,
-  unfollowUser
+  unfollowUser,
+  getFollowingList
 };

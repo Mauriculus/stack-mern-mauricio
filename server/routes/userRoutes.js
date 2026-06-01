@@ -1,12 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
-const { loginUser, registerUser, followUser, unfollowUser } = require('../controllers/userController');
+const upload = require('../middleware/multer');
+const { loginUser, registerUser, followUser, unfollowUser, getFollowingList } = require('../controllers/userController');
+const { editProfile } = require('../controllers/editProfileController');
 
 //Rotas de login e registro. Aqui também daria pra colocar rotas para exibição do perfil, aluno.
 router.post('/login', loginUser);
 router.post('/register', registerUser);
 router.post("/follow", authMiddleware, followUser); 
 router.post("/unfollow", authMiddleware, unfollowUser);
+router.get("/followingList/:userId", getFollowingList);
+
+// Rota para editar perfil (protegida e com suporte a upload de imagem)
+router.put('/edit', authMiddleware, upload.single('profilePicture'), editProfile);
 
 module.exports = router;
