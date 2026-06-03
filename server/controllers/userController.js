@@ -9,11 +9,9 @@ const createAuthToken = (user) => {
     throw new Error('JWT_SECRET não configurado no servidor');
   }
 
-  return jwt.sign(
-    { userId: user._id, type: user.type, tipo: user.type },
-    JWT_SECRET,
-    { expiresIn: '2h' }
-  );
+  return jwt.sign({ userId: user._id, type: user.type, tipo: user.type }, JWT_SECRET, {
+    expiresIn: '2h',
+  });
 };
 
 // Realizar login
@@ -57,19 +55,46 @@ const loginUser = async (req, res) => {
 const registerUser = async (req, res) => {
   const { username, email, password, type } = req.body;
 
-  try {
-    const userExistente = await User.findOne({ email });
+  const normalizeUsername = (value) =>
+    value
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
 
-    if (userExistente) {
-      return res.status(400).json({ mensagem: 'Usuário já cadastrado' });
+  const preparedUsername = typeof username === 'string' ? username.trim() : '';
+  const emailNormalized = typeof email === 'string' ? email.trim().toLowerCase() : email;
+
+  if (!preparedUsername) {
+    return res.status(400).json({ mensagem: 'Username é obrigatório' });
+  }
+
+  if (/\s/.test(preparedUsername)) {
+    return res.status(400).json({ mensagem: 'O username não pode conter espaços no meio' });
+  }
+
+  try {
+    const emailExistente = await User.findOne({ email: emailNormalized });
+
+    if (emailExistente) {
+      return res.status(400).json({ mensagem: 'Email já cadastrado' });
+    }
+
+    const usernameNormalized = normalizeUsername(preparedUsername);
+
+    const usernameExistente = await User.findOne({ usernameNormalized: usernameNormalized });
+
+    if (usernameExistente) {
+      return res.status(400).json({ mensagem: 'Username já em uso' });
     }
 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
     const novoUsuario = new User({
-      username,
-      email,
+      username: preparedUsername,
+      usernameNormalized,
+      email: emailNormalized,
       password: passwordHash,
       type,
     });
@@ -79,7 +104,6 @@ const registerUser = async (req, res) => {
     const token = createAuthToken(novoUsuario);
 
     res.status(201).json({ mensagem: 'Usuário cadastrado com sucesso', token });
-    
   } catch (erro) {
     console.error('Erro no cadastro:', erro);
     if (erro.name === 'ValidationError') {
