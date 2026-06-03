@@ -30,16 +30,22 @@ const editUsername = async (req, res) => {
       return res.status(400).json({ mensagem: 'O username não pode conter espaços no meio', nomeAtual: user.username });
     }
 
+    if (user.lastUsernameChange && Date.now() - user.lastUsernameChange.getTime() < 30 * 24 * 60 * 60 * 1000) {
+      const diasRestantes = Math.ceil((30 * 24 * 60 * 60 * 1000 - (Date.now() - user.lastUsernameChange.getTime())) / (24 * 60 * 60 * 1000));
+      return res.status(429).json({ mensagem: `Você pode alterar seu username novamente em ${diasRestantes} dias`, nomeAtual: user.username });
+    }
+
     const usernameNormalized = normalizeUsername(preparedUsername);
 
     const usenameExistente = await User.findOne({ usernameNormalized: usernameNormalized, _id: { $ne: userId } });
 
     if (usenameExistente) {
-      return res.status(400).json({ mensagem: 'Username já em uso', nomeAtual: user.username });
+      return res.status(409).json({ mensagem: 'Username já em uso', nomeAtual: user.username });
     }
 
     user.username = preparedUsername;
     user.usernameNormalized = usernameNormalized;
+    user.lastUsernameChange = new Date();
 
     await user.save();
 

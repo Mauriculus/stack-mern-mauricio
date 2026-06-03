@@ -3,7 +3,8 @@ const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
 const upload = require('../middleware/multer');
 
-const { loginUser, registerUser, followUser, unfollowUser, getFollowingList } = require('../controllers/userController');
+const { loginUser, registerUser} = require('../controllers/userController');
+const { followUser, unfollowUser, getFollowingList } = require('../controllers/userInteractions');
 
 const { editUsername, editPicture } = require('../controllers/editProfileController');
 

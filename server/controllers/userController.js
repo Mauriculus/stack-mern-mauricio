@@ -2,17 +2,28 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const User = require('../models/User');
-const { JWT_SECRET } = require('../config');
+const { sendVerificationEmail } = require('../services/emailService');
 
 const createAuthToken = (user) => {
-  if (!JWT_SECRET) {
+  if (!process.env.JWT_SECRET) {
     throw new Error('JWT_SECRET não configurado no servidor');
   }
 
-  return jwt.sign({ userId: user._id, type: user.type, tipo: user.type }, JWT_SECRET, {
-    expiresIn: '2h',
+  return jwt.sign({ userId: user._id, type: user.type }, process.env.JWT_SECRET, {
+    expiresIn: '24h',
   });
 };
+
+const createVerificationToken = (user) => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET não configurado no servidor');
+  }
+
+  return jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    expiresIn: '24h',
+  });
+};
+
 
 // Realizar login
 const loginUser = async (req, res) => {
@@ -36,6 +47,10 @@ const loginUser = async (req, res) => {
       return res.status(500).json({ mensagem: 'Usuário encontrado sem senha cadastrada' });
     }
 
+    if (!usuario.isVerified) {
+      return res.status(400).json({ mensagem: 'Conta não verificada. Verifique seu email para ativar a conta' });
+    }
+
     const senhaValida = await bcrypt.compare(password, senhaSalva);
 
     if (!senhaValida) {
@@ -50,6 +65,7 @@ const loginUser = async (req, res) => {
     res.status(500).json({ mensagem: 'Erro no servidor' });
   }
 };
+
 
 //Realizar registro
 const registerUser = async (req, res) => {
@@ -76,13 +92,10 @@ const registerUser = async (req, res) => {
   try {
     const emailExistente = await User.findOne({ email: emailNormalized });
 
-    if (emailExistente) {
-      return res.status(400).json({ mensagem: 'Email já cadastrado' });
-    }
-
     const usernameNormalized = normalizeUsername(preparedUsername);
 
     const usernameExistente = await User.findOne({ usernameNormalized: usernameNormalized });
+    
 
     if (usernameExistente) {
       return res.status(400).json({ mensagem: 'Username já em uso' });
@@ -91,19 +104,38 @@ const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    const novoUsuario = new User({
-      username: preparedUsername,
-      usernameNormalized,
-      email: emailNormalized,
-      password: passwordHash,
-      type,
-    });
+    let usuarioSalvo;
 
-    await novoUsuario.save();
+    if (emailExistente) {
+      if (emailExistente.isVerified) {
+        return res.status(400).json({ mensagem: 'Email já cadastrado' });
+      }
+      emailExistente.username = preparedUsername;
+      emailExistente.usernameNormalized = usernameNormalized;
+      emailExistente.password = passwordHash;
 
-    const token = createAuthToken(novoUsuario);
+      usuarioSalvo = emailExistente;
+      await emailExistente.save();
+    } else {
 
-    res.status(201).json({ mensagem: 'Usuário cadastrado com sucesso', token });
+      const novoUsuario = new User({
+        username: preparedUsername,
+        usernameNormalized,
+        email: emailNormalized,
+        password: passwordHash,
+        type,
+      });
+
+      await novoUsuario.save();
+
+      usuarioSalvo = novoUsuario;   
+    }
+
+    const verificationToken = createVerificationToken(usuarioSalvo);
+
+    await sendVerificationEmail(emailNormalized, verificationToken)
+
+    res.status(201).json({ mensagem: 'Usuário registrado com sucesso. Verifique seu email para ativar a conta' });
   } catch (erro) {
     console.error('Erro no cadastro:', erro);
     if (erro.name === 'ValidationError') {
@@ -113,151 +145,46 @@ const registerUser = async (req, res) => {
   }
 };
 
-const followUser = async (req, res) => {
-  //Pega o ID do usuário que está seguindo (quem faz a ação) e do que está sendo seguido
-  const followerId = req.userId || (req.user && req.user._id ? req.user._id.toString() : req.params.userId);
-  const { followingId } = req.body;
 
-  //Se o ID do usuário não for encontrado retorna erro
-  if (!followingId) {
-    return res.status(400).json({ mensagem: 'O ID do usuário a ser seguido é obrigatório' });
-  }
+const verifyEmail = async (req, res) => {
+  const { verificationToken } = req.query;
 
-  //Checa se os IDs estão no formato correto para o MongoDB e não são só caracteres aleatórios
-  if (!mongoose.Types.ObjectId.isValid(followerId) || !mongoose.Types.ObjectId.isValid(followingId)) {
-    return res.status(400).json({ mensagem: 'ID inválido' });
-  }
-
-  //Checa se os IDs não são iguais
-  if (followerId === followingId) {
-    return res.status(400).json({ mensagem: 'Não é possível seguir a si mesmo' });
+  if (!verificationToken) {
+    return res.status(400).json({ mensagem: 'Link de verificação inválido' });
   }
 
   try {
-    // Tenta adicionar ao conjunto apenas se ainda não estiver seguindo
-    const addRes = await User.updateOne(
-      { _id: followerId, following: { $ne: followingId } },
-      { $addToSet: { following: followingId } }
-    );
-    //modifiedCount é a quantidade de documentos alterados
-    const added = (addRes.modifiedCount ?? addRes.nModified ?? 0) > 0;
-    //Se nenhum documento for alterado significa que o usuário já está sendo seguido
-    if (!added) {
-      return res.status(400).json({ mensagem: 'Você já está seguindo este usuário' });
-    }
+    const decoded = jwt.verify(verificationToken, process.env.JWT_SECRET);
 
-    // Incrementa contador de followers do usuário seguido
-    const incRes = await User.updateOne({ _id: followingId }, { $inc: { followers: 1 } });
-    const incUpdated = (incRes.modifiedCount ?? incRes.nModified ?? 0) > 0;
+    const user = await User.findById(decoded.userId);
 
-    if (!incUpdated) {
-      // rollback: remove o following adicionado para evitar dessincronização
-      await User.updateOne({ _id: followerId }, { $pull: { following: followingId } });
-      return res.status(404).json({ mensagem: 'Usuário a ser seguido não encontrado' });
-    }
-
-    return res.json({ mensagem: 'Usuário seguido com sucesso' });
-  } catch (erro) {
-    console.error('Erro ao seguir usuário:', erro);
-    // tenta rollback conservador caso tenha sido adicionado
-    try {
-      await User.updateOne({ _id: followerId }, { $pull: { following: followingId } });
-    } catch (e) {
-      console.error('Rollback falhou:', e);
-    }
-    return res.status(500).json({ mensagem: 'Erro no servidor' });
-  }
-};
-
-
-const unfollowUser = async (req, res) => {
-  const followerId = req.userId || (req.user && req.user._id ? req.user._id.toString() : req.params.userId);
-  const { followingId } = req.body;
-
-  if (!followingId) {
-    return res.status(400).json({ mensagem: 'O ID do usuário a deixar de seguir é obrigatório' });
-  }
-
-  if (!mongoose.Types.ObjectId.isValid(followerId) || !mongoose.Types.ObjectId.isValid(followingId)) {
-    return res.status(400).json({ mensagem: 'ID inválido' });
-  }
-
-  if (followerId === followingId) {
-    //remover o usuário se seguindo
-    return res.status(400).json({ mensagem: 'Não é possível deixar de seguir a si mesmo' });
-  }
-
-  try {
-    const pullRes = await User.updateOne(
-      { _id: followerId, following: followingId },
-      { $pull: { following: followingId } }
-    );
-    const pulled = (pullRes.modifiedCount ?? pullRes.nModified ?? 0) > 0;
-    if (!pulled) {
-      return res.status(400).json({ mensagem: 'Você não segue este usuário' });
-    }
-
-    const decRes = await User.updateOne(
-      { _id: followingId, followers: { $gt: 0 } },
-      { $inc: { followers: -1 } }
-    );
-    const decUpdated = (decRes.modifiedCount ?? decRes.nModified ?? 0) > 0;
-
-    if (!decUpdated) {
-      await User.updateOne({ _id: followerId }, { $addToSet: { following: followingId } });
-      return res.status(404).json({ mensagem: 'Usuário a ser deixado de seguir não encontrado' });
-    }
-
-    return res.json({ mensagem: 'Usuário deixado de seguir com sucesso' });
-  } catch (erro) {
-    console.error('Erro ao deixar de seguir usuário:', erro);
-    try {
-      await User.updateOne({ _id: followerId }, { $addToSet: { following: followingId } });
-    } catch (e) {
-      console.error('Rollback falhou:', e);
-    }
-    return res.status(500).json({ mensagem: 'Erro no servidor' });
-  }
-};
-
-const getFollowingList = async (req, res) => {
-  const { userId } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
-    return res.status(400).json({ mensagem: 'ID inválido' });
-  }
-  
-  try {
-    const usuario = await User.findById(userId)
-      .select('following')
-      .populate('following', 'username profilePicture');
-
-    if (!usuario) {
+    if (!user) {
       return res.status(404).json({ mensagem: 'Usuário não encontrado' });
     }
 
-    const followingList = Array.isArray(usuario.following)
-      ? usuario.following.map((user) => ({
-          username: user.username,
-          profilePicture: user.profilePicture,
-        }))
-      : [];
+    if (user.isVerified) {
+      return res.status(400).json({ mensagem: 'Conta já verificada' });
+    }
 
-    return res.json(followingList);
+    user.isVerified = true;
+    await user.save();
+
+    const token = createAuthToken(user);
+    return res.json({ mensagem: 'Email verificado com sucesso', token });
+
   } catch (erro) {
-    console.error('Erro ao buscar lista de seguidos:', erro);
-    return res.status(500).json({ mensagem: 'Erro no servidor' });
+    console.error('Erro na verificação de email:', erro);
+    if (erro.name === 'TokenExpiredError') {
+      return res.status(400).json({ mensagem: 'Link de verificação expirado, faça o cadastro novamente' });
+    }
+    res.status(500).json({ mensagem: 'Erro no servidor' });
   }
-};
-  
-
+}
 
 
 
 module.exports = {
   loginUser,
   registerUser,
-  followUser,
-  unfollowUser,
-  getFollowingList
+  verifyEmail,
 };
