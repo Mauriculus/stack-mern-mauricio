@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const rateLimit = require('express-rate-limit');
+
 const User = require('../models/User');
 const { sendVerificationEmail } = require('../services/emailService');
 
@@ -24,6 +26,18 @@ const createVerificationToken = (user) => {
   });
 };
 
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 5, // 5 tentativas de login
+  message: { mensagem: 'Muitas tentativas de login, tente novamente após 15 minutos.' }
+});
+
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hora (cadastro a gente deixa mais restrito)
+  max: 3, // 3 tentativas de cadastro
+  message: { mensagem: 'Muitas tentativas de registro, tente novamente após 1 hora.' }
+});
+
 
 // Realizar login
 const loginUser = async (req, res) => {
@@ -41,7 +55,7 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ mensagem: 'Usuário não encontrado' });
     }
 
-    const senhaSalva = usuario.password || usuario.senha || usuario.passwordHash;
+    const senhaSalva = usuario.password;
 
     if (!senhaSalva) {
       return res.status(500).json({ mensagem: 'Usuário encontrado sem senha cadastrada' });
@@ -71,6 +85,8 @@ const loginUser = async (req, res) => {
 const registerUser = async (req, res) => {
   const { username, email, password, type } = req.body;
 
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+
   const normalizeUsername = (value) =>
     value
       .trim()
@@ -87,6 +103,18 @@ const registerUser = async (req, res) => {
 
   if (/\s/.test(preparedUsername)) {
     return res.status(400).json({ mensagem: 'O username não pode conter espaços no meio' });
+  }
+
+  if (!emailNormalized) {
+    return res.status(400).json({ mensagem: 'Email é obrigatório' });
+  }
+
+  if (!password) {
+    return res.status(400).json({ mensagem: 'Senha é obrigatória' });
+  }
+
+  if (!passwordRegex.test(password)) {
+    return res.status(400).json({ mensagem: 'A senha deve conter pelo menos 6 caracteres, incluindo letras maiúsculas, minúsculas e números' });
   }
 
   try {
@@ -187,4 +215,6 @@ module.exports = {
   loginUser,
   registerUser,
   verifyEmail,
+  loginLimiter,
+  registerLimiter
 };

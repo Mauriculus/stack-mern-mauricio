@@ -9,7 +9,10 @@ const userSchema = new mongoose.Schema({
 
   email: { type: String, required: true, unique: true },
 
-  password: { type: String, required: true },
+  password: { 
+    type: String,
+    required: true,
+    match: [/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/, 'Senha não atende aos requisitos']},
 
   profilePicture: { type: String, default: '' },
 
@@ -21,7 +24,7 @@ const userSchema = new mongoose.Schema({
 
   banned: { type: Boolean, default: false },
 
-  isVerified: { type: Boolean, default: false },
+  isVerified: { type: Boolean, default: false },x
 
 }, { timestamps: true });
 

@@ -25,10 +25,14 @@ const sendVerificationEmail = async (toEmail, verificationToken) => {
       <a href="${verifyLink}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Ativar Minha Conta</a>
     `,
   };
-
   // Retorna a Promise de envio
   return await transporter.sendMail(mailOptions);
 };
+
+const sendPasswordResetEmail = async (toEmail, resetToken) => {
+
+  
+}
 
 // Exporte a função para usar no controlador
 module.exports = { 

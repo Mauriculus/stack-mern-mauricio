@@ -108,6 +108,45 @@ const editPicture = async (req, res) => {
   }
 };
 
+const requestChangePassword = async (req, res) => {
+  const { email } = req.body;
+  const emailNormalized = typeof email === 'string' ? email.trim().toLowerCase() : email;
+
+  if (!emailNormalized){
+    return res.status(400).json({ mensagem: "Email é necessário"})
+  }
+
+  try {
+    const user = await User.findOne({ email: emailNormalized })
+
+    // Não saber quem está e quem não está cadastrado no sistema
+    if (!user){
+      return res.status(200).json({mensagem : "Se o email está cadastrado, você receberá um link de recuperação"})
+    }
+
+    const secret = process.env.JWT_SECRET + usuario.password;
+
+    const resetToken = jwt.sign({ userId: user._id, email: user.email }, secret, {
+      expiresIn: "15m"
+    });
+
+    // Mandar email aqui (to morrendo de sono pra fazer agora)
+
+    return res.status(200).json({ mensagem: "Se o email está cadastrado, você receberá um link de recuperação" })
+
+  } catch (error){ 
+    console.error("Erro ao requisitar troca de senha ", error)
+    return res.status("500").json({ mensagem: "Erro no servidor" })
+  }
+
+
+const changePassoword = async (req, res) => {
+  //campo onde o usuário de fato põe a senha nova
+}
+
+
+};
+
 module.exports = {
   editUsername,
   editPicture,
