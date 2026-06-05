@@ -13,3 +13,6 @@ server/.env
 # IDEs
 .vscode/
 .idea/
+
+# Uploads
+server/uploads/

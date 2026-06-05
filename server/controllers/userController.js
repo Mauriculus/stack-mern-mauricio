@@ -1,19 +1,43 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
+const rateLimit = require('express-rate-limit');
+
 const User = require('../models/User');
-const { JWT_SECRET } = require('../config');
+const { sendVerificationEmail } = require('../services/emailService');
 
 const createAuthToken = (user) => {
-  if (!JWT_SECRET) {
+  if (!process.env.JWT_SECRET) {
     throw new Error('JWT_SECRET não configurado no servidor');
   }
 
-  return jwt.sign(
-    { userId: user._id, type: user.type, tipo: user.type },
-    JWT_SECRET,
-    { expiresIn: '2h' }
-  );
+  return jwt.sign({ userId: user._id, type: user.type }, process.env.JWT_SECRET, {
+    expiresIn: '24h',
+  });
 };
+
+const createVerificationToken = (user) => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET não configurado no servidor');
+  }
+
+  return jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    expiresIn: '24h',
+  });
+};
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 5, // 5 tentativas de login
+  message: { mensagem: 'Muitas tentativas de login, tente novamente após 15 minutos.' }
+});
+
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hora (cadastro a gente deixa mais restrito)
+  max: 3, // 3 tentativas de cadastro
+  message: { mensagem: 'Muitas tentativas de registro, tente novamente após 1 hora.' }
+});
+
 
 // Realizar login
 const loginUser = async (req, res) => {
@@ -31,10 +55,14 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ mensagem: 'Usuário não encontrado' });
     }
 
-    const senhaSalva = usuario.password || usuario.senha || usuario.passwordHash;
+    const senhaSalva = usuario.password;
 
     if (!senhaSalva) {
       return res.status(500).json({ mensagem: 'Usuário encontrado sem senha cadastrada' });
+    }
+
+    if (!usuario.isVerified) {
+      return res.status(400).json({ mensagem: 'Conta não verificada. Verifique seu email para ativar a conta' });
     }
 
     const senhaValida = await bcrypt.compare(password, senhaSalva);
@@ -52,33 +80,90 @@ const loginUser = async (req, res) => {
   }
 };
 
+
 //Realizar registro
 const registerUser = async (req, res) => {
   const { username, email, password, type } = req.body;
 
-  try {
-    const userExistente = await User.findOne({ email });
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
 
-    if (userExistente) {
-      return res.status(400).json({ mensagem: 'Usuário já cadastrado' });
+  const normalizeUsername = (value) =>
+    value
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+
+  const preparedUsername = typeof username === 'string' ? username.trim() : '';
+  const emailNormalized = typeof email === 'string' ? email.trim().toLowerCase() : email;
+
+  if (!preparedUsername) {
+    return res.status(400).json({ mensagem: 'Username é obrigatório' });
+  }
+
+  if (/\s/.test(preparedUsername)) {
+    return res.status(400).json({ mensagem: 'O username não pode conter espaços no meio' });
+  }
+
+  if (!emailNormalized) {
+    return res.status(400).json({ mensagem: 'Email é obrigatório' });
+  }
+
+  if (!password) {
+    return res.status(400).json({ mensagem: 'Senha é obrigatória' });
+  }
+
+  if (!passwordRegex.test(password)) {
+    return res.status(400).json({ mensagem: 'A senha deve conter pelo menos 6 caracteres, incluindo letras maiúsculas, minúsculas e números' });
+  }
+
+  try {
+    const emailExistente = await User.findOne({ email: emailNormalized });
+
+    const usernameNormalized = normalizeUsername(preparedUsername);
+
+    const usernameExistente = await User.findOne({ usernameNormalized: usernameNormalized });
+    
+
+    if (usernameExistente) {
+      return res.status(400).json({ mensagem: 'Username já em uso' });
     }
 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    const novoUsuario = new User({
-      username,
-      email,
-      password: passwordHash,
-      type,
-    });
+    let usuarioSalvo;
 
-    await novoUsuario.save();
+    if (emailExistente) {
+      if (emailExistente.isVerified) {
+        return res.status(400).json({ mensagem: 'Email já cadastrado' });
+      }
+      emailExistente.username = preparedUsername;
+      emailExistente.usernameNormalized = usernameNormalized;
+      emailExistente.password = passwordHash;
 
-    const token = createAuthToken(novoUsuario);
+      usuarioSalvo = emailExistente;
+      await emailExistente.save();
+    } else {
 
-    res.status(201).json({ mensagem: 'Usuário cadastrado com sucesso', token });
-    
+      const novoUsuario = new User({
+        username: preparedUsername,
+        usernameNormalized,
+        email: emailNormalized,
+        password: passwordHash,
+        type,
+      });
+
+      await novoUsuario.save();
+
+      usuarioSalvo = novoUsuario;   
+    }
+
+    const verificationToken = createVerificationToken(usuarioSalvo);
+
+    await sendVerificationEmail(emailNormalized, verificationToken)
+
+    res.status(201).json({ mensagem: 'Usuário registrado com sucesso. Verifique seu email para ativar a conta' });
   } catch (erro) {
     console.error('Erro no cadastro:', erro);
     if (erro.name === 'ValidationError') {
@@ -89,7 +174,47 @@ const registerUser = async (req, res) => {
 };
 
 
+const verifyEmail = async (req, res) => {
+  const { verificationToken } = req.query;
+
+  if (!verificationToken) {
+    return res.status(400).json({ mensagem: 'Link de verificação inválido' });
+  }
+
+  try {
+    const decoded = jwt.verify(verificationToken, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(404).json({ mensagem: 'Usuário não encontrado' });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ mensagem: 'Conta já verificada' });
+    }
+
+    user.isVerified = true;
+    await user.save();
+
+    const token = createAuthToken(user);
+    return res.json({ mensagem: 'Email verificado com sucesso', token });
+
+  } catch (erro) {
+    console.error('Erro na verificação de email:', erro);
+    if (erro.name === 'TokenExpiredError') {
+      return res.status(400).json({ mensagem: 'Link de verificação expirado, faça o cadastro novamente' });
+    }
+    res.status(500).json({ mensagem: 'Erro no servidor' });
+  }
+}
+
+
+
 module.exports = {
   loginUser,
   registerUser,
+  verifyEmail,
+  loginLimiter,
+  registerLimiter
 };

@@ -1,6 +1,7 @@
 // backend/server.js
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const connectDB = require('./mongo');
 const userRoutes = require('./routes/userRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
@@ -16,6 +17,9 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Servir arquivos estáticos da pasta uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/users', userRoutes);
 app.use('/api/appointments', appointmentRoutes);
