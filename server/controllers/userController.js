@@ -124,7 +124,7 @@ const registerUser = async (req, res) => {
 
     const usernameExistente = await User.findOne({ usernameNormalized: usernameNormalized });
     
-
+    // dando erro ao tentar registrar um email já cadastrado, mesmo que não verificado, porque o username já existe. Talvez seja melhor verificar o email antes do username, ou permitir que o mesmo username seja usado em contas diferentes se os emails forem diferentes (mas aí tem que pensar se isso pode causar confusão pros usuários)
     if (usernameExistente) {
       return res.status(400).json({ mensagem: 'Username já em uso' });
     }
@@ -163,7 +163,7 @@ const registerUser = async (req, res) => {
 
     await sendVerificationEmail(emailNormalized, verificationToken)
 
-    res.status(201).json({ mensagem: 'Usuário registrado com sucesso. Verifique seu email para ativar a conta' });
+    res.status(201).json({ mensagem: 'Usuário registrado com sucesso. Verifique seu email para ativar a conta', verificationToken: verificationToken }); // verificationToken só para testes, retirar depois
   } catch (erro) {
     console.error('Erro no cadastro:', erro);
     if (erro.name === 'ValidationError') {
@@ -175,7 +175,7 @@ const registerUser = async (req, res) => {
 
 
 const verifyEmail = async (req, res) => {
-  const { verificationToken } = req.query;
+  const { verificationToken } = req.body; // mudar depois para pegar o token automaticamente
 
   if (!verificationToken) {
     return res.status(400).json({ mensagem: 'Link de verificação inválido' });

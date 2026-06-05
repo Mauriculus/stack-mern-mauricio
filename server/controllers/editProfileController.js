@@ -1,6 +1,18 @@
 const User = require('../models/User');
+const { sendPasswordResetEmail } = require('../services/emailService');
 
-// Controlador para editar o perfil do usuário
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const mongoose = require('mongoose');
+const rateLimit = require('express-rate-limit');
+
+
+const changePasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 5, // 5 tentativas de login
+  message: { mensagem: 'Muitas tentativas de login, tente novamente após 15 minutos.' }
+});
+
 
 const editUsername = async (req, res) => {
   const userId = req.userId; // Obtido através do authMiddleware
@@ -124,30 +136,72 @@ const requestChangePassword = async (req, res) => {
       return res.status(200).json({mensagem : "Se o email está cadastrado, você receberá um link de recuperação"})
     }
 
-    const secret = process.env.JWT_SECRET + usuario.password;
-
-    const resetToken = jwt.sign({ userId: user._id, email: user.email }, secret, {
+    const resetToken = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, {
       expiresIn: "15m"
     });
 
-    // Mandar email aqui (to morrendo de sono pra fazer agora)
+    await sendPasswordResetEmail(emailNormalized, resetToken)
 
-    return res.status(200).json({ mensagem: "Se o email está cadastrado, você receberá um link de recuperação" })
+    return res.status(200).json({ mensagem: "Se o email está cadastrado, você receberá um link de recuperação", resetToken: resetToken }) // resetToken só para testes, retirar depois
 
   } catch (error){ 
     console.error("Erro ao requisitar troca de senha ", error)
-    return res.status("500").json({ mensagem: "Erro no servidor" })
+    return res.status(500).json({ mensagem: "Erro no servidor" })
   }
+};
 
 
-const changePassoword = async (req, res) => {
-  //campo onde o usuário de fato põe a senha nova
+const changePassword = async (req, res) => {
+  const { resetToken } = req.body; // Temporário para testes, tem que corrigir depois para pegar o token automaticamente do link de recuperação de senha enviado por email
+  const { newPassword } = req.body;
+
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+
+
+  if (!resetToken) {
+    return res.status(400).json({ mensagem: "Token de recuperação é necessário" })
+  }
+  if (!newPassword) {
+    return res.status(400).json({ mensagem: "Nova senha é necessária" })
+  }
+  
+  try{
+    const decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.userId);
+
+    if (!user){
+      return res.status(404).json({ mensagem: "Usuário não encontrado" })
+    }
+
+    if (!passwordRegex.test(newPassword)){
+      return res.status(400).json({ mensagem: "Senha não atende aos requisitos" })
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(newPassword, salt);
+
+    user.password = passwordHash;
+
+    await user.save();
+
+    return res.status(200).json({ mensagem: "Senha atualizada com sucesso" });
+
+  } catch (error){
+    console.error("Erro ao trocar senha ", error)
+    if (error.name === "TokenExpiredError"){
+      return res.status(400).json({ mensagem: "Token de recuperação expirado" })
+    }
+    return res.status(500).json({ mensagem: "Erro no servidor" })
+  }
 }
 
 
-};
 
 module.exports = {
   editUsername,
   editPicture,
+  requestChangePassword,
+  changePassword,
+  changePasswordLimiter,
 };
