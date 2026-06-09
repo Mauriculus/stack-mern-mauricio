@@ -1,8 +1,10 @@
 const express = require("express")
 const router = express.Router()
 const authMiddleware = require('../middleware/authMiddleware');
+const upload = require('../middleware/multer');
 const {
-    createClass
+    createClass,
+    addClassMedia
     // getClasses,
     // getClassById,
     // updateClass,
@@ -10,6 +12,7 @@ const {
 } = require("../controllers/classControler")
 
 router.post('/', authMiddleware, createClass);
+router.post('/:classId/media', authMiddleware, upload.single('file'), addClassMedia);
 // router.get('/', authMiddleware, getClasses);
 // router.get('/:id', authMiddleware, getClassById);
 // router.put('/:id', authMiddleware, updateClass);

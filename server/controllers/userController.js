@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 const User = require('../models/User');
 const { sendVerificationEmail } = require('../services/emailService');
 
+
 const createAuthToken = (user) => {
   if (!process.env.JWT_SECRET) {
     throw new Error('JWT_SECRET não configurado no servidor');
@@ -32,12 +33,13 @@ const loginLimiter = rateLimit({
   message: { mensagem: 'Muitas tentativas de login, tente novamente após 15 minutos.' }
 });
 
+
+
 const registerLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hora (cadastro a gente deixa mais restrito)
   max: 3, // 3 tentativas de cadastro
   message: { mensagem: 'Muitas tentativas de registro, tente novamente após 1 hora.' }
 });
-
 
 // Realizar login
 const loginUser = async (req, res) => {
@@ -123,11 +125,6 @@ const registerUser = async (req, res) => {
     const usernameNormalized = normalizeUsername(preparedUsername);
 
     const usernameExistente = await User.findOne({ usernameNormalized: usernameNormalized });
-    
-    // dando erro ao tentar registrar um email já cadastrado, mesmo que não verificado, porque o username já existe. Talvez seja melhor verificar o email antes do username, ou permitir que o mesmo username seja usado em contas diferentes se os emails forem diferentes (mas aí tem que pensar se isso pode causar confusão pros usuários)
-    if (usernameExistente) {
-      return res.status(400).json({ mensagem: 'Username já em uso' });
-    }
 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
@@ -138,6 +135,7 @@ const registerUser = async (req, res) => {
       if (emailExistente.isVerified) {
         return res.status(400).json({ mensagem: 'Email já cadastrado' });
       }
+
       emailExistente.username = preparedUsername;
       emailExistente.usernameNormalized = usernameNormalized;
       emailExistente.password = passwordHash;
@@ -145,6 +143,9 @@ const registerUser = async (req, res) => {
       usuarioSalvo = emailExistente;
       await emailExistente.save();
     } else {
+      if (usernameExistente && usernameExistente.isVerified) {
+        return res.status(400).json({ mensagem: 'Username já cadastrado' });
+      }
 
       const novoUsuario = new User({
         username: preparedUsername,
@@ -175,7 +176,7 @@ const registerUser = async (req, res) => {
 
 
 const verifyEmail = async (req, res) => {
-  const { verificationToken } = req.body; // mudar depois para pegar o token automaticamente
+  const { verificationToken } = req.params; // mudar depois para pegar o token automaticamente
 
   if (!verificationToken) {
     return res.status(400).json({ mensagem: 'Link de verificação inválido' });

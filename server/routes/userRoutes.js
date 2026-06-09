@@ -11,7 +11,7 @@ const { editUsername, editPicture, requestChangePassword, changePassword, change
 
 //Rotas de login e registro. Aqui também daria pra colocar rotas para exibição do perfil, aluno.
 router.post('/login', loginLimiter, loginUser);
-router.post('/register', registerLimiter, registerUser);
+router.post('/register',  registerUser);
 router.get('/verify', verifyEmail)
 router.post("/follow", authMiddleware, followUser); 
 router.post("/unfollow", authMiddleware, unfollowUser);

@@ -37,9 +37,9 @@ const sendVerificationEmail = async (toEmail, verificationToken) => {
     `,
   };
 
-    if (!hasSmtpConfig) {
-      console.warn('SMTP não configurado. Email de verificação não será enviado de verdade em ambiente local.');
-    }
+  if (!hasSmtpConfig) {
+    console.warn('SMTP não configurado. Email de verificação não será enviado de verdade em ambiente local.');
+  }
 
   return await transporter.sendMail(mailOptions);
 };
@@ -58,9 +58,9 @@ const sendPasswordResetEmail = async (toEmail, resetToken) => {
     `,
   };
 
-    if (!hasSmtpConfig) {
-      console.warn('SMTP não configurado. Email de redefinição de senha não será enviado de verdade em ambiente local.');
-    }
+  if (!hasSmtpConfig) {
+    console.warn('SMTP não configurado. Email de redefinição de senha não será enviado de verdade em ambiente local.');
+  }
 
   return await transporter.sendMail(mailOptions);
 };

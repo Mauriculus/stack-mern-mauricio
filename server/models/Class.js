@@ -16,6 +16,8 @@ const mediaSchema = new mongoose.Schema({
 const classSchema = new mongoose.Schema({
     author: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true},
 
+    authorUsername: {type: String, required: true},
+
     title: {type: String, required: true},
 
     cover: {type: String},
