@@ -28,12 +28,12 @@ const classSchema = new mongoose.Schema({
     
     content: {type: String},
 
-    midias: {
+    medias: {
         type: [mediaSchema],
         default: [],
         validate: {
-            validator: function (midias) {
-                return midias.length <= 2
+            validator: function (medias) {
+                return medias.length <= 2
             },
             message: 'É permitido cadastrar no máximo duas mídias por aula'
         }

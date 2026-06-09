@@ -22,9 +22,9 @@ const transporter = hasSmtpConfig
       jsonTransport: true,
     });
 
-// Criamos uma função específica para o e-mail de verificação
+
 const sendVerificationEmail = async (toEmail, verificationToken) => {
-  const verifyLink = `http://localhost:${process.env.PORT}/verify-email?verificationToken=${verificationToken}`;
+  const verifyLink = `http://localhost:3000/verify-email?verificationToken=${verificationToken}`; // link do front end que depois vai ter o token extraido pelo back
 
   const mailOptions = {
     from: '"Sobrevivência Doméstica" <nao-responda@sobrevivenciadomestica.com>',
@@ -65,7 +65,7 @@ const sendPasswordResetEmail = async (toEmail, resetToken) => {
   return await transporter.sendMail(mailOptions);
 };
 
-// Exporte a função para usar no controlador
+
 module.exports = { 
   sendVerificationEmail,
   sendPasswordResetEmail

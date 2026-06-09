@@ -67,7 +67,7 @@ const editUsername = async (req, res) => {
         username: user.username,
         usernameNormalized: user.usernameNormalized,
         profilePicture: user.profilePicture,
-        email: user.email, // Opcional: retornar dados atualizados
+        email: user.email,
       },
     });
   } catch (erro) {
@@ -83,21 +83,18 @@ const editPicture = async (req, res) => {
   const profilePicture = req.file ? req.file.filename : undefined;
 
   try {
-    // Busca o usuário pelo ID
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ mensagem: 'Usuário não encontrado' });
     }
 
-    // Atualiza a foto de perfil se uma nova for enviada
     if (!profilePicture) {
       return res.json({ mensagem: 'Nenhuma nova foto enviada, mantendo a atual.' });
     }
 
     user.profilePicture = profilePicture;
 
-    // Salva as alterações no banco de dados
     await user.save();
 
     return res.status(200).json({

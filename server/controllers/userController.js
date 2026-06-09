@@ -33,15 +33,13 @@ const loginLimiter = rateLimit({
   message: { mensagem: 'Muitas tentativas de login, tente novamente após 15 minutos.' }
 });
 
-
-
 const registerLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hora (cadastro a gente deixa mais restrito)
   max: 3, // 3 tentativas de cadastro
   message: { mensagem: 'Muitas tentativas de registro, tente novamente após 1 hora.' }
 });
 
-// Realizar login
+
 const loginUser = async (req, res) => {
   const { email, password } = req.body || {};
   const emailNormalizado = typeof email === 'string' ? email.trim().toLowerCase() : email;
@@ -83,7 +81,6 @@ const loginUser = async (req, res) => {
 };
 
 
-//Realizar registro
 const registerUser = async (req, res) => {
   const { username, email, password, type } = req.body;
 
@@ -176,7 +173,7 @@ const registerUser = async (req, res) => {
 
 
 const verifyEmail = async (req, res) => {
-  const { verificationToken } = req.params; // mudar depois para pegar o token automaticamente
+  const { verificationToken } = req.body; // mudar depois para pegar o token automaticamente
 
   if (!verificationToken) {
     return res.status(400).json({ mensagem: 'Link de verificação inválido' });
