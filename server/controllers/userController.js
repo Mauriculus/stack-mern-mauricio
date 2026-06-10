@@ -104,6 +104,10 @@ const registerUser = async (req, res) => {
     return res.status(400).json({ mensagem: 'O username não pode conter espaços no meio' });
   }
 
+  if (preparedUsername.length > 30) {
+    return res.status(400).json({ mensagem: "Seu nome de usuário deve ter no máximo 30 caracteres"})
+  }
+
   if (!emailNormalized) {
     return res.status(400).json({ mensagem: 'Email é obrigatório' });
   }

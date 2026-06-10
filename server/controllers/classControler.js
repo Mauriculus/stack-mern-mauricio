@@ -1,23 +1,40 @@
 const Class = require('../models/Class');
+const User = require('../models/User')
 
 
 const createClass = async (req, res) => {
     const { title, content, subject, danger, dangerLevel, youtubeUrls } = req.body;  
     const files = req.files || []; 
-    const userId = req.userId; 
+    const userId = req.userId;
 
-    const authorUsername = userId.username; 
+    const normalizeTitle = (value) =>
+    value
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/\s+/g, '');
 
-    if (!userId || !authorUsername) {
+    if (!userId) {
         return res.status(400).json({ message: 'Usuário inválido ou não logado' });
     }
+
+    const user = await User.findById(userId).select('username');
+
+    if (!user) {
+        return res.status(400).json({ message: 'Usuário inválido ou não logado' });
+    }
+
+    const authorUsername = user.username;
 
     if (!title || !subject || !danger || !dangerLevel || !content) {
         return res.status(400).json({ message: 'Preencha todos os campos obrigatórios' });
     }
 
     try {
-        const titleExists = await Class.findOne({ title });
+        const normalizedTitle = normalizeTitle(title)
+
+        const titleExists = await Class.findOne({ normalizedTitle });
         if (titleExists) {
             return res.status(400).json({ message: 'Já existe uma aula com esse título' });
         }
@@ -26,7 +43,7 @@ const createClass = async (req, res) => {
 
         for (const file of files) {
             medias.push({
-                type: 'image',
+                type: 'imagem',
                 value: `/uploads/${file.filename}`
             });
         }
@@ -45,12 +62,13 @@ const createClass = async (req, res) => {
             }
         }
 
-        if (midias.length > 2) {
+        if (medias.length > 2) {
             return res.status(400).json({ message: 'Você só pode enviar no máximo 2 mídias (imagens ou vídeos).' });
         }
 
         const newClass = new Class({
             title,
+            normalizedTitle,
             content,
             subject,
             danger,
@@ -66,6 +84,7 @@ const createClass = async (req, res) => {
             message: 'Aula criada com sucesso',
             classId: newClass._id,
             title: newClass.title,
+            normalizedTitle: newClass.normalizedTitle,
             medias: newClass.medias
         });
         
@@ -75,6 +94,40 @@ const createClass = async (req, res) => {
     }
 };
 
+const getClassByTitle = async (req, res) => {
+    const { classTitle } = req.body
+
+    try {
+        if (!classTitle || String(classTitle).trim() === '') {
+            return res.status(400).json({ mensagem: "Insira o título da aula que procura" });
+        }
+
+        const searchedClass = await Class.findOne({ normalizedTitle: classTitle }) // || await Class.findOne({ title: classTitle });
+
+        if (!searchedClass) {
+            return res.status(404).json({ mensagem: "Aula não encontrada pelo título" });
+        }
+
+        return res.status(200).json({
+            authorUsername: searchedClass.authorUsername,
+            author: searchedClass.author,
+            title: searchedClass.title,
+            content: searchedClass.content,
+            subject: searchedClass.subject,
+            danger: searchedClass.danger,
+            dangerLevel: searchedClass.dangerLevel,
+            cover: searchedClass.cover,
+            medias: searchedClass.medias,
+            coments: searchedClass.coments
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ mensagem: "Erro no servidor" });
+    }
+
+};
+
 module.exports = {
-    createClass
+    createClass,
+    getClassByTitle
 };

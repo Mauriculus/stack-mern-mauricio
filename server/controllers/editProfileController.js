@@ -172,7 +172,13 @@ const changePassword = async (req, res) => {
     }
 
     if (!passwordRegex.test(newPassword)){
-      return res.status(400).json({ mensagem: "Senha não atende aos requisitos" })
+      return res.status(400).json({ mensagem: "A senha deve conter pelo menos 6 caracteres, uma letra maiúscula, uma minúscula e um número" })
+    }
+
+    const samePassword = await bcrypt.compare(newPassword, user.password);
+
+    if (samePassword) {
+      return res.status(400).json({ mensagem: "Essa já é sua senha" })
     }
 
     const salt = await bcrypt.genSalt(10);

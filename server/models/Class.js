@@ -20,13 +20,17 @@ const classSchema = new mongoose.Schema({
 
     title: {type: String, required: true},
 
+    normalizedTitle: {type: String, required: true},
+
     cover: {type: String},
 
     ratingCount: {type: Number, default: 0},
     ratingSum: {type: Number, default: 0},
     ratingAverage: {type: Number, default: 0, min: 0, max: 5},
     
-    content: {type: String},
+    content: {type: String, required: true},
+
+    coments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Coment' }],
 
     medias: {
         type: [mediaSchema],
