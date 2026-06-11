@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
-
+const Class = require('../models/Class');
+const { Coment, Response } = require('../models/Coment')
 
 const followUser = async (req, res) => {
   //Pega o ID do usuário que está seguindo (quem faz a ação) e do que está sendo seguido
@@ -139,9 +140,112 @@ const getFollowingList = async (req, res) => {
   }
 };
 
+const coment = async (req, res) => {
+  const userId = req.userId;
+  const { normalizedTitle } = req.params;
+  const { content } = req.body;
+
+  if (!userId) {
+    return res.status(401).json({ mensagem: 'Usuário não autenticado' });
+  }
+  if (!normalizedTitle) {
+    return res.status(400).json({ mensagem: 'Aula a ser comentada é obrigatória' });
+  }
+  if (!content) {
+    return res.status(400).json({ mensagem: 'Conteúdo do comentário é obrigatório' });
+  }
+
+  try {
+    const user = await User.findById(userId)
+
+    if (!user) {
+      return res.status(404).json({ mensagem: 'Usuário não encontrado' });
+    }
+
+    const comentedClass = await Class.findOne({ normalizedTitle })
+
+    if (!comentedClass) {
+      return res.status(404).json({ mensagem: 'Aula não encontrada' });
+    }
+
+    const newComent = new Coment({
+      author: userId,
+      authorUsername: user.username,
+      comentedClass: comentedClass._id,
+      classTitle: normalizedTitle,
+      content
+    })
+
+    await newComent.save()
+
+    comentedClass.coments.push(newComent._id)
+    await comentedClass.save()
+
+    return res.status(201).json({
+      message: 'Comentário criado com sucesso',
+      coment: content, 
+    })
+
+  } catch (error) {
+    console.error('Erro ao comentar:', error);
+    return res.status(500).json({ mensagem: 'Erro no servidor' });
+  }
+}
+
+const respondComent = async (req, res) => {
+  const userId = req.userId;
+  const { comentId } = req.params;
+  const { content } = req.body;
+
+  if (!userId) {
+    return res.status(401).json({ mensagem: 'Usuário não autenticado' });
+  }
+  if (!comentId) {
+    return res.status(400).json({ mensagem: 'Comentário a ser respondido é obrigatório' });
+  }
+  if (!content) {
+    return res.status(400).json({ mensagem: 'Conteúdo da resposta é obrigatório' });
+  }
+
+  try {
+    const user = await User.findById(userId)
+    if (!user) {
+      return res.status(404).json({ mensagem: 'Usuário não encontrado' });
+    }
+
+    const coment = await Coment.findById(comentId)
+    if (!coment) {
+      return res.status(404).json({ mensagem: 'Comentário não encontrado' });
+    }
+
+    const newResponse = new Response({ 
+      author: userId,
+      authorUsername: user.username,
+      coment: comentId,
+      class: coment.comentedClass,
+      content
+    })
+    await newResponse.save()
+    
+    coment.responses.push(newResponse._id)
+    await coment.save()
+
+    return res.status(201).json({
+      message: 'Resposta criada com sucesso',
+      response: content, 
+    })
+
+  } catch (error) {
+    console.error('Erro ao responder comentário:', error);
+    return res.status(500).json({ mensagem: 'Erro no servidor' });
+  }
+}
+
 
 module.exports = {
   followUser,
   unfollowUser,
   getFollowingList,
+  coment,
+  respondComent
 };
