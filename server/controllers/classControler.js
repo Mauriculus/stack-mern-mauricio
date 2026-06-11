@@ -26,7 +26,7 @@ const createClass = async (req, res) => {
 
         for (const file of files) {
             medias.push({
-                type: 'image',
+                type: 'imagem',
                 value: `/uploads/${file.filename}`
             });
         }

@@ -60,7 +60,7 @@ export function useNewClassForm() {
     const [dangerLevel, setDangerLevel] = useState('');
     const [content, setContent] = useState('');
     const [message, setMessage] = useState('');
-    const [midias, setMidias] = useState([
+    const [medias, setMidias] = useState([
         { type: 'imagem', arquivo: null, value: '' },
         { type: 'imagem', arquivo: null, value: '' },
     ]);

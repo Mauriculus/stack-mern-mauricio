@@ -4,15 +4,13 @@ const authMiddleware = require('../middleware/authMiddleware');
 const upload = require('../middleware/multer');
 const {
     createClass,
-    addClassMedia
     // getClasses,
     // getClassById,
     // updateClass,
     // deleteClass
 } = require("../controllers/classControler")
 
-router.post('/', authMiddleware, createClass, upload.array('midias', 2));
-router.post('/:classId/media', authMiddleware, upload.single('file'), addClassMedia);
+router.post('/', authMiddleware, createClass, upload.array('medias', 2));
 // router.get('/', authMiddleware, getClasses);
 // router.get('/:id', authMiddleware, getClassById);
 // router.put('/:id', authMiddleware, updateClass);
