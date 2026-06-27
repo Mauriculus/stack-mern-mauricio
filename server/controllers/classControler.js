@@ -1,6 +1,6 @@
 const Class = require('../models/Class');
 const User = require('../models/User')
-
+// quando for fazer o delete class fazer com que ele tire a aula das playlists
 
 const createClass = async (req, res) => {
     const { title, content, subject, danger, dangerLevel, youtubeUrls } = req.body;  
@@ -9,11 +9,11 @@ const createClass = async (req, res) => {
 
     const normalizeTitle = (value) =>
     value
-      .trim()
-      .toLowerCase()
-      .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/\s+/g, '');
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, '');
 
     if (!userId) {
         return res.status(400).json({ message: 'Usuário inválido ou não logado' });
