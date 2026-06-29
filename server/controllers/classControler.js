@@ -118,7 +118,7 @@ const getClassByTitle = async (req, res) => {
             dangerLevel: searchedClass.dangerLevel,
             cover: searchedClass.cover,
             medias: searchedClass.medias,
-            coments: searchedClass.coments
+            comments: searchedClass.comments
         });
     } catch (error) {
         console.error(error);

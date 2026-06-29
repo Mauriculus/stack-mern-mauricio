@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
-const comentSchema = new mongoose.Schema({ 
+const commentSchema = new mongoose.Schema({ 
     author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 
     authorUsername: { type: String, required: true },
 
-    comentedClass: { type: mongoose.Schema.Types.ObjectId, ref: 'Class', required: true },
+    commentedClass: { type: mongoose.Schema.Types.ObjectId, ref: 'Class', required: true },
 
     classTitle: { type: String, required: true },
 
@@ -15,14 +15,14 @@ const comentSchema = new mongoose.Schema({
 
 }, {timestamps: true});
 
-const Coment = mongoose.model('Coment', comentSchema);
+const Comment = mongoose.model('Comment', commentSchema);
 
 const responseSchema = new mongoose.Schema({ 
     author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 
     authorUsername: { type: String, required: true },
 
-    coment: { type: mongoose.Schema.Types.ObjectId, ref: 'Coment', required: true },
+    comment: { type: mongoose.Schema.Types.ObjectId, ref: 'Comment', required: true },
 
     class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class', required: true },
 
@@ -32,4 +32,4 @@ const responseSchema = new mongoose.Schema({
 
 const Response = mongoose.model('Response', responseSchema);
 
-module.exports = { Coment, Response };
+module.exports = { Comment, Response };

@@ -30,7 +30,7 @@ const classSchema = new mongoose.Schema({
     
     content: {type: String, required: true},
 
-    coments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Coment' }],
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
 
     medias: {
         type: [mediaSchema],

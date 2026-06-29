@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const Class = require('../models/Class');
-const { Coment, Response } = require('../models/Coment')
+const { Comment, Response } = require('../models/Comment')
 
 const followUser = async (req, res) => {
   //Pega o ID do usuário que está seguindo (quem faz a ação) e do que está sendo seguido
@@ -140,7 +140,7 @@ const getFollowingList = async (req, res) => {
   }
 };
 
-const coment = async (req, res) => {
+const comment = async (req, res) => {
   const userId = req.userId;
   const { normalizedTitle } = req.params;
   const { content } = req.body;
@@ -162,28 +162,28 @@ const coment = async (req, res) => {
       return res.status(404).json({ mensagem: 'Usuário não encontrado' });
     }
 
-    const comentedClass = await Class.findOne({ normalizedTitle })
+    const commentedClass = await Class.findOne({ normalizedTitle })
 
-    if (!comentedClass) {
+    if (!commentedClass) {
       return res.status(404).json({ mensagem: 'Aula não encontrada' });
     }
 
-    const newComent = new Coment({
+    const newComment = new Comment({
       author: userId,
       authorUsername: user.username,
-      comentedClass: comentedClass._id,
+      commentedClass: commentedClass._id,
       classTitle: normalizedTitle,
       content
     })
 
-    await newComent.save()
+    await newComment.save()
 
-    comentedClass.coments.push(newComent._id)
-    await comentedClass.save()
+    commentedClass.comments.push(newComment._id)
+    await commentedClass.save()
 
     return res.status(201).json({
       message: 'Comentário criado com sucesso',
-      coment: content, 
+      comment: content,
     })
 
   } catch (error) {
@@ -192,15 +192,15 @@ const coment = async (req, res) => {
   }
 }
 
-const respondComent = async (req, res) => {
+const respondComment = async (req, res) => {
   const userId = req.userId;
-  const { comentId } = req.params;
+  const { commentId } = req.params;
   const { content } = req.body;
 
   if (!userId) {
     return res.status(401).json({ mensagem: 'Usuário não autenticado' });
   }
-  if (!comentId) {
+  if (!commentId) {
     return res.status(400).json({ mensagem: 'Comentário a ser respondido é obrigatório' });
   }
   if (!content) {
@@ -213,22 +213,22 @@ const respondComent = async (req, res) => {
       return res.status(404).json({ mensagem: 'Usuário não encontrado' });
     }
 
-    const coment = await Coment.findById(comentId)
-    if (!coment) {
+    const comment = await Comment.findById(commentId)
+    if (!comment) {
       return res.status(404).json({ mensagem: 'Comentário não encontrado' });
     }
 
     const newResponse = new Response({ 
       author: userId,
       authorUsername: user.username,
-      coment: comentId,
-      class: coment.comentedClass,
+      comment: commentId,
+      class: comment.commentedClass,
       content
     })
     await newResponse.save()
     
-    coment.responses.push(newResponse._id)
-    await coment.save()
+    comment.responses.push(newResponse._id)
+    await comment.save()
 
     return res.status(201).json({
       message: 'Resposta criada com sucesso',
@@ -242,10 +242,66 @@ const respondComent = async (req, res) => {
 }
 
 
+const getCommentsByClass = async (req, res) => { 
+  const { normalizedTitle } = req.params;
+
+  if (!normalizedTitle) {
+    return res.status(400).json({ mensagem: 'Aula é obrigatória' });
+  }
+
+  try {
+    const comments = await Comment.find({ classTitle: normalizedTitle })
+      .populate({
+        path: 'author',
+        select: 'username profilePicture'
+      })
+      .populate({
+        path: 'responses',
+        populate: {
+          path: 'author',
+          select: 'username profilePicture'
+        }
+      })
+      .sort({ createdAt: -1 })
+
+    return res.status(200).json({
+      mensagem: 'Comentários recuperados com sucesso',
+      total: comments.length,
+      comments: comments.map(comment => ({
+        _id: comment._id,
+        author: {
+          _id: comment.author._id,
+          username: comment.author.username,
+          profilePicture: comment.author.profilePicture
+        },
+        content: comment.content,
+        createdAt: comment.createdAt,
+        responses: comment.responses.map(response => ({
+          _id: response._id,
+          author: {
+            _id: response.author._id,
+            username: response.author.username,
+            profilePicture: response.author.profilePicture
+          },
+          content: response.content,
+          createdAt: response.createdAt
+        }))
+      }))
+    })
+
+  } catch (error) {
+    console.error('Erro ao buscar comentários:', error);
+    return res.status(500).json({ mensagem: 'Erro no servidor' });
+  }
+}
+
+
 module.exports = {
   followUser,
   unfollowUser,
   getFollowingList,
-  coment,
-  respondComent
+  comment,
+  respondComment,
+  getCommentsByClass
 };
+
