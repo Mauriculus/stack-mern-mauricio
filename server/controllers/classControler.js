@@ -1,5 +1,4 @@
 const Class = require('../models/Class');
-const User = require('../models/User')
 
 
 const createClass = async (req, res) => {
@@ -7,21 +6,9 @@ const createClass = async (req, res) => {
     const files = req.files || []; 
     const userId = req.userId;
 
-    const normalizeTitle = (value) =>
-    value
-      .trim()
-      .toLowerCase()
-      .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/\s+/g, '');
+    const authorUsername = userId.username; 
 
-    if (!userId) {
-        return res.status(400).json({ message: 'Usuário inválido ou não logado' });
-    }
-
-    const user = await User.findById(userId).select('username');
-
-    if (!user) {
+    if (!userId || !authorUsername) {
         return res.status(400).json({ message: 'Usuário inválido ou não logado' });
     }
 
@@ -93,6 +80,8 @@ const createClass = async (req, res) => {
         return res.status(500).json({ message: 'Erro interno ao criar aula' });
     }
 };
+
+
 
 const getClassByTitle = async (req, res) => {
     const { classTitle } = req.body

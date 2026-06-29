@@ -17,4 +17,5 @@ router.post('/respondComment/:commentId', authMiddleware, respondComment)
 router.get('/comments/:normalizedTitle', getCommentsByClass)
 
 
+
 module.exports = router;

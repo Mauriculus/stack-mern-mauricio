@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Class = require('../models/Class');
 const { Comment, Response } = require('../models/Comment')
 
+
 const followUser = async (req, res) => {
   //Pega o ID do usuário que está seguindo (quem faz a ação) e do que está sendo seguido
   const followerId = req.userId || (req.user && req.user._id ? req.user._id.toString() : req.params.userId);
@@ -195,6 +196,7 @@ const comment = async (req, res) => {
 const respondComment = async (req, res) => {
   const userId = req.userId;
   const { commentId } = req.params;
+
   const { content } = req.body;
 
   if (!userId) {
@@ -240,7 +242,6 @@ const respondComment = async (req, res) => {
     return res.status(500).json({ mensagem: 'Erro no servidor' });
   }
 }
-
 
 const getCommentsByClass = async (req, res) => { 
   const { normalizedTitle } = req.params;
@@ -294,7 +295,6 @@ const getCommentsByClass = async (req, res) => {
     return res.status(500).json({ mensagem: 'Erro no servidor' });
   }
 }
-
 
 module.exports = {
   followUser,

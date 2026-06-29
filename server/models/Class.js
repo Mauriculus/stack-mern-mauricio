@@ -29,7 +29,7 @@ const classSchema = new mongoose.Schema({
     ratingAverage: {type: Number, default: 0, min: 0, max: 5},
     
     content: {type: String, required: true},
-
+    
     comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
 
     medias: {
