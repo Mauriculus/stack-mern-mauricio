@@ -23,7 +23,7 @@ const createPlaylist = async (req, res) => {
 
     const classIdsArray = Array.isArray(classIds) ? classIds : []
     if (!classIdsArray.length){
-        return res.status(400).json({ mensagem: "Adicione pelo menos uma aula à playlist"})
+        return res.status(400).json({ mensagem: "As aulas devem ser enviadas em um array"})
     }
 
     const hasDuplicateClasses = new Set(classIdsArray.map(String)).size !== classIdsArray.length;
@@ -94,6 +94,37 @@ const addClassToPlaylist = async (req, res) => {
     }
 }
 
+
+const removeClassFromPlaylist = async (req, res) => {
+    const { removeClassId } = req.body
+    const { playlistId } = req.params
+    const userId = req.userId
+    
+    if (!userId) {
+        return res.status(401).json({ mensagem: "Você deve estar logado para editar playlists"})
+    }
+    if (!removeClassId) {
+        return res.status(400).json({ mensagem: "Escolha a aula que quer remover da playlist"})
+    }
+    try{
+        const playlist = await Playlist.findById(playlistId)
+        if (!playlist){
+            return res.status(404).json({ mensagem: "A playlist é inválida"})
+        }
+        if (playlist.author.toString() !== userId) {
+            return res.status(403).json({ mensagem: "Você não pode editar uma playlist que não é sua" });
+        }   
+
+        await Playlist.updateOne({ _id: playlistId }, { $pull: {classes: removeClassId} })
+        return res.status(200).json({ mensagem: `Aula ${removeClassId} removida da playlist ${playlistId}`})
+
+    } catch (err) {
+        console.error(err)
+        return res.status(500).json({ mensagem: "Erro no servidor"})
+    }
+};
+
+
 const reorderPlaylist = async (req, res) => {
     const userId = req.userId
     const { classes } = req.body
@@ -145,38 +176,9 @@ const reorderPlaylist = async (req, res) => {
 }
 
 
-const removeClassFromPlaylist = async (req, res) => {
-    const { removeClassId } = req.body
-    const { playlistId } = req.params
-    const userId = req.userId
-    
-    if (!userId) {
-        return res.status(401).json({ mensagem: "Você deve estar logado para editar playlists"})
-    }
-    if (!removeClassId) {
-        return res.status(400).json({ mensagem: "Escolha a aula que quer remover da playlist"})
-    }
-    try{
-        const playlist = await Playlist.findById(playlistId)
-        if (!playlist){
-            return res.status(404).json({ mensagem: "A playlist é inválida"})
-        }
-        if (playlist.author.toString() !== userId) {
-            return res.status(403).json({ mensagem: "Você não pode editar uma playlist que não é sua" });
-        }   
-
-        await Playlist.updateOne({ _id: playlistId }, { $pull: {classes: removeClassId} })
-        return res.status(200).json({ mensagem: `Aula ${removeClassId} removida da playlist ${playlistId}`})
-
-    } catch (err) {
-        console.error(err)
-        return res.status(500).json({ mensagem: "Erro no servidor"})
-    }
-};
-
 const deletePlaylist = async (req, res) => {
     const userId = req.userId
-    const { playlistId } = req.params
+    const playlistId = req.body
 
     if (!userId) {
         return res.status(401).json({ mensagem: "Você deve estar logado para realizar essa ação"})
@@ -207,6 +209,6 @@ module.exports = {
     createPlaylist,
     addClassToPlaylist,
     removeClassFromPlaylist,
-
+    reorderPlaylist
     deletePlaylist,
 }

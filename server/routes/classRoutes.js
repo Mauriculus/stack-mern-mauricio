@@ -10,11 +10,11 @@ const {
 
 const { comment, respondComment, getCommentsByClass } = require("../controllers/userInteractions")
 
-router.post('/createClass', authMiddleware, upload.array('medias', 2), createClass,);
-router.get('/getClassByTitle', getClassByTitle)
+router.post('/create', authMiddleware, upload.array('medias', 2), createClass,);
+router.get('/getByTitle', getClassByTitle)
 router.post(`/comment/:normalizedTitle`, authMiddleware, comment)
-router.post('/respondComment/:commentId', authMiddleware, respondComment)
-router.get('/comments/:normalizedTitle', getCommentsByClass)
+router.post('/respond/:commentId', authMiddleware, respondComment)
+router.get('/getComments/:normalizedTitle', getCommentsByClass)
 
 
 
