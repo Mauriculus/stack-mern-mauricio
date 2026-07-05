@@ -85,7 +85,12 @@ const addClassToPlaylist = async (req, res) => {
             return res.status(403).json({ mensagem: "Você não pode editar uma playlist que não é sua" });
         }   
 
-        await Playlist.updateOne({ _id: playlistId }, { $addToSet: {classes: newClassId} })
+        const addRes = await Playlist.updateOne({ _id: playlistId }, { $addToSet: {classes: newClassId} })
+        const added = (addRes.modifiedCount ?? addRes.nModified ?? 0) > 0;
+        if (!added){
+            return res.status(400).json({ mensagem: "A aula selecionada já estava na playlist"})
+        }
+
         return res.status(200).json({ mensagem: `Aula ${newClassId} adicionada à playlist ${playlistId}`})
 
     } catch (err) {
@@ -115,7 +120,13 @@ const removeClassFromPlaylist = async (req, res) => {
             return res.status(403).json({ mensagem: "Você não pode editar uma playlist que não é sua" });
         }   
 
-        await Playlist.updateOne({ _id: playlistId }, { $pull: {classes: removeClassId} })
+        const removeRes = await Playlist.updateOne({ _id: playlistId }, { $pull: {classes: removeClassId} })
+
+        const removed = (removeRes.modifiedCount ?? removeRes.nModified ?? 0) > 0;
+        if (!removed){
+            return res.status(400).json({ mensagem: "A aula selecionada não está na playlist"})
+        }
+
         return res.status(200).json({ mensagem: `Aula ${removeClassId} removida da playlist ${playlistId}`})
 
     } catch (err) {
@@ -140,7 +151,7 @@ const reorderPlaylist = async (req, res) => {
         return res.status(400).json({ mensagem: "Não foi possível pegar o ID da playlist"})
     }
 
-    const classIdsArray = Array.isArray(classIds) ? classIds : []
+    const classIdsArray = Array.isArray(classes) ? classes : []
     if (!classIdsArray.length){
         return res.status(400).json({ mensagem: "As aulas devem ser enviadas em um array"})
     }
@@ -178,7 +189,7 @@ const reorderPlaylist = async (req, res) => {
 
 const deletePlaylist = async (req, res) => {
     const userId = req.userId
-    const playlistId = req.body
+    const { playlistId } = req.body
 
     if (!userId) {
         return res.status(401).json({ mensagem: "Você deve estar logado para realizar essa ação"})
@@ -196,7 +207,7 @@ const deletePlaylist = async (req, res) => {
 
         await Playlist.deleteOne({ _id: playlistId})
 
-        return res.stauts(201).json({ mensagem: "A playlist foi deletada"})
+        return res.status(201).json({ mensagem: "A playlist foi deletada"})
 
     } catch (err) {
         console.error(err)
@@ -209,6 +220,6 @@ module.exports = {
     createPlaylist,
     addClassToPlaylist,
     removeClassFromPlaylist,
-    reorderPlaylist
-    deletePlaylist,
+    reorderPlaylist,
+    deletePlaylist
 }

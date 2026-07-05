@@ -1,4 +1,5 @@
 const Class = require('../models/Class');
+const User = require("../models/User")
 
 
 const createClass = async (req, res) => {
@@ -6,13 +7,17 @@ const createClass = async (req, res) => {
     const files = req.files || []; 
     const userId = req.userId;
 
-    const authorUsername = userId.username; 
+    const normalizeTitle = (value) =>
+    value
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, '');
 
-    if (!userId || !authorUsername) {
+    if (!userId) {
         return res.status(400).json({ message: 'Usuário inválido ou não logado' });
     }
-
-    const authorUsername = user.username;
 
     if (!title || !subject || !danger || !dangerLevel || !content) {
         return res.status(400).json({ message: 'Preencha todos os campos obrigatórios' });
@@ -20,6 +25,12 @@ const createClass = async (req, res) => {
 
     try {
         const normalizedTitle = normalizeTitle(title)
+        const user = await User.findById(userId)
+
+        const authorUsername = user.username
+        if (!authorUsername) {
+            return res.status(404).json({ mensagem: "Não foi possível encontrar o nome de usuário"})
+        }
 
         const titleExists = await Class.findOne({ normalizedTitle });
         if (titleExists) {
@@ -77,7 +88,7 @@ const createClass = async (req, res) => {
         
     } catch (error) {
         console.error('Erro ao criar aula:', error);
-        return res.status(500).json({ message: 'Erro interno ao criar aula' });
+        return res.status(500).json({ message: 'Erro no servidor' });
     }
 };
 

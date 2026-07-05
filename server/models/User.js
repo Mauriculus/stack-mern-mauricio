@@ -19,8 +19,12 @@ const userSchema = new mongoose.Schema({
   type: { type: String, enum: ['usuario', 'admin'], default: 'usuario' },
 
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-
   followers: { type: Number, default: 0 },
+
+  ratedClasses: [{
+    classesIds: { type: monsgoose.Schema.Types.ObjectId, ref: 'Class'},
+    rate: {type: Number, required: true}
+  }],
 
   banned: { type: Boolean, default: false },
 

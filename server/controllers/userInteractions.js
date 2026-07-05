@@ -5,11 +5,9 @@ const { Comment, Response } = require('../models/Comment')
 
 
 const followUser = async (req, res) => {
-  //Pega o ID do usuário que está seguindo (quem faz a ação) e do que está sendo seguido
-  const followerId = req.userId || (req.user && req.user._id ? req.user._id.toString() : req.params.userId);
+  const followerId = req.userId
   const { followingId } = req.body;
 
-  //Se o ID do usuário não for encontrado retorna erro
   if (!followingId) {
     return res.status(400).json({ mensagem: 'O ID do usuário a ser seguido é obrigatório' });
   }
@@ -111,6 +109,7 @@ const unfollowUser = async (req, res) => {
   }
 };
 
+
 const getFollowingList = async (req, res) => {
   const { userId } = req.params;
 
@@ -140,6 +139,8 @@ const getFollowingList = async (req, res) => {
     return res.status(500).json({ mensagem: 'Erro no servidor' });
   }
 };
+
+// Controladores de comentário e respostas
 
 const comment = async (req, res) => {
   const userId = req.userId;
@@ -193,6 +194,7 @@ const comment = async (req, res) => {
   }
 }
 
+
 const respondComment = async (req, res) => {
   const userId = req.userId;
   const { commentId } = req.params;
@@ -242,6 +244,7 @@ const respondComment = async (req, res) => {
     return res.status(500).json({ mensagem: 'Erro no servidor' });
   }
 }
+
 
 const getCommentsByClass = async (req, res) => { 
   const { normalizedTitle } = req.params;
@@ -295,6 +298,89 @@ const getCommentsByClass = async (req, res) => {
     return res.status(500).json({ mensagem: 'Erro no servidor' });
   }
 }
+
+// Controladores de avaliação
+
+const rateClass = async (req, res) => {
+  const { rate } = req.body
+  const userId = req.userId
+  const { classId } = req.params
+
+  if (!rate) {
+    return res.status(200).json({ mensagem: "Nenhuma nota foi inserida, nada alterado"})
+  }
+  if (rate < 0 || rate > 5) {
+    return res.status(400).json({ mensagem: "Sua nota deve estar entre 0 e 5"})
+  }
+  if (!userId) {
+    return res.status(401).json({ mensagem: "Você deve estar logado para avaliar"})
+  }
+  if (!classId) {
+    return res.status(400).json({ mensagem: "Insira a aula que quer avaliar"})
+  }
+
+  try {
+    const ratedClass = await Class.findById(classId)
+    if (!ratedClass) {
+      return res.status(404).json({ mensagem: "Não foi possível encontrar a aula"})
+    }
+    const user = await User.findById(userId)
+
+    const alreadyRated = user.ratedClasses.find(item => item.classesIds.toString() === classId)
+
+    if (alreadyRated) {
+      const oldRate = alreadyRated.rate
+
+      if (oldRate === rate) {
+        return res.status(200).json({ mensagem: "A nota foi mantida a mesma"})
+      } 
+      const newSum = ratedClass.ratingSum - oldRate + rate
+      const newAverage = newSum/ratedClass.ratingCount
+
+      if (newAverage < 0 || newAverage > 5) {
+        return res.status(400).json({ mensagem: "A média não está na faixa de notas permitidas"})
+      }
+      
+      ratedClass.ratingSum = newSum
+      ratedClass.ratingAverage = newAverage
+
+      alreadyRated.rate = rate
+
+      await ratedClass.save()
+      await user.save()
+
+      return res.status(200).json({ mensagem: `Sua avaliação foi alterada de ${oldRate} para ${rate}` })
+    }
+
+    const newCount = ratedClass.ratingCount + 1
+    const newSum = ratedClass.ratingSum + rate
+    const newAverage = newSum/newCount
+
+    if (newAverage < 0 || newAverage > 5) {
+      return res.status(400).json({ mensagem: "A média não está na faixa de notas permitidas"})
+    }
+
+    ratedClass.ratingCount = newCount
+    ratedClass.ratingSum = newSum
+    ratedClass.ratingAverage = newAverage
+
+    user.ratedClasses.push({ classesIds: classId, rate: rate })
+    
+    await user.save()
+    await ratedClass.save()
+    return res.status(200).json({ mensagem: "Aula avaliada com sucesso"})
+
+  } catch (err){
+    console.error(err)
+    return res.status(500).json({ mensagem: "Erro no servidor"})
+  }
+}
+
+const changeRate = async (req, res) => {
+
+} 
+
+
 
 module.exports = {
   followUser,

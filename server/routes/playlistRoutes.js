@@ -11,9 +11,9 @@ const {
 } = require("../controllers/playlistController")
 
 router.post("/create", authMiddleware, createPlaylist)
-router.post("/add/:playlistId", authMiddleware, createPlaylist)
-router.delete("/remove/:playlistId", authMiddleware, createPlaylist)
-router.post("/reorder/:playlistId", authMiddleware, createPlaylist)
-router.delete("/delete", authMiddleware, createPlaylist)
+router.post("/add/:playlistId", authMiddleware, addClassToPlaylist)
+router.delete("/remove/:playlistId", authMiddleware, removeClassFromPlaylist)
+router.post("/reorder/:playlistId", authMiddleware, reorderPlaylist)
+router.delete("/delete", authMiddleware, deletePlaylist)
 
 module.exports = router
