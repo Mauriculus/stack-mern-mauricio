@@ -27,6 +27,9 @@ const classSchema = new mongoose.Schema({
     ratingCount: {type: Number, default: 0},
     ratingSum: {type: Number, default: 0},
     ratingAverage: {type: Number, default: 0, min: 0, max: 5},
+
+    reports: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Report'}],
+    reportCount: { type: Number, required: true, default: 0},
     
     content: {type: String, required: true},
     

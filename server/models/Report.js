@@ -14,7 +14,8 @@ const reportSchema = new mongoose.Schema({
             "Spam ou propaganda",
             "Imagens ou vídeos inapropriados",
             "Informações desatualizadas",
-            "Título ou nome de usuário inapropriado"
+            "Título ou nome de usuário inapropriado",
+            "Outro"
         ]},
 
     text: { type: String }

@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const Class = require('../models/Class');
-const { Comment, Response } = require('../models/Comment')
+const { Comment, Response } = require('../models/Comment');
+const { find } = require('../models/Appointment');
 
 
 const followUser = async (req, res) => {
@@ -299,7 +300,7 @@ const getCommentsByClass = async (req, res) => {
   }
 }
 
-// Controladores de avaliação
+// Controlador de avaliação e report
 
 const rateClass = async (req, res) => {
   const { rate } = req.body
@@ -376,11 +377,65 @@ const rateClass = async (req, res) => {
   }
 }
 
-const changeRate = async (req, res) => {
 
-} 
+const availableReasons = ["Conteúdo incorreto ou perigoso", 
+            "Linguagem inapropriada",
+            "Conteúdo fora do tema do site",
+            "Plágio ou cópia indevida",
+            "Spam ou propaganda",
+            "Imagens ou vídeos inapropriados",
+            "Informações desatualizadas",
+            "Título ou nome de usuário inapropriado",
+            "Outro"]
 
 
+const reportClass = async (req, res) => {
+  const userId = req.userId
+  const { classId } = req.params
+  const { reason, text } = req.body
+
+  if (!userId) {
+    return res.status(401).json({ mensagem: "Deve estar logado para denunciar uma aula"})
+  }
+  if (!classId) {
+    return res.status(400).json({ mensagem: "Não foi possível conseguir a aula a ser denunciada"})
+  }
+  if (!reason) {
+    return res.status(400).json({ mensagem: "Selecione a razão da denuncia"})
+  }
+  if (!availableReasons.includes(reason)) {
+    return res.status(400).json({ mensagem: "Selecione uma das razões da denúncia"})
+  }
+  try {
+
+
+    const reportedClass = await Class.findById(classId)
+    if (!reportedClass){
+      return res.status(404).json({ mensagem: "Aula inválida"})
+    }
+
+    const newReport = new Report({
+      author: userId,
+      class: classId,
+      reason,
+      text
+    })
+
+    await newReport.save()
+    
+    reportedClass.reports.push(newReport._id);
+    reportedClass.$inc('reportedCount', 1)
+
+    await reportedClass.save()
+
+    return res.status(201).json({mensagem: "Aula denunciada"})
+
+
+  } catch (err) {
+    console.error(err)
+    return res.status(500).json({ mensagem: "Erro no servidor"})
+  }
+}
 
 module.exports = {
   followUser,
@@ -388,6 +443,7 @@ module.exports = {
   getFollowingList,
   comment,
   respondComment,
-  getCommentsByClass
+  getCommentsByClass,
+  rateClass,
 };
 
