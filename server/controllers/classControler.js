@@ -1,6 +1,17 @@
+const { urlencoded } = require('express');
 const Class = require('../models/Class');
 const User = require("../models/User")
 
+
+const availableSubjects = [
+    "Elétrica",
+    "Hidráulica",
+    "Eletrodomésticos",
+    "Limpeza",
+    "Culinária",
+    "Costura",
+    "Outro",
+]
 
 const createClass = async (req, res) => {
     const { title, content, subject, danger, dangerLevel, youtubeUrls } = req.body;  
@@ -26,7 +37,10 @@ const createClass = async (req, res) => {
     try {
         const normalizedTitle = normalizeTitle(title)
         const user = await User.findById(userId)
-
+        
+        if (user.banned === true) {
+            return res.status(403).json({mensagem: "Você está banido"})
+        }
         const authorUsername = user.username
         if (!authorUsername) {
             return res.status(404).json({ mensagem: "Não foi possível encontrar o nome de usuário"})
@@ -35,6 +49,10 @@ const createClass = async (req, res) => {
         const titleExists = await Class.findOne({ normalizedTitle });
         if (titleExists) {
             return res.status(400).json({ message: 'Já existe uma aula com esse título' });
+        }
+
+        if (!availableSubjects.includes(subject)){
+            return res.status(400).json({ mensagem: "Escolha um dos temas disponíveis"})
         }
 
         const medias = [];

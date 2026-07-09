@@ -7,6 +7,7 @@ const User = require('../models/User');
 const { sendVerificationEmail } = require('../services/emailService');
 
 
+
 const createAuthToken = (user) => {
   if (!process.env.JWT_SECRET) {
     throw new Error('JWT_SECRET não configurado no servidor');
@@ -27,6 +28,7 @@ const createVerificationToken = (user) => {
   });
 };
 
+
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 5, // 5 tentativas de login
@@ -40,42 +42,44 @@ const registerLimiter = rateLimit({
 });
 
 
+
 const loginUser = async (req, res) => {
   const { email, password } = req.body || {};
-  const emailNormalizado = typeof email === 'string' ? email.trim().toLowerCase() : email;
+  const normalizedEmail = typeof email === 'string' ? email.trim().toLowerCase() : email;
 
-  if (!emailNormalizado || !password) {
+  if (!normalizedEmail || !password) {
     return res.status(400).json({ mensagem: 'Email e senha são obrigatórios' });
   }
 
   try {
-    const usuario = await User.findOne({ email: emailNormalizado });
+    const user = await User.findOne({ email: normalizedEmail });
 
-    if (!usuario) {
-      return res.status(400).json({ mensagem: 'Usuário não encontrado' });
+    if (!user) {
+      return res.status(404).json({ mensagem: 'Usuário não encontrado' });
     }
 
-    const senhaSalva = usuario.password;
-
-    if (!senhaSalva) {
-      return res.status(500).json({ mensagem: 'Usuário encontrado sem senha cadastrada' });
+    if (user.banned === true) {
+      return res.status(403).json({mensagem: "Você está banido"})
     }
 
-    if (!usuario.isVerified) {
+    if (!user.isVerified) {
       return res.status(400).json({ mensagem: 'Conta não verificada. Verifique seu email para ativar a conta' });
     }
 
-    const senhaValida = await bcrypt.compare(password, senhaSalva);
+    const savedPassword = user.password
 
-    if (!senhaValida) {
+    const validPassword = await bcrypt.compare(password, savedPassword);
+
+    if (!validPassword) {
       return res.status(400).json({ mensagem: 'Senha inválida' });
     }
 
-    const token = createAuthToken(usuario);
+    const token = createAuthToken(user);
 
-    res.json({ mensagem: 'Login bem-sucedido', token });
-  } catch (erro) {
-    console.error('Erro no login:', erro);
+    return res.status(200).json({ mensagem: 'Login bem-sucedido', token });
+
+  } catch (err) {
+    console.error('Erro no login:', err);
     res.status(500).json({ mensagem: 'Erro no servidor' });
   }
 };

@@ -55,7 +55,7 @@ const cascadeDeleteClassPendencies = async (classId) => {
 }
 
 const deleteClass = async (req, res) => {
-    const userType = req.type
+    const userType = req.userType
     const { classId } = req.params
 
     if (userType !== "admin"){
@@ -85,9 +85,35 @@ const deleteClass = async (req, res) => {
     }
 }
 
+const deletePlaylist = async (req, res) => {
+    const userType = req.userType
+    const { playlistId } = req.params
+
+    if (userType !== "admin"){
+        return res.status(403).json({ mensagem: "É necessário ser administrador para realizar essa ação"})
+    }
+    if (!playlistId) {
+        return res.status(400).json({ mensagem: "Selecione a playlist a ser deletada"})
+    }
+    try {
+        const deletedPlaylist = await Playlist.findById(playlistId)
+        if (!deletedPlaylist) {
+            return res.status(404).json({ mensagem: "Playlist não encontrada"})
+        }
+
+        await deletedPlaylist.deleteOne()
+
+        return res.status(200).json({ mensagem: "Playlist deletada com sucesso" })
+
+    } catch (err) {
+        console.error(err)
+        return res.status(500).json({ mensagem: "Erro no servidor"})
+    }
+}
+
 
 const deleteComment = async (req, res) => {
-    const userType = req.type
+    const userType = req.userType
     const { commentId } = req.body
 
     if (userType !== "admin"){
@@ -119,35 +145,9 @@ const deleteComment = async (req, res) => {
 }
 
 
-const deletePlaylist = async (req, res) => {
-    const userType = req.type
-    const { playlistId } = req.body
-
-    if (userType !== "admin"){
-        return res.status(403).json({ mensagem: "É necessário ser administrador para realizar essa ação"})
-    }
-    if (!playlistId) {
-        return res.status(400).json({ mensagem: "Selecione a playlist a ser deletada"})
-    }
-    try {
-        const deletedPlaylist = await Playlist.findById(playlistId)
-        if (!deletedPlaylist) {
-            return res.status(404).json({ mensagem: "Playlist não encontrada"})
-        }
-
-        await deletedPlaylist.deleteOne()
-
-        return res.status(200).json({ mensagem: "Playlist deletada com sucesso" })
-
-    } catch (err) {
-        console.error(err)
-        return res.status(500).json({ mensagem: "Erro no servidor"})
-    }
-}
-
 
 const deleteResponse = async (req, res) => {
-    const userType = req.type
+    const userType = req.userType
     const { responseId } = req.body
 
     if (userType !== "admin"){
@@ -173,7 +173,7 @@ const deleteResponse = async (req, res) => {
 }
 
 const banUser = async (req, res) => {
-    const userType = req.type
+    const userType = req.userType
     const { bannedUserId } = req.body
     
     if (userType !== "admin"){
@@ -197,8 +197,39 @@ const banUser = async (req, res) => {
 
         return res.status(200).json({
             mensagem: "Usuário banido com sucesso",
-            detalhes: `Foram removidas ${stats.deletedClasses} aulas, ${stats.deletedComments} comentários, ${stats.deletedResponses} respostas, ${stats.modifiedPlaylists} playlists ajustadas e ${stats.deletedReports} denúncias apagadas.`
+            detalhes: `Foram removidas ${stats.deletedClasses} aulas, ${stats.deletedComments} comentários, ${stats.deletedResponses} respostas, ${stats.modifiedPlaylists} aulas removidas de playlists e ${stats.deletedReports} denúncias apagadas.`
         })
+
+    } catch (err) {
+        console.error(err)
+        return res.status(500).json({ mensagem: "Erro no servidor"})
+    }
+}
+
+const unbanUser = async (req, res) => {
+    const userType = req.userType
+    const { unbannedUserId } = req.body
+
+    if (userType !== "admin"){
+        return res.status(403).json({ mensagem: "É necessário ser administrador para realizar essa ação"})
+    }
+    if (!unbannedUserId) {
+        return res.status(400).json({ mensagem: "Selecione o usuário a ser banido"})
+    }
+
+    try {
+        const user = await User.findById(unbannedUserId)
+        if (!user) {
+            return res.status(404).json({ mensagem: "Usuário não encontrado"})
+        }
+        if (user.banned === false) {
+            return res.status(400).json({ mensagem: "O usuário não está banido"})
+        }
+
+        user.banned = false
+        await user.save()
+
+        return res.status(200).json({ mensagem: "Usuário desbanido com sucesso"})
 
     } catch (err) {
         console.error(err)
@@ -213,5 +244,6 @@ module.exports = {
     deleteComment,
     deletePlaylist,
     deleteResponse,
-    banUser
+    banUser,
+    unbanUser
 }

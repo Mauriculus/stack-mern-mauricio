@@ -8,6 +8,7 @@ const userRoutes = require('./routes/userRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const classRoutes = require('./routes/classRoutes');
 const playlistRoutes = require('./routes/playlistRoutes')
+const adminRoutes = require('./routes/adminRoutes')
 
 const { PORT } = require('./config');
 const dns = require('dns');
@@ -28,5 +29,6 @@ app.use('/api/users', userRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/playlists', playlistRoutes)
+app.use('/api/admin', adminRoutes)
 
 app.listen(PORT, () => console.log(`Servidor rodando na porta http://localhost:${PORT}`));

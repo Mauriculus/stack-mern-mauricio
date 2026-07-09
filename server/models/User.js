@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
   followers: { type: Number, default: 0 },
 
   ratedClasses: [{
-    classesIds: { type: monsgoose.Schema.Types.ObjectId, ref: 'Class'},
+    classesIds: { type: mongoose.Schema.Types.ObjectId, ref: 'Class'},
     rate: {type: Number, required: true}
   }],
 

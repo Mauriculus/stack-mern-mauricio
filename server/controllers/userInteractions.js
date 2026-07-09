@@ -13,9 +13,8 @@ const followUser = async (req, res) => {
     return res.status(400).json({ mensagem: 'O ID do usuário a ser seguido é obrigatório' });
   }
 
-  //Checa se os IDs estão no formato correto para o MongoDB e não são só caracteres aleatórios
-  if (!mongoose.Types.ObjectId.isValid(followerId) || !mongoose.Types.ObjectId.isValid(followingId)) {
-    return res.status(400).json({ mensagem: 'ID inválido' });
+  if (!followerId) {
+    return res.status(400).json({ mensagem: 'É necessário estar logado para seguir alguém' });
   }
 
   //Checa se os IDs não são iguais
@@ -24,11 +23,16 @@ const followUser = async (req, res) => {
   }
 
   try {
-    // Tenta adicionar ao conjunto apenas se ainda não estiver seguindo
-    const addRes = await User.updateOne(
-      { _id: followerId, following: { $ne: followingId } },
-      { $addToSet: { following: followingId } }
-    );
+    const follower = await User.findById(followerId)
+    if (!follower) {
+      return res.status(404).json({ mensagem: "Usuário não encontrado"})
+    }
+    if (follower.banned === true ){
+      return res.status(403).json({ mensagem: "Você está banido"})
+    }
+ 
+    const addRes = follower.update({ $addToSet: { following: followingId }});
+
     //modifiedCount é a quantidade de documentos alterados
     const added = (addRes.modifiedCount ?? addRes.nModified ?? 0) > 0;
     //Se nenhum documento for alterado significa que o usuário já está sendo seguido
@@ -37,24 +41,25 @@ const followUser = async (req, res) => {
     }
 
     // Incrementa contador de followers do usuário seguido
-    const incRes = await User.updateOne({ _id: followingId }, { $inc: { followers: 1 } });
+    const incRes = await follower.update({ $inc: { followers: 1 } });
     const incUpdated = (incRes.modifiedCount ?? incRes.nModified ?? 0) > 0;
 
     if (!incUpdated) {
       // rollback: remove o following adicionado para evitar dessincronização
-      await User.updateOne({ _id: followerId }, { $pull: { following: followingId } });
+      await follower.update({ $pull: { following: followingId } });
       return res.status(404).json({ mensagem: 'Usuário a ser seguido não encontrado' });
     }
 
     return res.json({ mensagem: 'Usuário seguido com sucesso' });
-  } catch (erro) {
+  } catch (err) {
     console.error('Erro ao seguir usuário:', erro);
     // tenta rollback conservador caso tenha sido adicionado
     try {
-      await User.updateOne({ _id: followerId }, { $pull: { following: followingId } });
+      await follower.update({ $pull: { following: followingId } });
     } catch (e) {
       console.error('Rollback falhou:', e);
     }
+    console.error(err)
     return res.status(500).json({ mensagem: 'Erro no servidor' });
   }
 };
@@ -165,6 +170,10 @@ const comment = async (req, res) => {
       return res.status(404).json({ mensagem: 'Usuário não encontrado' });
     }
 
+    if (user.banned === true) {
+      return res.status(403).json({mensagem: "Você está banido"})
+    }
+
     const commentedClass = await Class.findOne({ normalizedTitle })
 
     if (!commentedClass) {
@@ -186,7 +195,8 @@ const comment = async (req, res) => {
 
     return res.status(201).json({
       message: 'Comentário criado com sucesso',
-      comment: content,
+      commentId: newComment._id,
+      comentário: content,
     })
 
   } catch (error) {
@@ -217,6 +227,9 @@ const respondComment = async (req, res) => {
     if (!user) {
       return res.status(404).json({ mensagem: 'Usuário não encontrado' });
     }
+    if (user.banned === true) {
+      return res.status(403).json({mensagem: "Você está banido"})
+    }
 
     const comment = await Comment.findById(commentId)
     if (!comment) {
@@ -236,8 +249,9 @@ const respondComment = async (req, res) => {
     await comment.save()
 
     return res.status(201).json({
-      message: 'Resposta criada com sucesso',
-      response: content, 
+      mensagem: 'Resposta criada com sucesso',
+      responseId: newResponse._id,
+      resposta: content, 
     })
 
   } catch (error) {
@@ -303,77 +317,85 @@ const getCommentsByClass = async (req, res) => {
 // Controlador de avaliação e report
 
 const rateClass = async (req, res) => {
-  const { rate } = req.body
-  const userId = req.userId
-  const { classId } = req.params
+  const rate = Number(req.body.rate);
+  const userId = req.userId;
+  const { classId } = req.params;
 
-  if (!rate) {
-    return res.status(200).json({ mensagem: "Nenhuma nota foi inserida, nada alterado"})
+  if (isNaN(rate)) {
+    return res.status(400).json({ mensagem: "Nenhuma nota válida foi inserida, nada alterado" });
   }
   if (rate < 0 || rate > 5) {
-    return res.status(400).json({ mensagem: "Sua nota deve estar entre 0 e 5"})
+    return res.status(400).json({ mensagem: "Sua nota deve estar entre 0 e 5" });
   }
   if (!userId) {
-    return res.status(401).json({ mensagem: "Você deve estar logado para avaliar"})
+    return res.status(401).json({ mensagem: "Você deve estar logado para avaliar" });
   }
   if (!classId) {
-    return res.status(400).json({ mensagem: "Insira a aula que quer avaliar"})
+    return res.status(400).json({ mensagem: "Insira a aula que quer avaliar" });
   }
 
   try {
-    const ratedClass = await Class.findById(classId)
+    const ratedClass = await Class.findById(classId);
     if (!ratedClass) {
-      return res.status(404).json({ mensagem: "Não foi possível encontrar a aula"})
+      return res.status(404).json({ mensagem: "Não foi possível encontrar a aula" });
     }
-    const user = await User.findById(userId)
+    const user = await User.findById(userId);
+    if (user.banned === true) {
+      return res.status(403).json({ mensagem: "Você está banido" });
+    }
 
-    const alreadyRated = user.ratedClasses.find(item => item.classesIds.toString() === classId)
+    const currentSum = Number(ratedClass.ratingSum) || 0;
+    const currentCount = Number(ratedClass.ratingCount) || 0;
+
+    const alreadyRated = user.ratedClasses.find(item => item.classesIds.toString() === classId);
 
     if (alreadyRated) {
-      const oldRate = alreadyRated.rate
+      const oldRate = Number(alreadyRated.rate);
 
       if (oldRate === rate) {
-        return res.status(200).json({ mensagem: "A nota foi mantida a mesma"})
+        return res.status(200).json({ mensagem: "A nota foi mantida a mesma" });
       } 
-      const newSum = ratedClass.ratingSum - oldRate + rate
-      const newAverage = newSum/ratedClass.ratingCount
+      
+      const newSum = currentSum - oldRate + rate;
+      const newAverage = newSum / currentCount;
 
       if (newAverage < 0 || newAverage > 5) {
-        return res.status(400).json({ mensagem: "A média não está na faixa de notas permitidas"})
+        return res.status(400).json({ mensagem: "A média não está na faixa de notas permitidas" });
       }
       
-      ratedClass.ratingSum = newSum
-      ratedClass.ratingAverage = newAverage
+      ratedClass.ratingSum = newSum;
+      ratedClass.ratingAverage = newAverage;
 
-      alreadyRated.rate = rate
+      alreadyRated.rate = rate;
 
-      await ratedClass.save()
-      await user.save()
+      await ratedClass.save();
+      await user.save();
 
-      return res.status(200).json({ mensagem: `Sua avaliação foi alterada de ${oldRate} para ${rate}` })
+      return res.status(200).json({ mensagem: `Sua avaliação foi alterada de ${oldRate} para ${rate}` });
     }
 
-    const newCount = ratedClass.ratingCount + 1
-    const newSum = ratedClass.ratingSum + rate
-    const newAverage = newSum/newCount
+    const newCount = currentCount + 1;
+    const newSum = currentSum + rate;
+    const newAverage = newSum / newCount;
 
     if (newAverage < 0 || newAverage > 5) {
-      return res.status(400).json({ mensagem: "A média não está na faixa de notas permitidas"})
+      return res.status(400).json({ mensagem: "A média não está na faixa de notas permitidas" });
     }
 
-    ratedClass.ratingCount = newCount
-    ratedClass.ratingSum = newSum
-    ratedClass.ratingAverage = newAverage
+    ratedClass.ratingCount = newCount;
+    ratedClass.ratingSum = newSum;
+    ratedClass.ratingAverage = newAverage;
 
-    user.ratedClasses.push({ classesIds: classId, rate: rate })
+    user.ratedClasses.push({ classesIds: classId, rate: rate });
     
-    await user.save()
-    await ratedClass.save()
-    return res.status(200).json({ mensagem: "Aula avaliada com sucesso"})
+    await user.save();
+    await ratedClass.save();
+    
+    return res.status(200).json({ mensagem: "Aula avaliada com sucesso" });
 
   } catch (err){
-    console.error(err)
-    return res.status(500).json({ mensagem: "Erro no servidor"})
+    console.error(err);
+    return res.status(500).json({ mensagem: "Erro no servidor" });
   }
 }
 
@@ -445,5 +467,6 @@ module.exports = {
   respondComment,
   getCommentsByClass,
   rateClass,
+  reportClass,
 };
 
