@@ -145,7 +145,41 @@ const getClassByTitle = async (req, res) => {
 
 };
 
+const searchClass = async (req, res) => {
+    const { q, subject } = req.query
+    let filter = {}
+
+    try { 
+        if (subject){
+            const subjectArray = Array.isArray(subject) ? subject : [subject]
+            filter.subject = { $in: subjectArray}
+        }
+
+        if (q) {
+            filter.$text = { $search: q }
+        }
+
+        let query = Class.find(filter)
+
+        if (q) {
+            query = query
+                .select({ score: { $meta: "textScore" } })
+                .sort({ score: { $meta: "textScore" } });
+        } else {
+            query = query.sort({ ratingSum: -1, createdAt: -1 }).limit(20)
+        }
+
+        const search = await query.exec()
+
+        return res.status(200).json({ mensagem: search})
+    } catch (err) {
+        console.error(err)
+        return res.status(500).json({ mensagem: 'Erro no servidor'})
+    }
+}
+
 module.exports = {
     createClass,
-    getClassByTitle
+    getClassByTitle,
+    searchClass,
 };

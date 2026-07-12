@@ -6,6 +6,7 @@ const upload = require('../middleware/multer');
 const {
     createClass,
     getClassByTitle,
+    searchClass,
 } = require("../controllers/classControler")
 
 const { comment, respondComment, getCommentsByClass, rateClass, reportClass } = require("../controllers/userInteractions")
@@ -17,6 +18,7 @@ router.post('/respond/:commentId', authMiddleware, respondComment)
 router.get('/getComments/:normalizedTitle', getCommentsByClass)
 router.put('/rate/:classId', authMiddleware, rateClass)
 router.post('report/:classId', authMiddleware, reportClass)
+router.get('/search', searchClass)
 
 
 module.exports = router;

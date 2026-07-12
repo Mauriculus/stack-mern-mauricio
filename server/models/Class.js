@@ -49,7 +49,7 @@ const classSchema = new mongoose.Schema({
 
     subject: {
         type: String,
-        enum: ["Elétrica", "Hidráulica", "Eletrodomésticos", "Limpeza", "Culinária", "Outro"],
+        enum: ["Elétrica", "Hidráulica", "Eletrodomésticos", "Limpeza", "Culinária", "Costura", "Outro"],
         required: true
     },
 
@@ -64,5 +64,10 @@ const classSchema = new mongoose.Schema({
 }, {
     timestamps: true
 })
+
+classSchema.index(
+    { title: 'text'},
+    { default_language: 'portuguese'}
+)
 
 module.exports = mongoose.model("Class", classSchema)
