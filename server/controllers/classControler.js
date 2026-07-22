@@ -183,6 +183,6 @@ const searchClass = async (req, res) => {
 
 module.exports = {
     createClass,
-    getClassByTitle,
+    getClassById,
     searchClass,
 };

@@ -5,14 +5,14 @@ const upload = require('../middleware/multer');
 
 const {
     createClass,
-    getClassByTitle,
+    getClassById,
     searchClass,
 } = require("../controllers/classControler")
 
 const { comment, respondComment, getCommentsByClass, rateClass, reportClass } = require("../controllers/userInteractions")
 
 router.post('/create', authMiddleware, upload.array('medias', 2), createClass,);
-router.get('/getByTitle', getClassByTitle)
+router.get('/getById', getClassById)
 router.post(`/comment/:normalizedTitle`, authMiddleware, comment)
 router.post('/respond/:commentId', authMiddleware, respondComment)
 router.get('/getComments/:normalizedTitle', getCommentsByClass)
