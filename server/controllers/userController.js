@@ -181,7 +181,7 @@ const registerUser = async (req, res) => {
 
 
 const verifyEmail = async (req, res) => {
-  const { verificationToken } = req.query; // mudar depois para pegar o token automaticamente
+  const { verificationToken } = req.query;
 
   if (!verificationToken) {
     return res.status(400).json({ mensagem: 'Link de verificação inválido' });

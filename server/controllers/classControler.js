@@ -12,6 +12,11 @@ const availableSubjects = [
     "Costura",
     "Outro",
 ]
+const avaliableDanger = [
+    'Baixo Risco',
+    'Médio Risco',
+    'Alto Risco'
+]
 
 const createClass = async (req, res) => {
     const { title, content, subject, danger, dangerLevel, youtubeUrls } = req.body;  
@@ -37,22 +42,20 @@ const createClass = async (req, res) => {
     try {
         const normalizedTitle = normalizeTitle(title)
         const user = await User.findById(userId)
+
+        if (!user) {
+            return res.status(404).json({ mensagem: "Não foi possível encontrar o usuário"})
+        }
         
         if (user.banned === true) {
             return res.status(403).json({mensagem: "Você está banido"})
         }
-        const authorUsername = user.username
-        if (!authorUsername) {
-            return res.status(404).json({ mensagem: "Não foi possível encontrar o nome de usuário"})
-        }
-
-        const titleExists = await Class.findOne({ normalizedTitle });
-        if (titleExists) {
-            return res.status(400).json({ message: 'Já existe uma aula com esse título' });
-        }
 
         if (!availableSubjects.includes(subject)){
             return res.status(400).json({ mensagem: "Escolha um dos temas disponíveis"})
+        }
+        if (!avaliableDanger.includes(dangerLevel)) {
+            return res.status(400).json({ mensagem: "Escolha um dos níveis de risco disponíveis"})
         }
 
         const medias = [];
@@ -90,8 +93,8 @@ const createClass = async (req, res) => {
             danger,
             dangerLevel,
             author: userId,
-            authorUsername: authorUsername,
-            medias: medias // Já salvamos as mídias diretamente na criação
+            authorUsername: user.username,
+            medias: medias
         });
 
         await newClass.save();
@@ -112,7 +115,7 @@ const createClass = async (req, res) => {
 
 
 
-const getClassByTitle = async (req, res) => {
+const getClassById = async (req, res) => {
     const { classTitle } = req.body
 
     try {
@@ -180,6 +183,6 @@ const searchClass = async (req, res) => {
 
 module.exports = {
     createClass,
-    getClassByTitle,
+    getClassById,
     searchClass,
 };
