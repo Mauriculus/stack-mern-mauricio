@@ -1,0 +1,380 @@
+/* Sobrevivência Doméstica — tela de registro
+   Mesmo sistema de tokens da tela de login (Space Grotesk + Inter).
+   Se extrair para um tema compartilhado depois, mova as variáveis e o
+   @import de fonte para um arquivo comum (ex.: auth-theme.css). */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+.sd-register {
+  --sd-navy: #161e6b;
+  --sd-navy-deep: #0d1246;
+  --sd-off-white: #f0f0f0;
+  --sd-white: #ffffff;
+  --sd-amber: #e8a33d;
+  --sd-valve: #8c3230;
+  --sd-line: rgba(240, 240, 240, 0.16);
+  --sd-ink: #14162b;
+  --sd-ink-soft: #5b5f77;
+  --sd-danger: #b3261e;
+  --sd-danger-bg: #fbeceb;
+  --sd-success: #2f7d4f;
+  --sd-radius: 4px;
+
+  min-height: 100vh;
+  display: flex;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--sd-ink);
+  background: var(--sd-off-white);
+}
+
+/* ---------- painel de marca ---------- */
+
+.sd-register__brand {
+  position: relative;
+  flex: 0 0 42%;
+  min-width: 380px;
+  max-width: 560px;
+  background: var(--sd-navy);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sd-register__blueprint {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.sd-register__pipes path {
+  fill: none;
+  stroke: var(--sd-line);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.sd-register__nodes circle {
+  fill: var(--sd-navy-deep);
+  stroke: var(--sd-line);
+  stroke-width: 2;
+}
+
+.sd-register__valve {
+  fill: var(--sd-valve);
+  stroke: var(--sd-navy-deep);
+  stroke-width: 2;
+}
+
+.sd-register__valve--pulse {
+  animation: sd-pulse-register 3.2s ease-in-out infinite;
+}
+
+.sd-register__valve--pulse:nth-of-type(2) {
+  animation-delay: 1.4s;
+}
+
+@keyframes sd-pulse-register {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.sd-register__brand-content {
+  position: relative;
+  z-index: 1;
+  max-width: 360px;
+  padding: 0 3rem;
+  text-align: left;
+}
+
+.sd-register__mark {
+  display: inline-block;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--sd-navy);
+  background: var(--sd-amber);
+  width: 2.75rem;
+  height: 2.75rem;
+  line-height: 2.75rem;
+  text-align: center;
+  border-radius: var(--sd-radius);
+  margin-bottom: 1.75rem;
+}
+
+.sd-register__title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 2.5rem;
+  line-height: 1.15;
+  color: var(--sd-off-white);
+  margin: 0 0 1rem;
+}
+
+.sd-register__tagline {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(240, 240, 240, 0.72);
+  margin: 0;
+}
+
+/* ---------- painel do formulário ---------- */
+
+.sd-register__panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.5rem;
+}
+
+.sd-register__card {
+  width: 100%;
+  max-width: 380px;
+}
+
+.sd-register__heading {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 1.75rem;
+  color: var(--sd-navy);
+  margin: 0 0 0.25rem;
+}
+
+.sd-register__subheading {
+  font-size: 0.95rem;
+  color: var(--sd-ink-soft);
+  margin: 0 0 1.75rem;
+}
+
+.sd-register__error {
+  font-size: 0.875rem;
+  color: var(--sd-danger);
+  background: var(--sd-danger-bg);
+  border-left: 3px solid var(--sd-danger);
+  padding: 0.6rem 0.75rem;
+  margin: 0 0 1.25rem;
+  border-radius: var(--sd-radius);
+}
+
+.sd-register__form {
+  display: flex;
+  flex-direction: column;
+}
+
+.sd-register__field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.1rem;
+}
+
+.sd-register__field label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--sd-ink);
+  margin-bottom: 0.4rem;
+}
+
+.sd-register__field input {
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--sd-ink);
+  background: var(--sd-white);
+  border: 1.5px solid #d4d4dc;
+  border-radius: var(--sd-radius);
+  padding: 0.65rem 0.8rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sd-register__field input::placeholder {
+  color: #a6a6b3;
+}
+
+.sd-register__field input:focus-visible {
+  outline: none;
+  border-color: var(--sd-navy);
+  box-shadow: 0 0 0 3px rgba(22, 30, 107, 0.15);
+}
+
+.sd-register__password-wrap {
+  position: relative;
+  display: flex;
+}
+
+.sd-register__password-wrap input {
+  width: 100%;
+  padding-right: 2.5rem;
+}
+
+.sd-register__toggle-senha {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--sd-ink-soft);
+  cursor: pointer;
+  display: flex;
+  padding: 0.25rem;
+  border-radius: var(--sd-radius);
+}
+
+.sd-register__toggle-senha:hover {
+  color: var(--sd-navy);
+}
+
+.sd-register__toggle-senha:focus-visible {
+  outline: 2px solid var(--sd-navy);
+  outline-offset: 2px;
+}
+
+.sd-register__rules {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem 0.75rem;
+  margin: 0.6rem 0 0;
+  padding: 0;
+}
+
+.sd-register__rules li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--sd-ink-soft);
+}
+
+.sd-register__rules li svg {
+  flex-shrink: 0;
+  color: #c2c2cc;
+}
+
+.sd-register__rules li.is-valid {
+  color: var(--sd-success);
+}
+
+.sd-register__rules li.is-valid svg {
+  color: var(--sd-success);
+}
+
+.sd-register__submit {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--sd-off-white);
+  background: var(--sd-navy);
+  border: none;
+  border-radius: var(--sd-radius);
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease;
+  margin-top: 0.5rem;
+}
+
+.sd-register__submit:hover:not(:disabled) {
+  background: var(--sd-navy-deep);
+}
+
+.sd-register__submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.sd-register__submit:focus-visible {
+  outline: 2px solid var(--sd-navy);
+  outline-offset: 2px;
+}
+
+.sd-register__login-link {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--sd-ink-soft);
+  margin: 1.75rem 0 0;
+}
+
+.sd-register__login-link a {
+  color: var(--sd-navy);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.sd-register__login-link a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- confirmação pós-registro ---------- */
+
+.sd-register__confirm {
+  text-align: center;
+}
+
+.sd-register__confirm-icon {
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sd-navy);
+  background: #e7e9f7;
+  border-radius: 50%;
+}
+
+.sd-register__confirm .sd-register__subheading {
+  margin-bottom: 0.5rem;
+}
+
+.sd-register__confirm-hint {
+  font-size: 0.8rem;
+  color: var(--sd-ink-soft);
+  margin: 0 0 1.5rem;
+}
+
+/* ---------- responsivo ---------- */
+
+@media (max-width: 960px) {
+  .sd-register {
+    flex-direction: column;
+  }
+
+  .sd-register__brand {
+    flex: none;
+    min-width: 0;
+    max-width: none;
+    min-height: 220px;
+    padding: 2rem 0;
+  }
+
+  .sd-register__brand-content {
+    padding: 0 1.75rem;
+  }
+
+  .sd-register__title {
+    font-size: 1.9rem;
+  }
+
+  .sd-register__tagline {
+    display: none;
+  }
+
+  .sd-register__panel {
+    padding: 2rem 1.25rem 3rem;
+  }
+
+  .sd-register__rules {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sd-register__valve--pulse {
+    animation: none;
+  }
+}

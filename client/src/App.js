@@ -5,28 +5,33 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Home from './pages/Home2';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import VerifyEmail from './pages/VerifyEmail';
 import NewAppointment from './pages/NewAppointment';
 import PendingAppointments from './pages/PendingAppointments';
 import CompletedAppointments from './pages/CompletedAppointments';
 import EditAppointment from './pages/EditAppointment';
 import NewClass from './pages/NewClass';
-import NewPage from './pages/NewPage';
 
 
 export default function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
 
+  const handleLogin = (novoToken) => {
+    localStorage.setItem('token', novoToken);
+    setToken(novoToken);
+  };
+
   return (
     <Router>
       <Routes>
         <Route path="/" element={token ? <Home /> : <Navigate to="/login" replace />} />
-        <Route path="/login" element={<Login onLogin={(token) => { localStorage.setItem('token', token); setToken(token); }} />} />
-        <Route path="/register" element={<Register onRegister={(token) => {localStorage.setItem('token', token); setToken(token) }}/>} />
+        <Route path="/login" element={<Login onLogin={handleLogin} />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/verify-email" element={<VerifyEmail onLogin={handleLogin} />} />
         <Route path="/agendar" element={token ? <NewAppointment /> : <Navigate to="/login" replace />} />
         <Route path="/agendamentos/pendentes" element={token ? <PendingAppointments /> : <Navigate to="/login" replace />} />
         <Route path="/agendamentos/concluidos" element={token ? <CompletedAppointments /> : <Navigate to="/login" replace />} />
         <Route path="/agendamentos/editar/:id" element={token ? <EditAppointment /> : <Navigate to="/login" replace />} />
-        <Route path="/new-page" element={token ? <NewPage /> : <Navigate to="/login" replace />} />
         <Route path="/new-class" element={token ? <NewClass /> : <Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PORT } from "dotenv";
 
-const API_URL = `http://localhost:${PORT}/api/classes`;
+
+const API_URL = `http://localhost:7777/api/classes`;
 
 function extrairIdYoutube(valor) {
     if (!valor) {
@@ -124,7 +124,7 @@ export function useNewClassForm() {
 
         try {
             const token = localStorage.getItem('token');
-            const midiasNormalizadas = midias
+            const midiasNormalizadas = medias
                 .map(normalizarMidia)
                 .filter(Boolean);
 
@@ -180,7 +180,7 @@ export function useNewClassForm() {
         content,
         setContent,
         message,
-        midias,
+        medias,
         handleMediaTypeChange,
         handleMediaFileChange,
         handleMediaValueChange,

@@ -1,0 +1,368 @@
+/* Sobrevivência Doméstica — tela de login
+   Fontes: Space Grotesk (display) + Inter (corpo). Se o projeto já carrega
+   fontes no public/index.html, mova este @import para lá para evitar
+   duplicidade de requisição. */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+.sd-login {
+  --sd-navy: #161e6b;
+  --sd-navy-deep: #0d1246;
+  --sd-off-white: #f0f0f0;
+  --sd-white: #ffffff;
+  --sd-amber: #e8a33d;
+  --sd-valve: #8c3230;
+  --sd-line: rgba(240, 240, 240, 0.16);
+  --sd-ink: #14162b;
+  --sd-ink-soft: #5b5f77;
+  --sd-danger: #b3261e;
+  --sd-danger-bg: #fbeceb;
+  --sd-radius: 4px;
+
+  min-height: 100vh;
+  display: flex;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--sd-ink);
+  background: var(--sd-off-white);
+}
+
+/* ---------- painel de marca ---------- */
+
+.sd-login__brand {
+  position: relative;
+  flex: 0 0 42%;
+  min-width: 380px;
+  max-width: 560px;
+  background: var(--sd-navy);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sd-login__blueprint {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.sd-login__pipes path {
+  fill: none;
+  stroke: var(--sd-line);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.sd-login__nodes circle {
+  fill: var(--sd-navy-deep);
+  stroke: var(--sd-line);
+  stroke-width: 2;
+}
+
+.sd-login__valve {
+  fill: var(--sd-valve);
+  stroke: var(--sd-navy-deep);
+  stroke-width: 2;
+}
+
+.sd-login__valve--pulse {
+  animation: sd-pulse 3.2s ease-in-out infinite;
+}
+
+.sd-login__valve--pulse:nth-of-type(2) {
+  animation-delay: 1.4s;
+}
+
+@keyframes sd-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.sd-login__brand-content {
+  position: relative;
+  z-index: 1;
+  max-width: 360px;
+  padding: 0 3rem;
+  text-align: left;
+}
+
+.sd-login__mark {
+  display: inline-block;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--sd-navy);
+  background: var(--sd-amber);
+  width: 2.75rem;
+  height: 2.75rem;
+  line-height: 2.75rem;
+  text-align: center;
+  border-radius: var(--sd-radius);
+  margin-bottom: 1.75rem;
+}
+
+.sd-login__title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 2.5rem;
+  line-height: 1.15;
+  color: var(--sd-off-white);
+  margin: 0 0 1rem;
+}
+
+.sd-login__tagline {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(240, 240, 240, 0.72);
+  margin: 0;
+}
+
+/* ---------- painel do formulário ---------- */
+
+.sd-login__panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.5rem;
+}
+
+.sd-login__card {
+  width: 100%;
+  max-width: 380px;
+}
+
+.sd-login__heading {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 1.75rem;
+  color: var(--sd-navy);
+  margin: 0 0 0.25rem;
+}
+
+.sd-login__subheading {
+  font-size: 0.95rem;
+  color: var(--sd-ink-soft);
+  margin: 0 0 1.75rem;
+}
+
+.sd-login__error {
+  font-size: 0.875rem;
+  color: var(--sd-danger);
+  background: var(--sd-danger-bg);
+  border-left: 3px solid var(--sd-danger);
+  padding: 0.6rem 0.75rem;
+  margin: 0 0 1.25rem;
+  border-radius: var(--sd-radius);
+}
+
+.sd-login__form {
+  display: flex;
+  flex-direction: column;
+}
+
+.sd-login__field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.1rem;
+}
+
+.sd-login__field label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--sd-ink);
+  margin-bottom: 0.4rem;
+}
+
+.sd-login__field input {
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--sd-ink);
+  background: var(--sd-white);
+  border: 1.5px solid #d4d4dc;
+  border-radius: var(--sd-radius);
+  padding: 0.65rem 0.8rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sd-login__field input::placeholder {
+  color: #a6a6b3;
+}
+
+.sd-login__field input:focus-visible {
+  outline: none;
+  border-color: var(--sd-navy);
+  box-shadow: 0 0 0 3px rgba(22, 30, 107, 0.15);
+}
+
+.sd-login__password-wrap {
+  position: relative;
+  display: flex;
+}
+
+.sd-login__password-wrap input {
+  width: 100%;
+  padding-right: 2.5rem;
+}
+
+.sd-login__toggle-senha {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--sd-ink-soft);
+  cursor: pointer;
+  display: flex;
+  padding: 0.25rem;
+  border-radius: var(--sd-radius);
+}
+
+.sd-login__toggle-senha:hover {
+  color: var(--sd-navy);
+}
+
+.sd-login__toggle-senha:focus-visible {
+  outline: 2px solid var(--sd-navy);
+  outline-offset: 2px;
+}
+
+.sd-login__forgot {
+  align-self: flex-end;
+  font-size: 0.8rem;
+  color: var(--sd-navy);
+  text-decoration: none;
+  margin: -0.4rem 0 1.5rem;
+}
+
+.sd-login__forgot:hover {
+  text-decoration: underline;
+}
+
+.sd-login__submit {
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--sd-off-white);
+  background: var(--sd-navy);
+  border: none;
+  border-radius: var(--sd-radius);
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.sd-login__submit:hover:not(:disabled) {
+  background: var(--sd-navy-deep);
+}
+
+.sd-login__submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.sd-login__submit:focus-visible {
+  outline: 2px solid var(--sd-navy);
+  outline-offset: 2px;
+}
+
+.sd-login__divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--sd-ink-soft);
+  font-size: 0.8rem;
+  margin: 1.5rem 0;
+}
+
+.sd-login__divider::before,
+.sd-login__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #d4d4dc;
+}
+
+.sd-login__google {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--sd-ink);
+  background: var(--sd-white);
+  border: 1.5px solid #d4d4dc;
+  border-radius: var(--sd-radius);
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.sd-login__google:hover {
+  border-color: var(--sd-navy);
+  background: #fafafe;
+}
+
+.sd-login__google:focus-visible {
+  outline: 2px solid var(--sd-navy);
+  outline-offset: 2px;
+}
+
+.sd-login__register {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--sd-ink-soft);
+  margin: 1.75rem 0 0;
+}
+
+.sd-login__register a {
+  color: var(--sd-navy);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.sd-login__register a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- responsivo ---------- */
+
+@media (max-width: 960px) {
+  .sd-login {
+    flex-direction: column;
+  }
+
+  .sd-login__brand {
+    flex: none;
+    min-width: 0;
+    max-width: none;
+    min-height: 220px;
+    padding: 2rem 0;
+  }
+
+  .sd-login__brand-content {
+    padding: 0 1.75rem;
+  }
+
+  .sd-login__title {
+    font-size: 1.9rem;
+  }
+
+  .sd-login__tagline {
+    display: none;
+  }
+
+  .sd-login__panel {
+    padding: 2rem 1.25rem 3rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sd-login__valve--pulse {
+    animation: none;
+  }
+}
