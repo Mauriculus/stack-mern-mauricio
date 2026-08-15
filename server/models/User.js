@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-  username: { type: String, required: true, maxlength: 20 },
+  username: { type: String, required: true, maxlength: 30 },
 
   lastUsernameChange: { type: Date, default: null },
 

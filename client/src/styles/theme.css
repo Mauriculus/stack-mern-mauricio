@@ -1,0 +1,33 @@
+/* Tema compartilhado das telas autenticadas (Sidebar, Home e o que vier depois).
+   As telas de auth (Login/Register/etc.) NÃO importam este arquivo — são
+   públicas e não têm alternância de tema, então mantêm suas próprias
+   variáveis isoladas dentro de cada .sd-login/.sd-register/etc.
+
+   Alternado via atributo data-theme no <html>, controlado pelo ThemeContext. */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --sd-navy: #161e6b;
+  --sd-navy-deep: #0d1246;
+  --sd-off-white: #f0f0f0;
+  --sd-white: #ffffff;
+  --sd-amber: #e8a33d;
+  --sd-valve: #8c3230;
+  --sd-radius: 4px;
+
+  /* tokens "semânticos" — é isso que os componentes devem usar */
+  --sd-bg: var(--sd-off-white);
+  --sd-surface: var(--sd-white);
+  --sd-text: #14162b;
+  --sd-text-soft: #5b5f77;
+  --sd-card-border: var(--sd-navy);
+  --sd-icon-on-navy: #ffffff;
+}
+
+[data-theme='dark'] {
+  --sd-bg: #10142c;
+  --sd-surface: #1a1f42;
+  --sd-text: #eef0fb;
+  --sd-text-soft: #a9adc9;
+  --sd-card-border: #3b437d;
+}

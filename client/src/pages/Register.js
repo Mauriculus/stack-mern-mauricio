@@ -198,6 +198,7 @@ export default function Register() {
                       name="password"
                       autoComplete="new-password"
                       placeholder="••••••••"
+                      maxLength={72}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
@@ -238,6 +239,13 @@ export default function Register() {
                       );
                     })}
                   </ul>
+
+                  {password.length > 60 && (
+                    <p className="sd-register__hint">
+                      Senhas muito longas são cortadas em 72 caracteres pelo sistema — o que
+                      passar disso não faz diferença.
+                    </p>
+                  )}
                 </div>
 
                 <button type="submit" className="sd-register__submit" disabled={carregando}>
