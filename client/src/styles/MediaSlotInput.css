@@ -1,0 +1,126 @@
+.sd-media-slot {
+  background: #e3e4ef;
+  border: 1.5px solid var(--sd-navy);
+  border-radius: 10px;
+  min-height: 180px;
+  overflow: hidden;
+  position: relative;
+}
+
+[data-theme='dark'] .sd-media-slot {
+  background: #232853;
+}
+
+.sd-media-slot__empty {
+  height: 100%;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  color: var(--sd-navy);
+}
+
+[data-theme='dark'] .sd-media-slot__empty {
+  color: var(--sd-text);
+}
+
+.sd-media-slot__ou {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin: 0.1rem 0 0.4rem;
+}
+
+.sd-media-slot__option {
+  width: 100%;
+  max-width: 240px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--sd-navy);
+  background: var(--sd-surface);
+  border: 1.5px solid var(--sd-navy);
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+[data-theme='dark'] .sd-media-slot__option {
+  color: var(--sd-text);
+  border-color: var(--sd-card-border);
+}
+
+.sd-media-slot__option:hover {
+  background: rgba(22, 30, 107, 0.08);
+}
+
+.sd-media-slot__preview {
+  position: relative;
+  width: 100%;
+  height: 180px;
+}
+
+.sd-media-slot__preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sd-media-slot__youtube {
+  position: relative;
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.sd-media-slot__url-input {
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--sd-text);
+  background: var(--sd-surface);
+  border: 1.5px solid var(--sd-card-border);
+  border-radius: var(--sd-radius);
+  padding: 0.55rem 0.7rem;
+}
+
+.sd-media-slot__url-hint {
+  font-size: 0.78rem;
+  color: var(--sd-text-soft);
+  margin: 0;
+}
+
+.sd-media-slot__embed {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: none;
+  border-radius: 6px;
+}
+
+.sd-media-slot__remove {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 1;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(20, 22, 43, 0.65);
+  color: #fff;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sd-media-slot__remove:hover {
+  background: rgba(20, 22, 43, 0.85);
+}

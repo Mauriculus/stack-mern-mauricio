@@ -1,5 +1,9 @@
 import '../styles/EstrelaRating.css';
 
+// Desenha as estrelas via <svg> em vez de carregar estrela.svg /
+// estrelaMetade.svg / estrelaVazia.svg como <img>: numa grade com dezenas de
+// cards, isso evita dezenas de requisições repetidas pro mesmo arquivo e
+// deixa a cor seguir --sd-amber (inclusive no modo escuro) sem esforço.
 export default function EstrelaRating({ media, quantidade, tamanho = 13 }) {
   const temAvaliacao = typeof media === 'number' && quantidade > 0;
 

@@ -7,6 +7,7 @@ const {
     createClass,
     getClassByTitle,
     searchClass,
+    getFollowingClasses,
 } = require("../controllers/classControler")
 
 const { comment, respondComment, getCommentsByClass, rateClass, reportClass } = require("../controllers/userInteractions")
@@ -17,13 +18,16 @@ router.post('/create', authMiddleware,
         { name: 'medias', maxCount: 2},
     ]),
     createClass,);
-router.get('/getByTitle', getClassByTitle)
+
 router.post(`/comment/:normalizedTitle`, authMiddleware, comment)
 router.post('/respond/:commentId', authMiddleware, respondComment)
 router.get('/getComments/:normalizedTitle', getCommentsByClass)
+
 router.put('/rate/:classId', authMiddleware, rateClass)
 router.post('/report/:classId', authMiddleware, reportClass)
-router.get('/search', searchClass)
 
+router.get('/search', searchClass)
+router.get('/getByTitle/:classTitle', getClassByTitle)
+router.get('/getFollowing', authMiddleware, getFollowingClasses)
 
 module.exports = router;

@@ -143,12 +143,6 @@
   color: #b3261e;
 }
 
-.sd-class-modal__danger-text {
-  font-size: 0.85rem;
-  color: var(--sd-text-soft);
-  margin: 0 0 1rem;
-}
-
 .sd-class-modal__badges {
   display: flex;
   gap: 0.6rem;

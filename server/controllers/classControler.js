@@ -138,13 +138,18 @@ const getClassByTitle = async (req, res) => { //para testes no api tester
             authorUsername: searchedClass.authorUsername,
             author: searchedClass.author,
             title: searchedClass.title,
+            normalizedTitle: searchedClass.normalizedTitle,
             content: searchedClass.content,
             subject: searchedClass.subject,
             danger: searchedClass.danger,
             dangerLevel: searchedClass.dangerLevel,
             cover: searchedClass.cover,
             medias: searchedClass.medias,
-            comments: searchedClass.comments
+            comments: searchedClass.comments,
+            ratingAverage: searchedClass.ratingAverage,
+            ratingCount: searchedClass.ratingCount,
+            reportCount: searchedClass.reportCount,
+            createdAt: searchedClass.createdAt
         });
     } catch (error) {
         console.error(error);
@@ -153,8 +158,59 @@ const getClassByTitle = async (req, res) => { //para testes no api tester
 
 };
 
+const getFollowingClasses = async (req, res) => {
+    const userId = req.userId;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    if (!userId) {
+        return res.status(401).json({ mensagem: "Usuário não autenticado" });
+    }
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ mensagem: "Não foi possível encontrar o usuário" });
+        }
+
+        const followingList = Array.isArray(user.following) ? user.following : [];
+        
+        if (followingList.length === 0) {
+            return res.status(200).json({
+                classes: [],
+                currentPage: page,
+                totalPages: 0
+            }); 
+        }
+        const skipIndex = (page - 1) * limit;
+
+        const classes = await Class.find({ author: { $in: followingList } })
+                                   .sort({ createdAt: -1 })
+                                   .skip(skipIndex) 
+                                   .limit(limit);   
+
+        const totalClasses = await Class.countDocuments({ author: { $in: followingList } });
+
+        return res.status(200).json({
+            classes: classes,
+            currentPage: page,
+            totalPages: Math.ceil(totalClasses / limit),
+            totalItems: totalClasses
+        });
+
+    } catch(err) {
+        console.error("Erro ao buscar aulas dos seguidos:", err);
+        return res.status(500).json({ mensagem: "Erro no servidor" });
+    }
+}
+
 const searchClass = async (req, res) => {
     const { q, subject } = req.query
+    const page = Math.max(parseInt(req.query.page) || 1, 1)
+    // teto de 50 pra impedir um ?limit=99999 acidental (ou malicioso) de
+    // pedir o banco inteiro de uma vez
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 12, 1), 50)
+    const skip = (page - 1) * limit
     let filter = {}
 
     try { 
@@ -174,12 +230,22 @@ const searchClass = async (req, res) => {
                 .select({ score: { $meta: "textScore" } })
                 .sort({ score: { $meta: "textScore" } });
         } else {
-            query = query.sort({ ratingSum: -1, createdAt: -1 }).limit(20)
+            query = query.sort({ ratingSum: -1, createdAt: -1 })
         }
 
-        const search = await query.exec()
+        query = query.skip(skip).limit(limit)
 
-        return res.status(200).json({ mensagem: search})
+        const [search, totalItems] = await Promise.all([
+            query.exec(),
+            Class.countDocuments(filter)
+        ])
+
+        return res.status(200).json({
+            mensagem: search,
+            currentPage: page,
+            totalPages: Math.ceil(totalItems / limit),
+            totalItems
+        })
     } catch (err) {
         console.error(err)
         return res.status(500).json({ mensagem: 'Erro no servidor'})
@@ -190,4 +256,5 @@ module.exports = {
     createClass,
     getClassByTitle,
     searchClass,
+    getFollowingClasses,
 };

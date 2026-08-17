@@ -18,7 +18,7 @@ const classSchema = new mongoose.Schema({
 
     authorUsername: {type: String, required: true},
 
-    title: {type: String, required: true},
+    title: {type: String, required: true},                                                                                                                                                                                
 
     normalizedTitle: {type: String, required: true},
 

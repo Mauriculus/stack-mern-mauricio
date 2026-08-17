@@ -150,8 +150,6 @@ function ClassDetailContent({ aula }) {
           )}
         </div>
 
-        {aula.danger && <p className="sd-class-modal__danger-text">{aula.danger}</p>}
-
         <div className="sd-class-modal__badges">
           <span
             className="sd-class-modal__badge"

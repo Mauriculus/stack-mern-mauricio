@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const Class = require('../models/Class');
+const Report = require ('../models/Report')
 const { Comment, Response } = require('../models/Comment');
 const { find } = require('../models/Appointment');
 
@@ -25,13 +26,17 @@ const followUser = async (req, res) => {
   try {
     const follower = await User.findById(followerId)
     if (!follower) {
-      return res.status(404).json({ mensagem: "Usuário não encontrado"})
+      return res.status(401).json({ mensagem: "Usuário não encontrado"})
+    }
+    const following = await User.findById(followingId)
+    if(!following){
+      return res.status(404).json({ mensagem: "Usuário a ser seguido não encontrado"})
     }
     if (follower.banned === true ){
       return res.status(403).json({ mensagem: "Você está banido"})
     }
  
-    const addRes = follower.update({ $addToSet: { following: followingId }});
+    const addRes = await follower.updateOne({ $addToSet: { following: followingId }});
 
     //modifiedCount é a quantidade de documentos alterados
     const added = (addRes.modifiedCount ?? addRes.nModified ?? 0) > 0;
@@ -41,25 +46,18 @@ const followUser = async (req, res) => {
     }
 
     // Incrementa contador de followers do usuário seguido
-    const incRes = await follower.update({ $inc: { followers: 1 } });
+    const incRes = await following.updateOne({ $inc: { followers: 1 } });
     const incUpdated = (incRes.modifiedCount ?? incRes.nModified ?? 0) > 0;
 
     if (!incUpdated) {
       // rollback: remove o following adicionado para evitar dessincronização
-      await follower.update({ $pull: { following: followingId } });
+      await follower.updateOne({ $pull: { following: followingId } });
       return res.status(404).json({ mensagem: 'Usuário a ser seguido não encontrado' });
     }
 
     return res.json({ mensagem: 'Usuário seguido com sucesso' });
   } catch (err) {
-    console.error('Erro ao seguir usuário:', erro);
-    // tenta rollback conservador caso tenha sido adicionado
-    try {
-      await follower.update({ $pull: { following: followingId } });
-    } catch (e) {
-      console.error('Rollback falhou:', e);
-    }
-    console.error(err)
+    console.error('Erro ao seguir usuário:', err);
     return res.status(500).json({ mensagem: 'Erro no servidor' });
   }
 };

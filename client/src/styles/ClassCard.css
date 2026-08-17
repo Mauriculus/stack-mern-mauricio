@@ -1,5 +1,7 @@
 .sd-class-card {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   text-align: left;
   background: var(--sd-surface);
   border: none;
@@ -23,12 +25,13 @@
 }
 
 .sd-class-card__thumb {
+  /* altura fixa em vez de aspect-ratio: não varia com a largura da coluna
+     do grid, então toda imagem corta pro mesmo tamanho — independente do
+     tamanho original que o usuário mandou ou de quantas linhas o título
+     do card ao lado ocupa. */
+  flex: 0 0 140px;
   width: 100%;
-  /* 16:9 em vez de 4:3 força o object-fit: cover a cortar as bordas de
-     cima/baixo — é justamente onde fica a tarja de letterbox que vem
-     "assada" em algumas thumbs do YouTube (hqdefault.jpg é 480x360, 4:3,
-     então numa proporção igual o cover não corta nada e mostra a tarja). */
-  aspect-ratio: 16 / 9;
+  height: 140px;
   background: #dcdce4;
   overflow: hidden;
 }
@@ -50,6 +53,10 @@
 }
 
 .sd-class-card__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   background: var(--sd-navy);
   padding: 0.85rem 1rem 1rem;
 }
