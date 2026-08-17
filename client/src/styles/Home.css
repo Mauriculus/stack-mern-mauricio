@@ -16,27 +16,6 @@
   overflow: hidden;
 }
 
-.sd-home__blueprint {
-  position: absolute;
-  right: -60px;
-  top: -20px;
-  width: 300px;
-  height: auto;
-  opacity: 0.05;
-  pointer-events: none;
-}
-
-.sd-home__pipes path {
-  fill: none;
-  stroke: var(--sd-navy);
-  stroke-width: 3;
-  stroke-linecap: round;
-}
-
-.sd-home__nodes circle {
-  fill: var(--sd-navy);
-}
-
 /* ---------- hero ---------- */
 
 .sd-home__hero {
@@ -254,10 +233,6 @@
   .sd-home__footer {
     margin-left: 0;
     padding-bottom: calc(0.9rem + 62px); /* espaço pra barra inferior fixa */
-  }
-
-  .sd-home__blueprint {
-    display: none;
   }
 }
 

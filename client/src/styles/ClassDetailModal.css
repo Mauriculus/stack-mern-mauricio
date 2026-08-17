@@ -1,0 +1,200 @@
+.sd-class-modal__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 18, 70, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 100;
+}
+
+.sd-class-modal {
+  position: relative;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--sd-surface);
+  border-radius: 12px;
+  padding: 2rem;
+  display: flex;
+  gap: 2rem;
+}
+
+.sd-class-modal__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--sd-text-soft);
+  cursor: pointer;
+}
+
+.sd-class-modal__close:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--sd-text);
+}
+
+.sd-class-modal__hint {
+  font-size: 0.9rem;
+  color: var(--sd-text-soft);
+}
+
+.sd-class-modal__error {
+  font-size: 0.9rem;
+  color: #b3261e;
+}
+
+.sd-class-modal__media {
+  flex: 0 0 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sd-class-modal__media img {
+  width: 100%;
+  /* mesma lógica do card: 16:9 corta a tarja das thumbs do YouTube */
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.sd-class-modal__placeholder {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  background: #dcdce4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9a9aad;
+}
+
+.sd-class-modal__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sd-class-modal__title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--sd-navy);
+  margin: 0 0 1rem;
+}
+
+[data-theme='dark'] .sd-class-modal__title {
+  color: var(--sd-text);
+}
+
+.sd-class-modal__author {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  color: var(--sd-text);
+  margin-bottom: 0.75rem;
+}
+
+.sd-class-modal__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--sd-navy);
+  color: var(--sd-off-white);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.sd-class-modal__date {
+  color: var(--sd-text-soft);
+}
+
+.sd-class-modal__stats {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.sd-class-modal__stat {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--sd-text-soft);
+}
+
+.sd-class-modal__stat--alerta {
+  color: #b3261e;
+}
+
+.sd-class-modal__danger-text {
+  font-size: 0.85rem;
+  color: var(--sd-text-soft);
+  margin: 0 0 1rem;
+}
+
+.sd-class-modal__badges {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.sd-class-modal__badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+}
+
+.sd-class-modal__badge--outline {
+  background: transparent;
+  border: 1.5px solid currentColor;
+}
+
+.sd-class-modal__button {
+  margin-top: auto;
+  align-self: flex-start;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--sd-off-white);
+  background: var(--sd-navy);
+  border-radius: var(--sd-radius);
+  padding: 0.75rem 1.75rem;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.sd-class-modal__button:hover {
+  background: var(--sd-navy-deep);
+}
+
+@media (max-width: 768px) {
+  .sd-class-modal {
+    flex-direction: column;
+    padding: 1.5rem;
+  }
+
+  .sd-class-modal__media {
+    flex: none;
+  }
+}

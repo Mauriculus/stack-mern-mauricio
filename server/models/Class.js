@@ -22,7 +22,7 @@ const classSchema = new mongoose.Schema({
 
     normalizedTitle: {type: String, required: true},
 
-    cover: {type: String},
+    cover: {type: String, required: true},
 
     ratingCount: {type: Number, default: 0},
     ratingSum: {type: Number, default: 0},

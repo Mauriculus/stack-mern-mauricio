@@ -21,7 +21,7 @@
 }
 
 .sd-sidebar__logo img {
-  width: 56px;
+  width: 62px;
   height: auto;
 }
 
@@ -42,9 +42,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
   background: transparent;
   border: none;
   padding: 0;
@@ -54,16 +54,16 @@
 }
 
 .sd-sidebar__icon img {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   /* assume ícones em um só tom escuro — se os .svg já vierem brancos,
      remova este filtro. */
   filter: brightness(0) invert(1);
 }
 
 .sd-sidebar__icon--grande img {
-  width: 30px;
-  height: 30px;
+  width: 42px;
+  height: 42px;
 }
 
 .sd-sidebar__icon:hover {
@@ -116,7 +116,17 @@
   }
 
   .sd-sidebar__icon {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
+  }
+
+  .sd-sidebar__icon img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .sd-sidebar__icon--grande img {
+    width: 34px;
+    height: 34px;
   }
 }

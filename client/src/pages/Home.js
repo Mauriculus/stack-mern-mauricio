@@ -5,33 +5,33 @@ import '../styles/Home.css';
 const CATEGORIAS = [
   {
     indice: '01',
-    titulo: 'Cozinha',
-    descricao: 'Do arroz no ponto às compras da semana sem desperdício.',
+    titulo: 'Elétrica',
+    descricao: 'Trocar uma tomada, entender o disjuntor, mexer sem levar susto.',
   },
   {
     indice: '02',
-    titulo: 'Limpeza & organização',
-    descricao: 'Rotinas que não tomam o fim de semana inteiro.',
+    titulo: 'Hidráulica',
+    descricao: 'Vazamento, entupimento, registro — o básico pra não inundar a casa.',
   },
   {
     indice: '03',
-    titulo: 'Consertos & manutenção',
-    descricao: 'Antes de chamar alguém, tenta resolver você mesmo.',
+    titulo: 'Eletrodomésticos',
+    descricao: 'Usar, limpar e consertar o que já tem, sem chamar assistência pra tudo.',
   },
   {
     indice: '04',
-    titulo: 'Financeiro & contas',
-    descricao: 'Boleto, aluguel, imposto — sem enrolação.',
+    titulo: 'Limpeza',
+    descricao: 'Rotinas que não tomam o fim de semana inteiro.',
   },
   {
     indice: '05',
-    titulo: 'Segurança & emergências',
-    descricao: 'O que fazer quando alguma coisa dá errado de verdade.',
+    titulo: 'Culinária',
+    descricao: 'Do arroz no ponto às compras da semana sem desperdício.',
   },
   {
     indice: '06',
-    titulo: 'Documentos & burocracia',
-    descricao: 'Aquela papelada que ninguém te explica antes de precisar.',
+    titulo: 'Costura',
+    descricao: 'Pregar um botão, ajustar uma barra, resolver sem depender de costureira.',
   },
 ];
 
@@ -41,28 +41,6 @@ export default function Home() {
       <Sidebar />
 
       <main className="sd-home__main">
-        {/* mesmo motivo de circuito das telas de auth, bem discreto, só pra
-            amarrar visualmente a home ao resto do app */}
-        <svg
-          className="sd-home__blueprint"
-          viewBox="0 0 320 420"
-          preserveAspectRatio="xMidYMid slice"
-          aria-hidden="true"
-        >
-          <g className="sd-home__pipes">
-            <path d="M -20 80 H 140 V 20 H 340" />
-            <path d="M -20 200 H 100 V 260 H 240 V 200 H 340" />
-            <path d="M -20 340 H 180 V 400 H 340" />
-          </g>
-          <g className="sd-home__nodes">
-            <circle cx="140" cy="80" r="4" />
-            <circle cx="140" cy="20" r="4" />
-            <circle cx="100" cy="200" r="4" />
-            <circle cx="240" cy="260" r="4" />
-            <circle cx="180" cy="340" r="4" />
-          </g>
-        </svg>
-
         <section className="sd-home__hero">
           <span className="sd-home__eyebrow">
             <span className="sd-home__eyebrow-dot" aria-hidden="true" />
@@ -116,7 +94,7 @@ export default function Home() {
       <footer className="sd-home__footer">
         <span>
           Envie feedback ou aplique para se tornar um administrador para:{' '}
-          mauroscan20@gmail.com
+          sobrevivencia1domestica@gmail.com
         </span>
       </footer>
     </div>

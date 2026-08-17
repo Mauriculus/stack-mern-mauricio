@@ -19,8 +19,9 @@ const avaliableDanger = [
 ]
 
 const createClass = async (req, res) => {
-    const { title, content, subject, danger, dangerLevel, youtubeUrls } = req.body;  
-    const files = req.files || []; 
+    const { title, content, subject, danger, dangerLevel, youtubeUrls } = req.body;
+    const coverFile = req.files?.cover?.[0];
+    const galeria = req.files?.medias || [];
     const userId = req.userId;
 
     const normalizeTitle = (value) =>
@@ -37,6 +38,10 @@ const createClass = async (req, res) => {
 
     if (!title || !subject || !danger || !dangerLevel || !content) {
         return res.status(400).json({ message: 'Preencha todos os campos obrigatórios' });
+    }
+
+    if (!coverFile) {
+        return res.status(400).json({ message: 'A imagem de capa é obrigatória' });
     }
 
     try {
@@ -60,16 +65,14 @@ const createClass = async (req, res) => {
 
         const medias = [];
 
-        for (const file of files) {
+        for (const file of galeria) {
             medias.push({
                 type: 'imagem',
                 value: `/uploads/${file.filename}`
             });
         }
 
-        // Adiciona os links do YouTube (se vieram)
         if (youtubeUrls) {
-            // O front-end pode mandar 1 link (string) ou vários (array). Normalizamos para array.
             const urls = Array.isArray(youtubeUrls) ? youtubeUrls : [youtubeUrls];
             for (const url of urls) {
                 if (url.trim() !== '') { // Evita links vazios
@@ -82,7 +85,7 @@ const createClass = async (req, res) => {
         }
 
         if (medias.length > 2) {
-            return res.status(400).json({ message: 'Você só pode enviar no máximo 2 mídias (imagens ou vídeos).' });
+            return res.status(400).json({ message: 'Você só pode enviar no máximo 2 mídias (imagens ou vídeos) além da capa.' });
         }
 
         const newClass = new Class({
@@ -94,6 +97,7 @@ const createClass = async (req, res) => {
             dangerLevel,
             author: userId,
             authorUsername: user.username,
+            cover: `/uploads/${coverFile.filename}`,
             medias: medias
         });
 
@@ -104,6 +108,7 @@ const createClass = async (req, res) => {
             classId: newClass._id,
             title: newClass.title,
             normalizedTitle: newClass.normalizedTitle,
+            cover: newClass.cover,
             medias: newClass.medias
         });
         
@@ -115,8 +120,8 @@ const createClass = async (req, res) => {
 
 
 
-const getClassById = async (req, res) => {
-    const { classTitle } = req.body
+const getClassByTitle = async (req, res) => { //para testes no api tester
+    const { classTitle } = req.params
 
     try {
         if (!classTitle || String(classTitle).trim() === '') {
@@ -183,6 +188,6 @@ const searchClass = async (req, res) => {
 
 module.exports = {
     createClass,
-    getClassById,
+    getClassByTitle,
     searchClass,
 };

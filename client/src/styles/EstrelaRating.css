@@ -1,0 +1,22 @@
+.sd-estrelas {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  color: var(--sd-amber);
+}
+
+.sd-estrelas--vazia {
+  font-size: 0.75rem;
+  color: var(--sd-text-soft);
+}
+
+.sd-estrelas__valor {
+  margin-left: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.sd-estrelas__quantidade {
+  font-weight: 500;
+  opacity: 0.75;
+}
