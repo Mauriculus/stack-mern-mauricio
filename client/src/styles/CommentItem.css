@@ -1,0 +1,147 @@
+.sd-comment-thread {
+  margin-bottom: 1.5rem;
+}
+
+.sd-comment {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.sd-comment--resposta {
+  margin-top: 1rem;
+  margin-left: 2.5rem;
+}
+
+.sd-comment__avatar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--sd-navy);
+  color: var(--sd-off-white);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.sd-comment--resposta .sd-comment__avatar {
+  width: 28px;
+  height: 28px;
+  font-size: 0.75rem;
+}
+
+.sd-comment__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.sd-comment__meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 0.2rem;
+}
+
+.sd-comment__autor {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--sd-text);
+}
+
+.sd-comment__data {
+  font-size: 0.75rem;
+  color: var(--sd-text-soft);
+}
+
+.sd-comment__texto {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--sd-text);
+  margin: 0 0 0.4rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.sd-comment__responder {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--sd-text-soft);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.sd-comment__responder:hover {
+  color: var(--sd-navy);
+}
+
+[data-theme='dark'] .sd-comment__responder:hover {
+  color: var(--sd-amber);
+}
+
+.sd-comment__toggle-respostas {
+  margin-top: 0.6rem;
+  margin-left: 2.7rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--sd-navy);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+[data-theme='dark'] .sd-comment__toggle-respostas {
+  color: var(--sd-amber);
+}
+
+.sd-comment__respostas {
+  margin-top: 0.5rem;
+}
+
+.sd-comment-reply-box {
+  margin: 0.75rem 0 0 2.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sd-comment-reply-box textarea {
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--sd-text);
+  background: var(--sd-surface);
+  border: 1.5px solid var(--sd-card-border);
+  border-radius: var(--sd-radius);
+  padding: 0.5rem 0.65rem;
+  resize: vertical;
+  min-height: 60px;
+}
+
+.sd-comment-reply-box__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--sd-text-soft);
+}
+
+.sd-comment-reply-box__actions button {
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--sd-off-white);
+  background: var(--sd-navy);
+  border: none;
+  border-radius: var(--sd-radius);
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+}
+
+.sd-comment-reply-box__actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

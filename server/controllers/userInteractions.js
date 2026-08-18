@@ -261,29 +261,41 @@ const respondComment = async (req, res) => {
 
 const getCommentsByClass = async (req, res) => { 
   const { normalizedTitle } = req.params;
+  const page = Math.max(parseInt(req.query.page) || 1, 1);
+  // mesmo teto de segurança usado no searchClass, pra não deixar pedir a
+  // lista inteira de comentários de uma vez só
+  const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 50);
+  const skip = (page - 1) * limit;
 
   if (!normalizedTitle) {
     return res.status(400).json({ mensagem: 'Aula é obrigatória' });
   }
 
   try {
-    const comments = await Comment.find({ classTitle: normalizedTitle })
-      .populate({
-        path: 'author',
-        select: 'username profilePicture'
-      })
-      .populate({
-        path: 'responses',
-        populate: {
+    const [comments, totalItems] = await Promise.all([
+      Comment.find({ classTitle: normalizedTitle })
+        .populate({
           path: 'author',
           select: 'username profilePicture'
-        }
-      })
-      .sort({ createdAt: -1 })
+        })
+        .populate({
+          path: 'responses',
+          populate: {
+            path: 'author',
+            select: 'username profilePicture'
+          }
+        })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Comment.countDocuments({ classTitle: normalizedTitle })
+    ])
 
     return res.status(200).json({
       mensagem: 'Comentários recuperados com sucesso',
-      total: comments.length,
+      total: totalItems,
+      currentPage: page,
+      totalPages: Math.ceil(totalItems / limit),
       comments: comments.map(comment => ({
         _id: comment._id,
         author: {
@@ -444,7 +456,8 @@ const reportClass = async (req, res) => {
     await newReport.save()
     
     reportedClass.reports.push(newReport._id);
-    reportedClass.$inc('reportedCount', 1)
+    reportedClass.reportCount += 1;
+    await reportedClass.save();
 
     await reportedClass.save()
 
@@ -467,4 +480,3 @@ module.exports = {
   rateClass,
   reportClass,
 };
-

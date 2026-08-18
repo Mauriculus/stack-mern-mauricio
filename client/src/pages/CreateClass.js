@@ -2,10 +2,12 @@ import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import MediaSlotInput from '../components/MediaSlotInput';
-import { API_BASE, ASSUNTOS } from '../utils/classTaxonomia';
+import ColorSelect from '../components/ColorSelect';
+import { API_BASE, ASSUNTOS, COR_ASSUNTO, COR_RISCO } from '../utils/classTaxonomia';
 import '../styles/CreateClass.css';
 
-const RISCOS = ['Baixo Risco', 'Médio Risco', 'Alto Risco'];
+const RISCOS = Object.keys(COR_RISCO);
+const LIMITE_CONTEUDO = 4000;
 
 const SLOT_VAZIO = { tipo: null, arquivo: null, previewUrl: null, youtubeUrl: '', youtubeId: null };
 
@@ -36,6 +38,10 @@ export default function CreateClass() {
 
   const atualizarSlot = (indice, novoSlot) => {
     setMediaSlots((atual) => atual.map((slot, i) => (i === indice ? novoSlot : slot)));
+  };
+
+  const aoDigitarConteudo = (e) => {
+    setConteudo(e.target.value.slice(0, LIMITE_CONTEUDO));
   };
 
   const handleSubmit = async (e) => {
@@ -110,17 +116,13 @@ export default function CreateClass() {
           </div>
 
           <div className="sd-create__toolbar">
-            <div className="sd-create__field-inline">
-              <label htmlFor="tema">Tema</label>
-              <select id="tema" value={tema} onChange={(e) => setTema(e.target.value)}>
-                <option value="">Selecione</option>
-                {ASSUNTOS.map((assunto) => (
-                  <option key={assunto} value={assunto}>
-                    {assunto}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <ColorSelect
+              label="Tema"
+              value={tema}
+              onChange={setTema}
+              options={ASSUNTOS}
+              cores={COR_ASSUNTO}
+            />
 
             <div className="sd-create__cover">
               <span className="sd-create__cover-label">Foto de capa</span>
@@ -161,9 +163,12 @@ export default function CreateClass() {
               <textarea
                 id="conteudo"
                 value={conteudo}
-                onChange={(e) => setConteudo(e.target.value)}
+                onChange={aoDigitarConteudo}
                 placeholder="Explique o passo a passo aqui…"
               />
+              <span className="sd-create__content-counter">
+                {conteudo.length}/{LIMITE_CONTEUDO}
+              </span>
             </div>
 
             <div className="sd-create__medias">
@@ -173,17 +178,13 @@ export default function CreateClass() {
 
             <div className="sd-create__risk">
               <div className="sd-create__risk-header">
-                <div className="sd-create__field-inline">
-                  <label htmlFor="risco">Risco</label>
-                  <select id="risco" value={riscoNivel} onChange={(e) => setRiscoNivel(e.target.value)}>
-                    <option value="">Selecione</option>
-                    {RISCOS.map((risco) => (
-                      <option key={risco} value={risco}>
-                        {risco}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <ColorSelect
+                  label="Risco"
+                  value={riscoNivel}
+                  onChange={setRiscoNivel}
+                  options={RISCOS}
+                  cores={COR_RISCO}
+                />
 
                 <div className="sd-create__help-wrap">
                   <button

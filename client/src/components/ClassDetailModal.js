@@ -4,11 +4,13 @@ import { API_BASE, COR_ASSUNTO, COR_RISCO, capaDaAula } from '../utils/classTaxo
 import EstrelaRating from './EstrelaRating';
 import '../styles/ClassDetailModal.css';
 
-export default function ClassDetailModal({ classTitle, tituloProvisorio, onClose }) {
+export default function ClassDetailModal({ classId, tituloProvisorio, onClose }) {
   const [aula, setAula] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
 
+  console.log("O classId que o modal recebeu é:", classId)
+  
   useEffect(() => {
     let cancelado = false;
 
@@ -17,9 +19,10 @@ export default function ClassDetailModal({ classTitle, tituloProvisorio, onClose
       setErro('');
 
       try {
-        // rota por parâmetro de URL, não mais query string — bate com
-        // getClassByTitle lendo req.params.classTitle
-        const response = await fetch(`${API_BASE}/api/classes/getByTitle/${encodeURIComponent(classTitle)}`);
+        // por classId em vez de normalizedTitle: título não é único, então
+        // buscar por título arrisca pegar a aula errada se duas tiverem o
+        // mesmo nome
+        const response = await fetch(`${API_BASE}/api/classes/getById/${encodeURIComponent(classId)}`);
         const data = await response.json();
 
         if (cancelado) return;
@@ -41,7 +44,7 @@ export default function ClassDetailModal({ classTitle, tituloProvisorio, onClose
     return () => {
       cancelado = true;
     };
-  }, [classTitle]);
+  }, [classId]);
 
   useEffect(() => {
     const aoTeclar = (e) => {
@@ -170,7 +173,7 @@ function ClassDetailContent({ aula }) {
           )}
         </div>
 
-        <Link to={`/aula/${aula.normalizedTitle}`} className="sd-class-modal__button">
+        <Link to={`/aula/${aula._id}`} className="sd-class-modal__button">
           Continuar
         </Link>
       </div>

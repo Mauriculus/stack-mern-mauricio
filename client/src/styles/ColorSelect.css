@@ -1,0 +1,79 @@
+.sd-color-select {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.sd-color-select__label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--sd-navy);
+}
+
+[data-theme='dark'] .sd-color-select__label {
+  color: var(--sd-text);
+}
+
+.sd-color-select__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--sd-surface);
+  border: 1.5px solid var(--sd-card-border);
+  border-radius: 999px;
+  padding: 0.4rem 0.6rem 0.4rem 0.9rem;
+  cursor: pointer;
+  color: var(--sd-text-soft);
+}
+
+.sd-color-select__placeholder {
+  font-size: 0.85rem;
+  color: var(--sd-text-soft);
+}
+
+.sd-color-select__chip {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  white-space: nowrap;
+}
+
+.sd-color-select__panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  background: var(--sd-surface);
+  border: 1.5px solid var(--sd-card-border);
+  border-radius: 10px;
+  padding: 0.6rem;
+  box-shadow: 0 8px 24px rgba(13, 18, 70, 0.18);
+  min-width: 180px;
+}
+
+.sd-color-select__option {
+  display: flex;
+  background: transparent;
+  border: none;
+  padding: 0.15rem;
+  cursor: pointer;
+  border-radius: 999px;
+  text-align: left;
+}
+
+.sd-color-select__option:hover .sd-color-select__chip {
+  filter: brightness(1.1);
+}
+
+.sd-color-select__option[aria-selected='true'] {
+  outline: 2px solid var(--sd-amber);
+  outline-offset: 1px;
+}

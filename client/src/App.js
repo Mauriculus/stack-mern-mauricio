@@ -10,11 +10,6 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Search from './pages/Search';
 import CreateClass from './pages/CreateClass'
-import NewAppointment from './pages/NewAppointment';
-import PendingAppointments from './pages/PendingAppointments';
-import CompletedAppointments from './pages/CompletedAppointments';
-import EditAppointment from './pages/EditAppointment';
-
 
 
 export default function App() {
@@ -37,10 +32,6 @@ export default function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/pesquisar" element={token ? <Search /> : <Navigate to="/login" replace />} />
           <Route path="/criar-aula" element={token ? <CreateClass /> : <Navigate to="/login" replace />} />
-          <Route path="/agendar" element={token ? <NewAppointment /> : <Navigate to="/login" replace />} />
-          <Route path="/agendamentos/pendentes" element={token ? <PendingAppointments /> : <Navigate to="/login" replace />} />
-          <Route path="/agendamentos/concluidos" element={token ? <CompletedAppointments /> : <Navigate to="/login" replace />} />
-          <Route path="/agendamentos/editar/:id" element={token ? <EditAppointment /> : <Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>

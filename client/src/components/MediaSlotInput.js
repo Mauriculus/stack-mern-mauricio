@@ -33,10 +33,6 @@ export default function MediaSlotInput({ slot, onChange, indice }) {
     <div className="sd-media-slot">
       {slot.tipo === null && (
         <div className="sd-media-slot__empty">
-          <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true">
-            <path d="M12 20V4M5 11l7-7 7 7" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <span className="sd-media-slot__ou">Ou</span>
           <button type="button" className="sd-media-slot__option" onClick={escolherImagem}>
             Inserir imagem
           </button>

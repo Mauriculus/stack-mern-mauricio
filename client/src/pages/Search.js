@@ -271,7 +271,7 @@ export default function Search() {
 
       {aulaSelecionada && (
         <ClassDetailModal
-          classTitle={aulaSelecionada.normalizedTitle}
+          classId={aulaSelecionada._id}
           tituloProvisorio={aulaSelecionada.title}
           onClose={() => setAulaSelecionada(null)}
         />

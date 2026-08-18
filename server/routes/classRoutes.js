@@ -8,6 +8,7 @@ const {
     getClassByTitle,
     searchClass,
     getFollowingClasses,
+    getClassById,
 } = require("../controllers/classControler")
 
 const { comment, respondComment, getCommentsByClass, rateClass, reportClass } = require("../controllers/userInteractions")
@@ -28,6 +29,7 @@ router.post('/report/:classId', authMiddleware, reportClass)
 
 router.get('/search', searchClass)
 router.get('/getByTitle/:classTitle', getClassByTitle)
+router.get('/getById/:classId', getClassById)
 router.get('/getFollowing', authMiddleware, getFollowingClasses)
 
 module.exports = router;

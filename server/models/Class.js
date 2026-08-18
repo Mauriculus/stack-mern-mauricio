@@ -31,7 +31,7 @@ const classSchema = new mongoose.Schema({
     reports: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Report'}],
     reportCount: { type: Number, required: true, default: 0},
     
-    content: {type: String, required: true},
+    content: {type: String, required: true, minlength: 20, maxlength: 4000},
     
     comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
 

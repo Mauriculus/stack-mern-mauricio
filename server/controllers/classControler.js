@@ -1,6 +1,7 @@
 const { urlencoded } = require('express');
 const Class = require('../models/Class');
-const User = require("../models/User")
+const User = require("../models/User");
+const { default: mongoose } = require('mongoose');
 
 
 const availableSubjects = [
@@ -61,6 +62,10 @@ const createClass = async (req, res) => {
         }
         if (!avaliableDanger.includes(dangerLevel)) {
             return res.status(400).json({ mensagem: "Escolha um dos níveis de risco disponíveis"})
+        }
+
+        if (content.length < 20 || content.length > 4000){
+            return res.status(400).json({mensagem: "O conteúdo da aula deve estar entre 20 e 4000 caracteres"})
         }
 
         const medias = [];
@@ -158,6 +163,49 @@ const getClassByTitle = async (req, res) => { //para testes no api tester
 
 };
 
+const getClassById = async (req, res) => { 
+    const { classId } = req.params
+    
+    if (!classId) {
+        return res.status(400).json({mensagem: "Envie a aula a ser procurada"})
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(classId)) {
+        return res.status(400).json({ mensagem: "Formato de ID inválido" });
+    }
+
+    try {
+        const searchedClass = await Class.findById(classId)
+        
+        if (!searchedClass) {
+            return res.status(404).json({ mensagem: "A aula desejada não existe"})
+        }
+
+        return res.status(200).json({
+            _id: searchedClass._id,
+            authorUsername: searchedClass.authorUsername,
+            author: searchedClass.author,
+            title: searchedClass.title,
+            normalizedTitle: searchedClass.normalizedTitle,
+            content: searchedClass.content,
+            subject: searchedClass.subject,
+            danger: searchedClass.danger,
+            dangerLevel: searchedClass.dangerLevel,
+            cover: searchedClass.cover,
+            medias: searchedClass.medias,
+            comments: searchedClass.comments,
+            ratingAverage: searchedClass.ratingAverage,
+            ratingCount: searchedClass.ratingCount,
+            reportCount: searchedClass.reportCount,
+            createdAt: searchedClass.createdAt
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ mensagem: "Erro no servidor" });
+    }
+
+};
+
 const getFollowingClasses = async (req, res) => {
     const userId = req.userId;
     const page = parseInt(req.query.page) || 1;
@@ -185,7 +233,7 @@ const getFollowingClasses = async (req, res) => {
         const skipIndex = (page - 1) * limit;
 
         const classes = await Class.find({ author: { $in: followingList } })
-                                   .sort({ createdAt: -1 })
+                                   .sort({ ratingSum: -1, createdAt: -1 })
                                    .skip(skipIndex) 
                                    .limit(limit);   
 
@@ -257,4 +305,5 @@ module.exports = {
     getClassByTitle,
     searchClass,
     getFollowingClasses,
+    getClassById,
 };

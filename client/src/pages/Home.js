@@ -79,13 +79,13 @@ export default function Home() {
         </section>
 
         <section className="sd-home__section">
-          <h2 className="sd-home__section-title">Aulas recentes da comunidade</h2>
+          <h2 className="sd-home__section-title">Compartilhe o que você sabe</h2>
           <div className="sd-home__empty">
             <p className="sd-home__empty-text">
-              Ainda não há aulas publicadas por aqui.
+              Toda aula começa com alguém disposto a ensinar.
             </p>
             <Link to="/criar-aula" className="sd-home__button">
-              Seja a primeira pessoa a criar uma
+              Criar uma aula
             </Link>
           </div>
         </section>
@@ -94,7 +94,7 @@ export default function Home() {
       <footer className="sd-home__footer">
         <span>
           Envie feedback ou aplique para se tornar um administrador para:{' '}
-          sobrevivencia1domestica@gmail.com
+          mauroscan20@gmail.com
         </span>
       </footer>
     </div>
