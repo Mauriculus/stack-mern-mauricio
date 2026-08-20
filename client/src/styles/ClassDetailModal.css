@@ -118,6 +118,13 @@
   color: var(--sd-off-white);
   font-size: 0.8rem;
   font-weight: 700;
+  overflow: hidden;
+}
+
+.sd-class-modal__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .sd-class-modal__date {

@@ -56,14 +56,20 @@
 .sd-sidebar__icon img {
   width: 32px;
   height: 32px;
-  /* assume ícones em um só tom escuro — se os .svg já vierem brancos,
-     remova este filtro. */
   filter: brightness(0) invert(1);
 }
 
 .sd-sidebar__icon--grande img {
   width: 42px;
   height: 42px;
+}
+
+.sd-sidebar__icon img.sd-sidebar__profile-pic {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  filter: none;
 }
 
 .sd-sidebar__icon:hover {

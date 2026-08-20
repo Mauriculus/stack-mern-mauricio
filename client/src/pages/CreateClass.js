@@ -89,7 +89,7 @@ export default function CreateClass() {
         return;
       }
 
-      navigate(`/aula/${data.normalizedTitle}`);
+      navigate(`/aula/${data.classId}`);
     } catch (error) {
       setMensagem('Erro ao conectar com o servidor');
     } finally {

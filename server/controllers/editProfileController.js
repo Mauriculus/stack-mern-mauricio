@@ -76,8 +76,11 @@ const editUsername = async (req, res) => {
   }
 };
 
+const fs = require('fs');
+const path = require('path');
+
 const editPicture = async (req, res) => {
-  const userId = req.userId; // Obtido através do authMiddleware;
+  const userId = req.userId; 
 
   // O multer disponibiliza o arquivo em req.file se for enviado
   const profilePicture = req.file ? req.file.filename : undefined;
@@ -91,6 +94,15 @@ const editPicture = async (req, res) => {
 
     if (!profilePicture) {
       return res.json({ mensagem: 'Nenhuma nova foto enviada, mantendo a atual.' });
+    }
+
+    if (user.profilePicture) {
+      const oldPicturePath = path.join(__dirname, '..', 'uploads', user.profilePicture);
+      fs.unlink(oldPicturePath, (err) => {
+        if (err && err.code !== 'ENOENT') {
+          console.error("Erro ao deletar a foto de perfil antiga:", err);
+        }
+      });
     }
 
     user.profilePicture = profilePicture;

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_BASE } from '../utils/classTaxonomia';
 import '../styles/CommentItem.css';
 
 const LIMITE_RESPOSTA = 500;
@@ -11,7 +12,15 @@ function LinhaComentario({ comentario, indentado, podeResponder, aoResponder }) 
   return (
     <div className={`sd-comment ${indentado ? 'sd-comment--resposta' : ''}`}>
       <span className="sd-comment__avatar" aria-hidden="true">
-        {comentario.author?.username?.[0]?.toUpperCase() || '?'}
+        {comentario.author?.profilePicture ? (
+          <img
+            src={`${API_BASE}/uploads/${comentario.author.profilePicture}`}
+            alt=""
+            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+          />
+        ) : (
+          comentario.author?.username?.[0]?.toUpperCase() || '?'
+        )}
       </span>
       <div className="sd-comment__body">
         <div className="sd-comment__meta">

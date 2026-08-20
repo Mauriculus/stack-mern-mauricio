@@ -26,6 +26,20 @@ export const COR_RISCO = {
   'Alto Risco': '#b3261e',
 };
 
+// mesma lista do availableReasons em userInteractions.js — precisa ficar
+// idêntica, senão o backend rejeita com "Selecione uma das razões"
+export const RAZOES_DENUNCIA = [
+  'Conteúdo incorreto ou perigoso',
+  'Linguagem inapropriada',
+  'Conteúdo fora do tema do site',
+  'Plágio ou cópia indevida',
+  'Spam ou propaganda',
+  'Imagens ou vídeos inapropriados',
+  'Informações desatualizadas',
+  'Título ou nome de usuário inapropriado',
+  'Outro',
+];
+
 export function extrairIdYoutube(url) {
   const match = String(url).match(/(?:youtu\.be\/|v=|embed\/)([a-zA-Z0-9_-]{11})/);
   return match ? match[1] : null;

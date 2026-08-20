@@ -9,7 +9,10 @@ const {
     searchClass,
     getFollowingClasses,
     getClassById,
-} = require("../controllers/classControler")
+    deleteClass,
+    getClassesByAuthor,
+    editClass,
+ } = require("../controllers/classControler")
 
 const { comment, respondComment, getCommentsByClass, rateClass, reportClass } = require("../controllers/userInteractions")
 
@@ -19,6 +22,7 @@ router.post('/create', authMiddleware,
         { name: 'medias', maxCount: 2},
     ]),
     createClass,);
+router.put('/edit/:classId', authMiddleware, editClass)
 
 router.post(`/comment/:normalizedTitle`, authMiddleware, comment)
 router.post('/respond/:commentId', authMiddleware, respondComment)
@@ -31,5 +35,7 @@ router.get('/search', searchClass)
 router.get('/getByTitle/:classTitle', getClassByTitle)
 router.get('/getById/:classId', getClassById)
 router.get('/getFollowing', authMiddleware, getFollowingClasses)
+router.get('/byAuthor/:userId', getClassesByAuthor)
+router.delete('/:classId', authMiddleware, deleteClass)
 
 module.exports = router;

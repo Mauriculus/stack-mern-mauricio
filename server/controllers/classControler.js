@@ -140,6 +140,7 @@ const getClassByTitle = async (req, res) => { //para testes no api tester
         }
 
         return res.status(200).json({
+            _id: searchedClass._id,
             authorUsername: searchedClass.authorUsername,
             author: searchedClass.author,
             title: searchedClass.title,
@@ -175,7 +176,7 @@ const getClassById = async (req, res) => {
     }
 
     try {
-        const searchedClass = await Class.findById(classId)
+        const searchedClass = await Class.findById(classId).populate('author', 'username profilePicture');
         
         if (!searchedClass) {
             return res.status(404).json({ mensagem: "A aula desejada não existe"})
@@ -183,8 +184,9 @@ const getClassById = async (req, res) => {
 
         return res.status(200).json({
             _id: searchedClass._id,
-            authorUsername: searchedClass.authorUsername,
-            author: searchedClass.author,
+            authorUsername: searchedClass.author ? searchedClass.author.username : searchedClass.authorUsername,
+            authorProfilePicture: searchedClass.author ? searchedClass.author.profilePicture : null,
+            author: searchedClass.author ? searchedClass.author._id : searchedClass.author,
             title: searchedClass.title,
             normalizedTitle: searchedClass.normalizedTitle,
             content: searchedClass.content,
@@ -204,6 +206,98 @@ const getClassById = async (req, res) => {
         return res.status(500).json({ mensagem: "Erro no servidor" });
     }
 
+};
+
+// Lista paginada das aulas de um autor específico — mesmo padrão do
+// getFollowingClasses, só trocando o filtro. Usada na tela de perfil (tanto
+// pra "minhas aulas" quanto, no futuro, pra ver as aulas de outra pessoa).
+const getClassesByAuthor = async (req, res) => {
+    const { userId } = req.params;
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 50);
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ mensagem: "ID de usuário inválido" });
+    }
+
+    try {
+        const skipIndex = (page - 1) * limit;
+
+        const [classes, totalItems] = await Promise.all([
+            Class.find({ author: userId })
+                .sort({ createdAt: -1 })
+                .skip(skipIndex)
+                .limit(limit),
+            Class.countDocuments({ author: userId })
+        ]);
+
+        return res.status(200).json({
+            classes,
+            currentPage: page,
+            totalPages: Math.ceil(totalItems / limit),
+            totalItems
+        });
+    } catch (err) {
+        console.error("Erro ao buscar aulas do autor:", err);
+        return res.status(500).json({ mensagem: "Erro no servidor" });
+    }
+};
+
+const fs = require('fs');
+const path = require('path');
+const { cascadeDeleteClassPendencies } = require('./adminController');
+
+// Exclui uma aula — só o próprio autor pode excluir a própria aula.
+const deleteClass = async (req, res) => {
+    const userId = req.userId;
+    const { classId } = req.params;
+
+    if (!userId) {
+        return res.status(401).json({ mensagem: "Usuário não autenticado" });
+    }
+    if (!mongoose.Types.ObjectId.isValid(classId)) {
+        return res.status(400).json({ mensagem: "Formato de ID inválido" });
+    }
+
+    try {
+        const targetClass = await Class.findById(classId);
+        if (!targetClass) {
+            return res.status(404).json({ mensagem: "Aula não encontrada" });
+        }
+
+        if (targetClass.author.toString() !== userId) {
+            return res.status(403).json({ mensagem: "Você só pode excluir suas próprias aulas" });
+        }
+
+        // Delete cover image
+        if (targetClass.cover && targetClass.cover.startsWith('/uploads/')) {
+            const coverPath = path.join(__dirname, '..', 'uploads', targetClass.cover.replace('/uploads/', ''));
+            fs.unlink(coverPath, (err) => {
+                if (err && err.code !== 'ENOENT') console.error("Erro ao deletar capa da aula:", err);
+            });
+        }
+
+        // Delete media images
+        if (targetClass.medias && targetClass.medias.length > 0) {
+            targetClass.medias.forEach(media => {
+                if (media.type === 'imagem' && media.value && media.value.startsWith('/uploads/')) {
+                    const mediaPath = path.join(__dirname, '..', 'uploads', media.value.replace('/uploads/', ''));
+                    fs.unlink(mediaPath, (err) => {
+                        if (err && err.code !== 'ENOENT') console.error("Erro ao deletar mídia da aula:", err);
+                    });
+                }
+            });
+        }
+        
+        await cascadeDeleteClassPendencies(classId);
+
+        await targetClass.deleteOne();
+
+        return res.status(200).json({ mensagem: "Aula excluída com sucesso" });
+    } catch (err) {
+        console.error("Erro ao excluir aula:", err);
+        return res.status(500).json({ mensagem: "Erro no servidor" });
+    }
 };
 
 const getFollowingClasses = async (req, res) => {
@@ -300,10 +394,61 @@ const searchClass = async (req, res) => {
     }
 }
 
+
+const editClass = async (req, res) => {
+    const userId = req.userId
+    const { classId } = req.params
+    const { newContent, newDanger } = req.body
+
+    if (!userId) {
+        return res.status(401).json({ mensagem: "É necessário estar autenticado"})
+    }
+    if (!classId){
+        return res.status(400).json({ mensagem: "É necessário o ID da aula desejada"})
+    }
+    if (!newContent && !newDanger) {
+        return res.status(200).json({ mensagem: "Nada foi alterado"})
+    }
+
+    try {
+        const author = await User.findById(userId)
+        if (!author) {
+            return res.status(400).json({ mensagem: "Usuário não encontrado"})
+        }
+        const targetClass = await Class.findById(classId)
+        if (!targetClass){
+            return res.status(400).json({ mensagem: "Aula não encontrada"})
+        }
+
+        if (targetClass.author.toString() !== userId){
+            return res.status(403).json({ mensagem: "Você não pode editar a aula de outro usuário"})
+        }
+
+        if (newContent && (newContent.length > 4000 || newContent.length < 20)) {
+            return res.status(400).json({ mensagem: "O conteúdo deve estar entre 20 e 4000 caracteres"})
+        }
+
+        if (newContent) targetClass.content = newContent;
+        if (newDanger) targetClass.danger = newDanger;
+
+        await targetClass.save()
+
+        return res.status(200).json({ mensagem: "Aula editada com sucesso"})
+
+    } catch(err) {
+        console.error("Erro ao editar aula", err)
+        return res.status(500).json({mensagem: "Erro no servidor"})
+    }
+}
+
+
 module.exports = {
     createClass,
     getClassByTitle,
+    getClassById,
+    getClassesByAuthor,
+    deleteClass,
     searchClass,
     getFollowingClasses,
-    getClassById,
+    editClass,
 };

@@ -111,7 +111,11 @@ function ClassDetailContent({ aula }) {
 
         <div className="sd-class-modal__author">
           <span className="sd-class-modal__avatar" aria-hidden="true">
-            {aula.authorUsername?.[0]?.toUpperCase() || '?'}
+            {aula.authorProfilePicture ? (
+              <img src={`${API_BASE}/uploads/${aula.authorProfilePicture}`} alt="" />
+            ) : (
+              aula.authorUsername?.[0]?.toUpperCase() || '?'
+            )}
           </span>
           <span>{aula.authorUsername}</span>
           {aula.createdAt && (
@@ -124,13 +128,8 @@ function ClassDetailContent({ aula }) {
         <div className="sd-class-modal__stats">
           {Array.isArray(aula.comments) && (
             <span className="sd-class-modal__stat">
-              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-                <path
-                  d="M21 12a8 8 0 01-8 8H7l-4 3 1-4.5A8 8 0 1121 12z"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                />
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
               </svg>
               {aula.comments.length} coment{aula.comments.length === 1 ? 'ário' : 'ários'}
             </span>
@@ -138,15 +137,8 @@ function ClassDetailContent({ aula }) {
 
           {typeof aula.reportCount === 'number' && (
             <span className="sd-class-modal__stat sd-class-modal__stat--alerta">
-              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-                <path
-                  d="M12 3l10 18H2L12 3zM12 9v5M12 17h.01"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 3l10 18H2L12 3zM12 9v5M12 17h.01" />
               </svg>
               {aula.reportCount} denúncia{aula.reportCount === 1 ? '' : 's'}
             </span>

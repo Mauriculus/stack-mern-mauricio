@@ -132,6 +132,7 @@ const getFollowingList = async (req, res) => {
 
     const followingList = Array.isArray(usuario.following)
       ? usuario.following.map((user) => ({
+          _id: user._id,
           username: user.username,
           profilePicture: user.profilePicture,
         }))
@@ -457,7 +458,6 @@ const reportClass = async (req, res) => {
     
     reportedClass.reports.push(newReport._id);
     reportedClass.reportCount += 1;
-    await reportedClass.save();
 
     await reportedClass.save()
 

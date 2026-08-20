@@ -215,6 +215,34 @@ const verifyEmail = async (req, res) => {
   }
 }
 
+const getMyProfile = async (req, res) => {
+  const userId = req.userId;
+
+  if (!userId) {
+    return res.status(401).json({ mensagem: 'Usuário não autenticado' });
+  }
+
+  try {
+    const user = await User.findById(userId).select('username email profilePicture followers following');
+
+    if (!user) {
+      return res.status(404).json({ mensagem: 'Usuário não encontrado' });
+    }
+
+    return res.status(200).json({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      profilePicture: user.profilePicture,
+      followers: user.followers,
+      following: user.following,
+    });
+  } catch (error) {
+    console.error('Erro ao buscar perfil:', error);
+    return res.status(500).json({ mensagem: 'Erro no servidor' });
+  }
+};
+
 
 
 module.exports = {
@@ -222,5 +250,6 @@ module.exports = {
   registerUser,
   verifyEmail,
   loginLimiter,
-  registerLimiter
+  registerLimiter,
+  getMyProfile,
 };

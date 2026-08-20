@@ -3,7 +3,7 @@ const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
 const upload = require('../middleware/multer');
 
-const { loginUser, registerUser, verifyEmail, registerLimiter, loginLimiter} = require('../controllers/userController');
+const { loginUser, registerUser, verifyEmail, registerLimiter, loginLimiter, getMyProfile} = require('../controllers/userController');
 
 const { followUser, unfollowUser, getFollowingList } = require('../controllers/userInteractions');
 
@@ -22,6 +22,8 @@ router.put('/edit/username', authMiddleware, editUsername);
 router.put('/edit/picture', authMiddleware, upload.single('profilePicture'), editPicture);
 router.post('/requestChangePassword',changePasswordLimiter, requestChangePassword);
 router.post('/changePassword', changePassword);
+
+router.get('/me', authMiddleware, getMyProfile)
 
 module.exports = router;
 
