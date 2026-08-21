@@ -372,7 +372,7 @@ const searchClass = async (req, res) => {
                 .select({ score: { $meta: "textScore" } })
                 .sort({ score: { $meta: "textScore" } });
         } else {
-            query = query.sort({ ratingSum: -1, createdAt: -1 })
+            query = query.sort({ ratingSum: -1, ratingAverage: -1, createdAt: -1 })
         }
 
         query = query.skip(skip).limit(limit)

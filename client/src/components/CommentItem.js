@@ -8,7 +8,17 @@ function formatarData(iso) {
   return new Date(iso).toLocaleDateString('pt-BR');
 }
 
-function LinhaComentario({ comentario, indentado, podeResponder, aoResponder }) {
+function LinhaComentario({ comentario, indentado, podeResponder, aoResponder, podeExcluir, aoExcluir }) {
+  const [confirmando, setConfirmando] = useState(false);
+  const [excluindo, setExcluindo] = useState(false);
+
+  const confirmarExclusao = async () => {
+    setExcluindo(true);
+    await aoExcluir();
+    setExcluindo(false);
+    setConfirmando(false);
+  };
+
   return (
     <div className={`sd-comment ${indentado ? 'sd-comment--resposta' : ''}`}>
       <span className="sd-comment__avatar" aria-hidden="true">
@@ -28,17 +38,46 @@ function LinhaComentario({ comentario, indentado, podeResponder, aoResponder }) 
           <span className="sd-comment__data">{formatarData(comentario.createdAt)}</span>
         </div>
         <p className="sd-comment__texto">{comentario.content}</p>
-        {podeResponder && (
-          <button type="button" className="sd-comment__responder" onClick={aoResponder}>
-            Responder
-          </button>
-        )}
+
+        <div className="sd-comment__actions">
+          {podeResponder && (
+            <button type="button" className="sd-comment__responder" onClick={aoResponder}>
+              Responder
+            </button>
+          )}
+
+          {podeExcluir &&
+            (confirmando ? (
+              <span className="sd-comment__confirm">
+                Excluir?
+                <button type="button" onClick={confirmarExclusao} disabled={excluindo}>
+                  {excluindo ? '...' : 'Sim'}
+                </button>
+                <button type="button" onClick={() => setConfirmando(false)} disabled={excluindo}>
+                  Não
+                </button>
+              </span>
+            ) : (
+              <button
+                type="button"
+                className="sd-comment__excluir"
+                onClick={() => setConfirmando(true)}
+                aria-label="Excluir (administração)"
+                title="Excluir (administração)"
+              >
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+              </button>
+            ))}
+        </div>
       </div>
     </div>
   );
 }
 
-export default function CommentItem({ comentario, onEnviarResposta }) {
+export default function CommentItem({ comentario, onEnviarResposta, souAdmin, onExcluirComentario, onExcluirResposta }) {
   const [respostasAbertas, setRespostasAbertas] = useState(false);
   const [respondendo, setRespondendo] = useState(false);
   const [textoResposta, setTextoResposta] = useState('');
@@ -60,7 +99,13 @@ export default function CommentItem({ comentario, onEnviarResposta }) {
 
   return (
     <div className="sd-comment-thread">
-      <LinhaComentario comentario={comentario} podeResponder aoResponder={() => setRespondendo((v) => !v)} />
+      <LinhaComentario
+        comentario={comentario}
+        podeResponder
+        aoResponder={() => setRespondendo((v) => !v)}
+        podeExcluir={souAdmin}
+        aoExcluir={() => onExcluirComentario(comentario._id)}
+      />
 
       {respondendo && (
         <div className="sd-comment-reply-box">
@@ -95,7 +140,13 @@ export default function CommentItem({ comentario, onEnviarResposta }) {
         <div className="sd-comment__respostas">
           {/* respostas não têm botão de responder — não dá pra encadear mais um nível */}
           {comentario.responses.map((resposta) => (
-            <LinhaComentario key={resposta._id} comentario={resposta} indentado />
+            <LinhaComentario
+              key={resposta._id}
+              comentario={resposta}
+              indentado
+              podeExcluir={souAdmin}
+              aoExcluir={() => onExcluirResposta(resposta._id)}
+            />
           ))}
         </div>
       )}

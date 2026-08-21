@@ -223,7 +223,7 @@ const getMyProfile = async (req, res) => {
   }
 
   try {
-    const user = await User.findById(userId).select('username email profilePicture followers following');
+    const user = await User.findById(userId).select('username email profilePicture followers following type');
 
     if (!user) {
       return res.status(404).json({ mensagem: 'Usuário não encontrado' });
@@ -236,6 +236,7 @@ const getMyProfile = async (req, res) => {
       profilePicture: user.profilePicture,
       followers: user.followers,
       following: user.following,
+      type: user.type,
     });
   } catch (error) {
     console.error('Erro ao buscar perfil:', error);

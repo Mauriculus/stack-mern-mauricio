@@ -4,16 +4,11 @@ import { useTheme } from '../context/ThemeContext';
 import { API_BASE } from '../utils/classTaxonomia';
 import '../styles/Sidebar.css';
 
-const ICONES_SUPERIORES = [
-  { to: '/perfil', icone: '/icons/perfil.svg', rotulo: 'Perfil', tamanho: 'grande' },
-  { to: '/criar-aula', icone: '/icons/caderno.svg', rotulo: 'Criar aula' },
-  { to: '/pesquisar', icone: '/icons/lupa.svg', rotulo: 'Pesquisar aula' },
-];
-
 export default function Sidebar() {
   const { pathname } = useLocation();
   const { theme, toggleTheme } = useTheme();
   const [profilePic, setProfilePic] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -25,6 +20,9 @@ export default function Sidebar() {
       .then(data => {
         if (data && data.profilePicture) {
           setProfilePic(`${API_BASE}/uploads/${data.profilePicture}`);
+        }
+        if (data && data.type === 'admin') {
+          setIsAdmin(true);
         }
       })
       .catch(() => {});
@@ -66,6 +64,16 @@ export default function Sidebar() {
         >
           <img src="/icons/lupa.svg" alt="" />
         </Link>
+        {isAdmin && (
+          <Link
+            to="/admin"
+            className={['sd-sidebar__icon', pathname === '/admin' ? 'is-active' : ''].join(' ').trim()}
+            title="Administração"
+            aria-label="Administração"
+          >
+            <img src="/icons/admin.svg" alt="" />
+          </Link>
+        )}
       </div>
 
       <div className="sd-sidebar__group sd-sidebar__group--inferior">

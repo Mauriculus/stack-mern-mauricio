@@ -7,7 +7,9 @@ const { deleteClass,
     deleteComment,
     deleteResponse,
     banUser,
-    unbanUser
+    unbanUser,
+    getReportedClasses,
+    getReports,
 } = require('../controllers/adminController')
 
 router.delete('/deleteClass/:classId', authMiddleware, deleteClass)
@@ -16,5 +18,7 @@ router.delete('/deleteComment', authMiddleware, deleteComment)
 router.delete('/deleteResponse', authMiddleware, deleteResponse)
 router.put('/banUser', authMiddleware, banUser)
 router.put('/unbanUser', authMiddleware, unbanUser)
+router.get('/getClasses', authMiddleware, getReportedClasses)
+router.get('/getReports', authMiddleware, getReports)
 
 module.exports = router

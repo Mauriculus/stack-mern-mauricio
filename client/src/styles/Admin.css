@@ -1,0 +1,108 @@
+@import './theme.css';
+
+.sd-admin {
+  min-height: 100vh;
+  background: var(--sd-bg);
+  color: var(--sd-text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.sd-admin__main {
+  margin-left: 100px;
+  min-height: 100vh;
+  padding: 2.5rem 3rem 4rem;
+  max-width: 900px;
+}
+
+.sd-admin__hint {
+  color: var(--sd-text-soft);
+}
+
+.sd-admin__error {
+  font-size: 0.9rem;
+  color: #b3261e;
+  background: #fbeceb;
+  border-left: 3px solid #b3261e;
+  padding: 0.75rem 1rem;
+  border-radius: var(--sd-radius);
+  max-width: 480px;
+}
+
+.sd-admin__title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1.7rem;
+  color: var(--sd-navy);
+  margin: 0 0 1.5rem;
+}
+
+[data-theme='dark'] .sd-admin__title {
+  color: var(--sd-text);
+}
+
+.sd-admin__tabs {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.sd-admin__tab {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--sd-text-soft);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.3rem 0.1rem;
+  cursor: pointer;
+}
+
+.sd-admin__tab.is-active {
+  color: var(--sd-navy);
+  border-bottom-color: var(--sd-navy);
+}
+
+[data-theme='dark'] .sd-admin__tab.is-active {
+  color: var(--sd-amber);
+  border-bottom-color: var(--sd-amber);
+}
+
+.sd-admin__empty {
+  background: var(--sd-surface);
+  border: 1.5px dashed var(--sd-card-border);
+  border-radius: 10px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: var(--sd-text-soft);
+}
+
+.sd-admin__load-more {
+  display: block;
+  margin: 0.5rem auto 0;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--sd-navy);
+  background: transparent;
+  border: 1.5px solid var(--sd-card-border);
+  border-radius: var(--sd-radius);
+  padding: 0.65rem 1.75rem;
+  cursor: pointer;
+}
+
+[data-theme='dark'] .sd-admin__load-more {
+  color: var(--sd-text);
+}
+
+.sd-admin__load-more:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .sd-admin__main {
+    margin-left: 0;
+    padding: 2rem 1.25rem 5rem;
+  }
+}

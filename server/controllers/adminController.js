@@ -280,6 +280,87 @@ const unbanUser = async (req, res) => {
     }
 }
 
+
+const getReportedClasses = async (req, res) =>{
+    const userId = req.userId
+    const userType = req.userType
+    const page = parseInt(req.query.page) || 1;
+    const limit = Math.min(parseInt(req.query.limit) || 10, 50);
+
+    if (!userId) {
+        return res.status(401).json({ mensagem: "É necessário estar autenticado"})
+    }
+    if(userType !== "admin") {
+        return res.status(403).json({ mensagem: "É necessário ser administrador para realizar essa ação"})
+    }
+
+    try {
+        const skipIndex = (page - 1) * limit 
+
+        // mesmo filtro na lista e na contagem, senão a paginação não bate
+        const filter = { reportCount: { $gt: 0 } }
+
+        const reportList = await Class.find(filter)
+                                .sort({ reportCount: -1 })
+                                .skip(skipIndex)
+                                .limit(limit)
+
+        const totalClasses = await Class.countDocuments(filter);
+
+        return res.status(200).json({
+            reports: reportList,
+            currentPage: page,
+            totalPages: Math.ceil(totalClasses / limit),
+            totalItems: totalClasses,
+        })
+
+
+    } catch(err){
+        console.error("Erro ao pegar a lista de reports", err)
+        return res.status(500).json({ mensagem: "Erro no servidor"})
+    } 
+}
+
+const getReports = async (req, res) => {
+    const userId = req.userId
+    const userType = req.userType
+    const page = parseInt(req.query.page) || 1;
+    const limit = Math.min(parseInt(req.query.limit) || 10, 50);
+
+    if (!userId) {
+        return res.status(401).json({ mensagem: "É necessário estar autenticado"})
+    }
+    if(userType !== "admin") {
+        return res.status(403).json({ mensagem: "É necessário ser administrador para realizar essa ação"})
+    }
+
+    try {
+        const skipIndex = (page - 1) * limit 
+
+        // sem o populate o front só recebe o ObjectId da aula denunciada,
+        // não dá pra mostrar título nenhum
+        const reportList = await Report.find({})
+                                .populate('class', 'title normalizedTitle')
+                                .sort({ createdAt: -1 })
+                                .skip(skipIndex)
+                                .limit(limit)
+
+        const totalReports = await Report.countDocuments({});
+
+        return res.status(200).json({
+            reports: reportList,
+            currentPage: page,
+            totalPages: Math.ceil(totalReports / limit),
+            totalItems: totalReports,
+        })
+
+
+    } catch(err){
+        console.error("Erro ao pegar a lista de reports", err)
+        return res.status(500).json({ mensagem: "Erro no servidor"})
+    }
+}
+
 module.exports = {
     cascadeDeleteClass,
     cascadeDeleteClassPendencies,
@@ -288,5 +369,7 @@ module.exports = {
     deletePlaylist,
     deleteResponse,
     banUser,
-    unbanUser
+    unbanUser,
+    getReportedClasses,
+    getReports,
 }

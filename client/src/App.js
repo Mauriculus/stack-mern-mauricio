@@ -12,6 +12,7 @@ import Search from './pages/Search';
 import CreateClass from './pages/CreateClass';
 import ClassView from './pages/ClassView';
 import Profile from './pages/Profile';
+import Admin from './pages/Admin';
 
 
 import EditClass from './pages/EditClass';
@@ -39,6 +40,7 @@ export default function App() {
           <Route path="/aula/:classId" element={<ClassView />} />
           <Route path="/editar-aula/:classId" element={token ? <EditClass /> : <Navigate to="/login" replace />} />
           <Route path="/perfil" element={token ? <Profile /> : <Navigate to="/login" replace />} />
+          <Route path="/admin" element={token ? <Admin /> : <Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
