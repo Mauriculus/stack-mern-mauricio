@@ -43,7 +43,9 @@ export default function AdminClassRow({ aula, onExcluir }) {
         </Link>
 
         <div className="sd-profile-row__meta">
-          <span className="sd-profile-row__data">por {aula.authorUsername}</span>
+          <Link to={`/perfil/${aula.author}`} className="sd-profile-row__data" style={{ textDecoration: 'none' }}>
+            por {aula.authorUsername}
+          </Link>
 
           {confirmando ? (
             <span className="sd-profile-row__confirm">

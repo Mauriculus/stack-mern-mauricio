@@ -3,7 +3,7 @@ const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
 const upload = require('../middleware/multer');
 
-const { loginUser, registerUser, verifyEmail, registerLimiter, loginLimiter, getMyProfile} = require('../controllers/userController');
+const { loginUser, registerUser, verifyEmail, registerLimiter, loginLimiter, getMyProfile, getUserProfile} = require('../controllers/userController');
 
 const { followUser, unfollowUser, getFollowingList } = require('../controllers/userInteractions');
 
@@ -24,6 +24,7 @@ router.post('/requestChangePassword',changePasswordLimiter, requestChangePasswor
 router.post('/changePassword', changePassword);
 
 router.get('/me', authMiddleware, getMyProfile)
-
+// MANTER DEPOIS DO /me
+router.get('/:userId', getUserProfile)
 module.exports = router;
 

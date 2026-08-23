@@ -163,7 +163,7 @@ const deleteComment = async (req, res) => {
         return res.status(403).json({ mensagem: "É necessário ser administrador para realizar essa ação"})
     }
     if (!commentId) {
-        return res.status(400).json({ mensagem: "Selecione a aula a ser deletada"})
+        return res.status(400).json({ mensagem: "Selecione o comentário a ser deletado"})
     }
 
     try { 
@@ -172,9 +172,13 @@ const deleteComment = async (req, res) => {
             return res.status(404).json({ mensagem: "O comentário não foi encontrado"})
         }
 
+        const commentedClassId = deletedComment.commentedClass
+
         const responses = await Response.deleteMany({ comment: commentId })
         const deletedResponses = responses.deletedCount
 
+
+        await Class.findByIdAndUpdate(commentedClassId, { $pull: { comments: commentId } })
         await deletedComment.deleteOne()
 
         return res.status(200).json({
@@ -205,6 +209,7 @@ const deleteResponse = async (req, res) => {
             return res.status(404).json({ mensagem: "Resposta não encontrada"})
         }
 
+        await Comment.findByIdAndUpdate(deletedResponse.comment, { $pull: { responses: responseId } })
         await deletedResponse.deleteOne()
 
         return res.status(200).json({ mensagem: "Resposta deletada com sucesso" })
@@ -337,8 +342,6 @@ const getReports = async (req, res) => {
     try {
         const skipIndex = (page - 1) * limit 
 
-        // sem o populate o front só recebe o ObjectId da aula denunciada,
-        // não dá pra mostrar título nenhum
         const reportList = await Report.find({})
                                 .populate('class', 'title normalizedTitle')
                                 .sort({ createdAt: -1 })

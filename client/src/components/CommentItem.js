@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { API_BASE } from '../utils/classTaxonomia';
 import '../styles/CommentItem.css';
 
@@ -21,7 +22,7 @@ function LinhaComentario({ comentario, indentado, podeResponder, aoResponder, po
 
   return (
     <div className={`sd-comment ${indentado ? 'sd-comment--resposta' : ''}`}>
-      <span className="sd-comment__avatar" aria-hidden="true">
+      <Link to={`/perfil/${comentario.author?._id}`} className="sd-comment__avatar" aria-label={comentario.author?.username}>
         {comentario.author?.profilePicture ? (
           <img
             src={`${API_BASE}/uploads/${comentario.author.profilePicture}`}
@@ -31,10 +32,12 @@ function LinhaComentario({ comentario, indentado, podeResponder, aoResponder, po
         ) : (
           comentario.author?.username?.[0]?.toUpperCase() || '?'
         )}
-      </span>
+      </Link>
       <div className="sd-comment__body">
         <div className="sd-comment__meta">
-          <span className="sd-comment__autor">{comentario.author?.username}</span>
+          <Link to={`/perfil/${comentario.author?._id}`} className="sd-comment__autor">
+            {comentario.author?.username}
+          </Link>
           <span className="sd-comment__data">{formatarData(comentario.createdAt)}</span>
         </div>
         <p className="sd-comment__texto">{comentario.content}</p>

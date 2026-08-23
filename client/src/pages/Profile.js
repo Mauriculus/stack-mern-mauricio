@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import ProfileClassRow from '../components/ProfileClassRow';
 import { API_BASE } from '../utils/classTaxonomia';
@@ -6,7 +7,27 @@ import '../styles/Profile.css';
 
 const LIMITE_AULAS = 10;
 
+// lê o userId de dentro do próprio token (só decodifica o payload, não
+// precisa validar assinatura aqui — é só pra decidir o que mostrar na tela,
+// a segurança de verdade continua nas rotas do backend)
+function obterMeuUserId() {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.userId || null;
+  } catch (error) {
+    return null;
+  }
+}
+
 export default function Profile() {
+  const { userId: paramUserId } = useParams();
+  const meuId = obterMeuUserId();
+  // sem :userId na URL (rota /perfil) OU o :userId bate com quem tá logado
+  // (por exemplo, clicou no próprio comentário) — os dois casos são "eu mesmo"
+  const souEuMesmo = !paramUserId || paramUserId === meuId;
+
   const [perfil, setPerfil] = useState(null);
   const [carregandoPerfil, setCarregandoPerfil] = useState(true);
   const [erroPerfil, setErroPerfil] = useState('');
@@ -36,24 +57,36 @@ export default function Profile() {
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
+  // ao trocar de "meu perfil" pra "perfil de fulano" (ou vice-versa) sem sair
+  // da tela — o componente não remonta, então precisa zerar tudo na mão
+  useEffect(() => {
+    setAulas([]);
+    setAulasPagina(0);
+    setAulasTotalPaginas(0);
+    setIsEditing(false);
+    setBusca('');
+    setAba('aulas');
+  }, [paramUserId]);
+
   const buscarPerfil = useCallback(async () => {
     setCarregandoPerfil(true);
     setErroPerfil('');
     try {
-      const response = await fetch(`${API_BASE}/api/users/me`, { headers: authHeaders() });
+      const url = souEuMesmo ? `${API_BASE}/api/users/me` : `${API_BASE}/api/users/${paramUserId}`;
+      const response = await fetch(url, { headers: authHeaders() });
       const data = await response.json();
       if (!response.ok) {
-        setErroPerfil(data.mensagem || 'Não foi possível carregar seu perfil');
+        setErroPerfil(data.mensagem || 'Não foi possível carregar o perfil');
         return;
       }
       setPerfil(data);
-      setEditUsername(data.username);
+      if (souEuMesmo) setEditUsername(data.username);
     } catch (error) {
       setErroPerfil('Erro ao conectar com o servidor');
     } finally {
       setCarregandoPerfil(false);
     }
-  }, []);
+  }, [souEuMesmo, paramUserId]);
 
   useEffect(() => {
     buscarPerfil();
@@ -203,52 +236,54 @@ export default function Profile() {
                     </div>
                   </div>
 
-                  <div className="sd-profile__edit-container">
-                    {isEditing ? (
-                      <form onSubmit={handleEditProfile} className="sd-profile__edit-form">
-                        <div className="sd-profile__inputs-row">
-                          <div className="sd-profile__input-group">
-                            <label>Nome de Usuário</label>
-                            <input 
-                              type="text" 
-                              value={editUsername} 
-                              onChange={e => setEditUsername(e.target.value)} 
-                              placeholder="Novo nome" 
-                              className="sd-profile__edit-input"
-                            />
-                          </div>
-                          <div className="sd-profile__input-group">
-                            <label>Foto de Perfil</label>
-                            <div className="sd-profile__file-wrapper">
+                  {souEuMesmo && (
+                    <div className="sd-profile__edit-container">
+                      {isEditing ? (
+                        <form onSubmit={handleEditProfile} className="sd-profile__edit-form">
+                          <div className="sd-profile__inputs-row">
+                            <div className="sd-profile__input-group">
+                              <label>Nome de Usuário</label>
                               <input 
-                                type="file" 
-                                id="profilePicInput"
-                                accept="image/*" 
-                                onChange={e => setEditPicture(e.target.files[0])} 
-                                className="sd-profile__file-input"
-                                ref={fileInputRef}
+                                type="text" 
+                                value={editUsername} 
+                                onChange={e => setEditUsername(e.target.value)} 
+                                placeholder="Novo nome" 
+                                className="sd-profile__edit-input"
                               />
-                              <label htmlFor="profilePicInput" className="sd-profile__file-label">
-                                {editPicture ? editPicture.name : 'Escolher nova foto...'}
-                              </label>
+                            </div>
+                            <div className="sd-profile__input-group">
+                              <label>Foto de Perfil</label>
+                              <div className="sd-profile__file-wrapper">
+                                <input 
+                                  type="file" 
+                                  id="profilePicInput"
+                                  accept="image/*" 
+                                  onChange={e => setEditPicture(e.target.files[0])} 
+                                  className="sd-profile__file-input"
+                                  ref={fileInputRef}
+                                />
+                                <label htmlFor="profilePicInput" className="sd-profile__file-label">
+                                  {editPicture ? editPicture.name : 'Escolher nova foto...'}
+                                </label>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        {editMsg && <p className="sd-profile__edit-msg">{editMsg}</p>}
-                        <div className="sd-profile__edit-actions">
-                          <button type="submit" className="sd-profile__btn-save">Salvar Alterações</button>
-                          <button type="button" onClick={() => setIsEditing(false)} className="sd-profile__btn-cancel">Cancelar</button>
-                        </div>
-                      </form>
-                    ) : (
-                      <button onClick={() => setIsEditing(true)} className="sd-profile__btn-edit">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z" />
-                        </svg>
-                        Editar Perfil
-                      </button>
-                    )}
-                  </div>
+                          {editMsg && <p className="sd-profile__edit-msg">{editMsg}</p>}
+                          <div className="sd-profile__edit-actions">
+                            <button type="submit" className="sd-profile__btn-save">Salvar Alterações</button>
+                            <button type="button" onClick={() => setIsEditing(false)} className="sd-profile__btn-cancel">Cancelar</button>
+                          </div>
+                        </form>
+                      ) : (
+                        <button onClick={() => setIsEditing(true)} className="sd-profile__btn-edit">
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z" />
+                          </svg>
+                          Editar Perfil
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -264,7 +299,7 @@ export default function Profile() {
                   placeholder="Pesquise uma aula"
                   value={busca}
                   onChange={(e) => setBusca(e.target.value)}
-                  aria-label="Pesquisar entre suas aulas"
+                  aria-label="Pesquisar entre as aulas"
                 />
               </div>
 
@@ -298,14 +333,16 @@ export default function Profile() {
               <div className="sd-profile__empty">
                 <p>
                   {busca.trim()
-                    ? `Nenhuma aula sua encontrada para “${busca.trim()}”.`
-                    : 'Você ainda não publicou nenhuma aula.'}
+                    ? `Nenhuma aula encontrada para “${busca.trim()}”.`
+                    : souEuMesmo
+                    ? 'Você ainda não publicou nenhuma aula.'
+                    : 'Essa pessoa ainda não publicou nenhuma aula.'}
                 </p>
               </div>
             ) : (
               <>
                 {aulasFiltradas.map((aula) => (
-                  <ProfileClassRow key={aula._id} aula={aula} onExcluir={excluirAula} />
+                  <ProfileClassRow key={aula._id} aula={aula} onExcluir={excluirAula} podeEditar={souEuMesmo} />
                 ))}
 
                 {!busca.trim() && aulasPagina < aulasTotalPaginas && (
@@ -337,14 +374,20 @@ export default function Profile() {
                   <ul className="sd-following-list">
                     {followingList.map(u => (
                       <li key={u._id} className="sd-following-item">
-                        <span className="sd-following-avatar">
-                          {u.profilePicture ? (
-                            <img src={`${API_BASE}/uploads/${u.profilePicture}`} alt="" />
-                          ) : (
-                            u.username?.[0]?.toUpperCase() || '?'
-                          )}
-                        </span>
-                        <span className="sd-following-name">{u.username}</span>
+                        <Link
+                          to={`/perfil/${u._id}`}
+                          className="sd-following-link"
+                          onClick={() => setShowFollowingModal(false)}
+                        >
+                          <span className="sd-following-avatar">
+                            {u.profilePicture ? (
+                              <img src={`${API_BASE}/uploads/${u.profilePicture}`} alt="" />
+                            ) : (
+                              u.username?.[0]?.toUpperCase() || '?'
+                            )}
+                          </span>
+                          <span className="sd-following-name">{u.username}</span>
+                        </Link>
                       </li>
                     ))}
                   </ul>

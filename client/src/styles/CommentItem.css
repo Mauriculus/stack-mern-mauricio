@@ -24,6 +24,7 @@
   color: var(--sd-off-white);
   font-size: 0.85rem;
   font-weight: 700;
+  text-decoration: none;
 }
 
 .sd-comment--resposta .sd-comment__avatar {
@@ -48,6 +49,11 @@
   font-weight: 600;
   font-size: 0.9rem;
   color: var(--sd-text);
+  text-decoration: none;
+}
+
+.sd-comment__autor:hover {
+  text-decoration: underline;
 }
 
 .sd-comment__data {

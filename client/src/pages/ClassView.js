@@ -26,6 +26,8 @@ export default function ClassView() {
   const [denunciaAberta, setDenunciaAberta] = useState(false);
   const [avisoLoginAberto, setAvisoLoginAberto] = useState(false);
 
+  const [souAdmin, setSouAdmin] = useState(false);
+
   const [comentarios, setComentarios] = useState([]);
   const [comentariosTotal, setComentariosTotal] = useState(0);
   const [comentariosPagina, setComentariosPagina] = useState(0);
@@ -69,6 +71,21 @@ export default function ClassView() {
       cancelado = true;
     };
   }, [classId]);
+
+  // checa se quem está vendo a aula é admin, pra liberar o ícone de excluir
+  // comentário/resposta — a segurança de verdade fica nas rotas de admin,
+  // isso aqui é só pra decidir se mostra o botão
+  useEffect(() => {
+    const headers = authHeaders();
+    if (!headers) return;
+
+    fetch(`${API_BASE}/api/users/me`, { headers })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.type === 'admin') setSouAdmin(true);
+      })
+      .catch(() => {});
+  }, []);
 
   const buscarComentarios = useCallback(async (pagina, normalizedTitle) => {
     setComentariosCarregando(true);
@@ -199,6 +216,42 @@ export default function ClassView() {
     }
   };
 
+  // as duas de baixo só existem pra quem é admin — o botão nem aparece
+  // pra outros usuários, mas a rota também confere userType no servidor
+  const excluirComentario = async (commentId) => {
+    const headers = authHeaders();
+    if (!headers || !aula) return;
+    try {
+      const response = await fetch(`${API_BASE}/api/admin/deleteComment`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify({ commentId }),
+      });
+      if (response.ok) {
+        buscarComentarios(1, aula.normalizedTitle);
+      }
+    } catch (error) {
+      // silencioso — se falhar, o comentário simplesmente continua ali
+    }
+  };
+
+  const excluirResposta = async (responseId) => {
+    const headers = authHeaders();
+    if (!headers || !aula) return;
+    try {
+      const response = await fetch(`${API_BASE}/api/admin/deleteResponse`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify({ responseId }),
+      });
+      if (response.ok) {
+        buscarComentarios(1, aula.normalizedTitle);
+      }
+    } catch (error) {
+      // idem
+    }
+  };
+
   return (
     <div className="sd-view">
       <Sidebar />
@@ -307,7 +360,14 @@ export default function ClassView() {
                 <p className="sd-view__hint">Ainda não há comentários. Seja a primeira pessoa a comentar.</p>
               ) : (
                 comentarios.map((c) => (
-                  <CommentItem key={c._id} comentario={c} onEnviarResposta={enviarResposta} />
+                  <CommentItem
+                    key={c._id}
+                    comentario={c}
+                    onEnviarResposta={enviarResposta}
+                    souAdmin={souAdmin}
+                    onExcluirComentario={excluirComentario}
+                    onExcluirResposta={excluirResposta}
+                  />
                 ))
               )}
 

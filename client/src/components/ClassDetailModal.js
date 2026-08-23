@@ -9,8 +9,6 @@ export default function ClassDetailModal({ classId, tituloProvisorio, onClose })
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
 
-  console.log("O classId que o modal recebeu é:", classId)
-  
   useEffect(() => {
     let cancelado = false;
 
@@ -74,14 +72,14 @@ export default function ClassDetailModal({ classId, tituloProvisorio, onClose })
         ) : erro ? (
           <p className="sd-class-modal__error">{erro}</p>
         ) : (
-          <ClassDetailContent aula={aula} />
+          <ClassDetailContent aula={aula} onClose={onClose} />
         )}
       </div>
     </div>
   );
 }
 
-function ClassDetailContent({ aula }) {
+function ClassDetailContent({ aula, onClose }) {
   const capa = capaDaAula(aula);
 
   return (
@@ -109,7 +107,7 @@ function ClassDetailContent({ aula }) {
       <div className="sd-class-modal__info">
         <h2 className="sd-class-modal__title">{aula.title}</h2>
 
-        <div className="sd-class-modal__author">
+        <Link to={`/perfil/${aula.author}`} className="sd-class-modal__author" onClick={onClose}>
           <span className="sd-class-modal__avatar" aria-hidden="true">
             {aula.authorProfilePicture ? (
               <img src={`${API_BASE}/uploads/${aula.authorProfilePicture}`} alt="" />
@@ -123,7 +121,7 @@ function ClassDetailContent({ aula }) {
               {new Date(aula.createdAt).toLocaleDateString('pt-BR')}
             </span>
           )}
-        </div>
+        </Link>
 
         <div className="sd-class-modal__stats">
           {Array.isArray(aula.comments) && (
@@ -165,7 +163,7 @@ function ClassDetailContent({ aula }) {
           )}
         </div>
 
-        <Link to={`/aula/${aula._id}`} className="sd-class-modal__button">
+        <Link to={`/aula/${aula._id}`} className="sd-class-modal__button" onClick={onClose}>
           Continuar
         </Link>
       </div>

@@ -244,6 +244,37 @@ const getMyProfile = async (req, res) => {
   }
 };
 
+// Perfil público de QUALQUER usuário — usado quando alguém clica no nome/
+// foto de outra pessoa (comentário, modal de aula, lista de seguindo etc.).
+// Sem email nem type aqui de propósito: isso é informação de terceiro, não
+// da própria pessoa logada.
+const getUserProfile = async (req, res) => {
+  const { userId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ mensagem: 'ID de usuário inválido' });
+  }
+
+  try {
+    const user = await User.findById(userId).select('username profilePicture followers following');
+
+    if (!user) {
+      return res.status(404).json({ mensagem: 'Usuário não encontrado' });
+    }
+
+    return res.status(200).json({
+      _id: user._id,
+      username: user.username,
+      profilePicture: user.profilePicture,
+      followers: user.followers,
+      following: user.following,
+    });
+  } catch (error) {
+    console.error('Erro ao buscar perfil público:', error);
+    return res.status(500).json({ mensagem: 'Erro no servidor' });
+  }
+};
+
 
 
 module.exports = {
@@ -253,4 +284,5 @@ module.exports = {
   loginLimiter,
   registerLimiter,
   getMyProfile,
+  getUserProfile,
 };

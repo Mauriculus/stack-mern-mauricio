@@ -62,7 +62,6 @@
 
 .sd-class-modal__media img {
   width: 100%;
-  /* mesma lógica do card: 16:9 corta a tarja das thumbs do YouTube */
   aspect-ratio: 16 / 9;
   object-fit: cover;
   border-radius: 8px;
@@ -105,6 +104,12 @@
   font-size: 0.9rem;
   color: var(--sd-text);
   margin-bottom: 0.75rem;
+  text-decoration: none;
+  width: fit-content;
+}
+
+.sd-class-modal__author:hover {
+  text-decoration: underline;
 }
 
 .sd-class-modal__avatar {
