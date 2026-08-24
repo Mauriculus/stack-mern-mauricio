@@ -538,3 +538,58 @@
     justify-content: center;
   }
 }
+
+.sd-profile__settings {
+  background: var(--sd-surface);
+  border: 1.5px solid var(--sd-card-border);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.sd-profile__settings-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--sd-navy);
+  margin: 0 0 1rem;
+}
+
+[data-theme='dark'] .sd-profile__settings-title {
+  color: var(--sd-text);
+}
+
+.sd-profile__btn-logout-small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #d32f2f;
+  background: rgba(211, 47, 47, 0.08);
+  border: 1px solid rgba(211, 47, 47, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.sd-profile__btn-logout-small:hover {
+  background: rgba(211, 47, 47, 0.15);
+  border-color: rgba(211, 47, 47, 0.5);
+  color: #c62828;
+}
+
+[data-theme='dark'] .sd-profile__btn-logout-small {
+  color: #ff5252;
+  background: rgba(255, 82, 82, 0.1);
+  border-color: rgba(255, 82, 82, 0.3);
+}
+
+[data-theme='dark'] .sd-profile__btn-logout-small:hover {
+  background: rgba(255, 82, 82, 0.2);
+  border-color: rgba(255, 82, 82, 0.5);
+}

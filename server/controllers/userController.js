@@ -223,7 +223,7 @@ const getMyProfile = async (req, res) => {
   }
 
   try {
-    const user = await User.findById(userId).select('username email profilePicture followers following type');
+    const user = await User.findById(userId).select('username email profilePicture followers following type hideEmail');
 
     if (!user) {
       return res.status(404).json({ mensagem: 'Usuário não encontrado' });
@@ -237,6 +237,7 @@ const getMyProfile = async (req, res) => {
       followers: user.followers,
       following: user.following,
       type: user.type,
+      hideEmail: user.hideEmail,
     });
   } catch (error) {
     console.error('Erro ao buscar perfil:', error);
@@ -246,8 +247,6 @@ const getMyProfile = async (req, res) => {
 
 // Perfil público de QUALQUER usuário — usado quando alguém clica no nome/
 // foto de outra pessoa (comentário, modal de aula, lista de seguindo etc.).
-// Sem email nem type aqui de propósito: isso é informação de terceiro, não
-// da própria pessoa logada.
 const getUserProfile = async (req, res) => {
   const { userId } = req.params;
 
@@ -256,7 +255,7 @@ const getUserProfile = async (req, res) => {
   }
 
   try {
-    const user = await User.findById(userId).select('username profilePicture followers following');
+    const user = await User.findById(userId).select('username profilePicture followers following hideEmail email');
 
     if (!user) {
       return res.status(404).json({ mensagem: 'Usuário não encontrado' });
@@ -268,6 +267,7 @@ const getUserProfile = async (req, res) => {
       profilePicture: user.profilePicture,
       followers: user.followers,
       following: user.following,
+      email: user.hideEmail ? undefined : user.email,
     });
   } catch (error) {
     console.error('Erro ao buscar perfil público:', error);

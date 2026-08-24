@@ -87,15 +87,6 @@ export default function Sidebar() {
         >
           <img src="/icons/lua.svg" alt="" />
         </button>
-
-        <Link
-          to="/configuracoes"
-          className={`sd-sidebar__icon sd-sidebar__icon--grande ${pathname === '/configuracoes' ? 'is-active' : ''}`}
-          title="Configurações"
-          aria-label="Configurações"
-        >
-          <img src="/icons/config.svg" alt="" />
-        </Link>
       </div>
     </nav>
   );

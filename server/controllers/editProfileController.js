@@ -213,10 +213,39 @@ const changePassword = async (req, res) => {
 
 
 
+const editPrivacy = async (req, res) => {
+  const userId = req.userId;
+  const { hideEmail } = req.body;
+
+  if (typeof hideEmail !== 'boolean') {
+    return res.status(400).json({ mensagem: 'Valor de hideEmail inválido' });
+  }
+
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ mensagem: 'Usuário não encontrado' });
+    }
+
+    user.hideEmail = hideEmail;
+    await user.save();
+
+    return res.status(200).json({
+      mensagem: 'Privacidade atualizada com sucesso',
+      hideEmail: user.hideEmail,
+    });
+  } catch (error) {
+    console.error('Erro ao editar privacidade:', error);
+    return res.status(500).json({ mensagem: 'Erro no servidor ao atualizar privacidade' });
+  }
+};
+
 module.exports = {
   editUsername,
   editPicture,
   requestChangePassword,
   changePassword,
   changePasswordLimiter,
+  editPrivacy,
 };

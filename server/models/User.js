@@ -16,6 +16,8 @@ const userSchema = new mongoose.Schema({
 
   profilePicture: { type: String, default: '' },
 
+  hideEmail: { type: Boolean, default: true },
+
   type: { type: String, enum: ['usuario', 'admin'], default: 'usuario' },
 
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],

@@ -44,6 +44,7 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [editUsername, setEditUsername] = useState('');
   const [editPicture, setEditPicture] = useState(null);
+  const [editEsconderEmail, setEditEsconderEmail] = useState(true);
   const [editMsg, setEditMsg] = useState('');
   const fileInputRef = useRef(null);
 
@@ -80,7 +81,10 @@ export default function Profile() {
         return;
       }
       setPerfil(data);
-      if (souEuMesmo) setEditUsername(data.username);
+      if (souEuMesmo) {
+        setEditUsername(data.username);
+        setEditEsconderEmail(data.hideEmail !== false);
+      }
     } catch (error) {
       setErroPerfil('Erro ao conectar com o servidor');
     } finally {
@@ -165,6 +169,23 @@ export default function Profile() {
         }
       }
 
+      const hideEmailNovo = editEsconderEmail;
+      if (hideEmailNovo !== Boolean(perfil.hideEmail)) {
+        const resPriv = await fetch(`${API_BASE}/api/users/edit/privacy`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            ...authHeaders()
+          },
+          body: JSON.stringify({ hideEmail: hideEmailNovo })
+        });
+        const dataPriv = await resPriv.json();
+        if (!resPriv.ok) {
+          setEditMsg(dataPriv.mensagem || 'Erro ao atualizar a privacidade do email');
+          return;
+        }
+      }
+
       await buscarPerfil();
       setIsEditing(false);
       setEditPicture(null);
@@ -191,6 +212,14 @@ export default function Profile() {
   const openFollowingModal = () => {
     setShowFollowingModal(true);
     loadFollowing();
+  };
+
+  const handleLogout = () => {
+    // navegação "dura" de propósito: o token fica em useState lá no App.js,
+    // que não tem como ser atualizado daqui. Recarregando a página, o App
+    // relê o localStorage do zero e já nasce deslogado.
+    localStorage.removeItem('token');
+    window.location.href = '/login';
   };
 
   const aulasFiltradas = busca.trim()
@@ -224,15 +253,25 @@ export default function Profile() {
                       <h1 className="sd-profile__username">{perfil.username}</h1>
                       {perfil.email && <p className="sd-profile__email">{perfil.email}</p>}
                     </div>
-                    <div className="sd-profile__stats">
-                      <div className="sd-profile__stat-box">
-                        <strong>{perfil.followers || 0}</strong>
-                        <span>Seguidores</span>
+                    <div className="sd-profile__stats-col">
+                      <div className="sd-profile__stats">
+                        <div className="sd-profile__stat-box">
+                          <strong>{perfil.followers || 0}</strong>
+                          <span>Seguidores</span>
+                        </div>
+                        <div className="sd-profile__stat-box" onClick={openFollowingModal} style={{cursor: 'pointer'}}>
+                          <strong>{perfil.following ? perfil.following.length : 0}</strong>
+                          <span>Seguindo</span>
+                        </div>
                       </div>
-                      <div className="sd-profile__stat-box" onClick={openFollowingModal} style={{cursor: 'pointer'}}>
-                        <strong>{perfil.following ? perfil.following.length : 0}</strong>
-                        <span>Seguindo</span>
-                      </div>
+                      {souEuMesmo && (
+                        <button type="button" className="sd-profile__btn-logout-small" onClick={handleLogout}>
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+                          </svg>
+                          Sair da conta
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -267,6 +306,16 @@ export default function Profile() {
                                 </label>
                               </div>
                             </div>
+                          </div>
+                          <div className="sd-profile__input-group" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem', marginTop: '1rem', marginBottom: '1rem' }}>
+                            <input 
+                              type="checkbox"
+                              id="hideEmailToggle"
+                              checked={editEsconderEmail}
+                              onChange={e => setEditEsconderEmail(e.target.checked)}
+                              style={{ width: 'auto' }}
+                            />
+                            <label htmlFor="hideEmailToggle" style={{ margin: 0, fontWeight: 500 }}>Esconder e-mail de outros usuários</label>
                           </div>
                           {editMsg && <p className="sd-profile__edit-msg">{editMsg}</p>}
                           <div className="sd-profile__edit-actions">
