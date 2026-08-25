@@ -28,6 +28,11 @@ const userSchema = new mongoose.Schema({
     rate: {type: Number, required: true}
   }],
 
+  ratedPlaylists: [{
+    playlistsIds: { type: mongoose.Schema.Types.ObjectId, ref: 'Playlist'},
+    rate: {type: Number, required: true}
+  }],
+
   banned: { type: Boolean, default: false },
 
   isVerified: { type: Boolean, default: false },

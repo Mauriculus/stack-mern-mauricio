@@ -21,6 +21,7 @@ export default function Search() {
   const filtrosRef = useRef(null);
 
   const [destaque, setDestaque] = useState([]);
+  const [playlistsDestaque, setPlaylistsDestaque] = useState([]);
 
   const [resultados, setResultados] = useState([]);
   const [resultadosPagina, setResultadosPagina] = useState(1);
@@ -49,6 +50,22 @@ export default function Search() {
     document.addEventListener('mousedown', aoClicarFora);
     return () => document.removeEventListener('mousedown', aoClicarFora);
   }, [filtrosAbertos]);
+
+  const carregarTopPlaylists = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_BASE}/api/playlists/top`);
+      const data = await response.json();
+      if (response.ok) {
+        setPlaylistsDestaque(data.playlists || []);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
+  useEffect(() => {
+    carregarTopPlaylists();
+  }, [carregarTopPlaylists]);
 
   const buscar = useCallback(
     async (pagina = 1) => {

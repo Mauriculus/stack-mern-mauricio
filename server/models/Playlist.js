@@ -9,6 +9,10 @@ const playlistSchema = new mongoose.Schema({
 
     description: { type: String, required: true },
 
+    cover: { type: String, default: '' },
+
+    private: { type: Boolean, required: true, default: true },
+
     classes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Class' }],
 
     ratingCount: {type: Number, default: 0},
