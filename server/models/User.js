@@ -29,8 +29,8 @@ const userSchema = new mongoose.Schema({
   }],
 
   ratedPlaylists: [{
-    playlistsIds: { type: mongoose.Schema.Types.ObjectId, ref: 'Playlist'},
-    rate: {type: Number, required: true}
+    playlistId: { type: mongoose.Schema.Types.ObjectId, ref: 'Playlist' },
+    rate: { type: Number, required: true }
   }],
 
   banned: { type: Boolean, default: false },

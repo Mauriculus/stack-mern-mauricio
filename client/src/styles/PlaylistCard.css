@@ -1,1 +1,83 @@
-﻿.sd-playlist-card { display: flex; flex-direction: column; background: var(--sd-surface); border: 1px solid var(--sd-card-border); border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; text-align: left; padding: 0; outline: none; } .sd-playlist-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); } .sd-playlist-card__thumb { width: 100%; aspect-ratio: 16/9; background: var(--sd-bg); position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; } .sd-playlist-card__thumb img { width: 100%; height: 100%; object-fit: cover; } .sd-playlist-card__placeholder { color: var(--sd-text-soft); } .sd-playlist-card__overlay-count { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.7); color: #fff; font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 4px; display: flex; align-items: center; gap: 4px; } .sd-playlist-card__info { padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; } .sd-playlist-card__title { font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 1.1rem; color: var(--sd-navy); margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; } [data-theme='dark'] .sd-playlist-card__title { color: var(--sd-text); } .sd-playlist-card__author { font-size: 0.85rem; color: var(--sd-text-soft); margin: 0; } .sd-playlist-card__meta { display: flex; align-items: center; gap: 0.5rem; margin-top: auto; padding-top: 0.5rem; border-top: 1px solid var(--sd-card-border); }
+.sd-playlist-card {
+  display: block;
+  text-align: left;
+  background: var(--sd-surface);
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  width: 100%;
+  font-family: inherit;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.15s ease;
+}
+
+.sd-playlist-card:hover {
+  transform: translateY(-3px);
+}
+
+.sd-playlist-card__thumb {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #dcdce4;
+  overflow: hidden;
+}
+
+.sd-playlist-card__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sd-playlist-card__count {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(13, 18, 70, 0.75);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+}
+
+.sd-playlist-card__info {
+  background: var(--sd-navy);
+  padding: 0.85rem 1rem 1rem;
+}
+
+.sd-playlist-card__title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--sd-off-white);
+  margin: 0 0 0.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sd-playlist-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.sd-playlist-card__author {
+  font-size: 0.75rem;
+  color: rgba(240, 240, 240, 0.75);
+}
+
+.sd-playlist-card .sd-estrelas__valor,
+.sd-playlist-card .sd-estrelas--vazia {
+  color: rgba(240, 240, 240, 0.85);
+}

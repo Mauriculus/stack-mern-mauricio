@@ -1,15 +1,8 @@
 const Playlist = require('../models/Playlist');
 const Class = require('../models/Class');
 const User = require('../models/User');
-const fs = require('fs');
-const path = require('path');
 
-
-const createPlaylist = async (req, res) => { 
-    const { name, description, classIds } = req.body;
-    const userId = req.userId
-
-    const normalizeName = (value) =>
+const normalizeName = (value) =>
     value
         .trim()
         .toLowerCase()
@@ -17,14 +10,26 @@ const createPlaylist = async (req, res) => {
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/\s+/g, '');
 
+const createPlaylist = async (req, res) => { 
+    const { name, description, classIds } = req.body;
+    const userId = req.userId
+    const coverFile = req.file;
+
     if (!userId){
-        return res.status(400).json({ mensagem: "Você deve estar logado para conseguir criar uma playlist"})
+        return res.status(401).json({ mensagem: "Você deve estar logado para conseguir criar uma playlist"})
     }
     if (!name || !description) {
         return res.status(400).json({ mensagem: "Preencha todos os campos" }) 
     }
+    if (!coverFile) {
+        return res.status(400).json({ mensagem: "A imagem de capa é obrigatória" })
+    }
 
-    const classIdsArray = Array.isArray(classIds) ? classIds : []
+    // form-data manda um único valor como string solta, não como array —
+    // sem isso, criar a partir de "adicionar aula à playlist" (que sempre
+    // manda só 1 classId) cairia sempre no "As aulas devem ser enviadas em
+    // um array" por engano
+    const classIdsArray = Array.isArray(classIds) ? classIds : (classIds ? [classIds] : []);
     if (!classIdsArray.length){
         return res.status(400).json({ mensagem: "As aulas devem ser enviadas em um array"})
     }
@@ -35,34 +40,182 @@ const createPlaylist = async (req, res) => {
     }
 
     try {
-        const normalizedName = normalizeName(name)
-        const nameExists = await Playlist.findOne({normalizedName})
+        const user = await User.findById(userId)
+        if (!user) {
+            return res.status(404).json({ mensagem: "Usuário não encontrado" })
+        }
 
-        if (nameExists){
-            return res.status(400).json({mensagem: "Já existe uma playlist com esse nome"})
-        }       
+        const normalizedName = normalizeName(name)   
 
         const verifyClasses = await Class.find({ _id: { $in: classIdsArray }})
         if (verifyClasses.length !== classIdsArray.length){
             return res.status(400).json({ mensagem: "Uma ou mais aulas inseridas não existem"})
         }
 
-        const playlist = await new Playlist({
+        const playlist = new Playlist({
             author: userId,
+            authorUsername: user.username,
             name,
             normalizedName,
             description,
+            cover: `/uploads/${coverFile.filename}`,
             classes: classIdsArray
         })
         await playlist.save()
         
-        return res.status(201).json({mensagem: "Playlist criada com sucesso"})
+        return res.status(201).json({
+            mensagem: "Playlist criada com sucesso",
+            playlistId: playlist._id,
+            playlist,
+        })
 
     } catch(err) {
         console.error(err)
         return res.status(500).json({mensagem: "Erro no servidor"})
     }
 }
+
+// playlists do próprio usuário logado (públicas e privadas) — usado na aba
+// "Playlists" do perfil e no modal de "adicionar à playlist"
+const getMyPlaylists = async (req, res) => {
+    const userId = req.userId;
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 50);
+
+    if (!userId) {
+        return res.status(401).json({ mensagem: "Usuário não autenticado" });
+    }
+
+    try {
+        const skipIndex = (page - 1) * limit;
+        const filter = { author: userId };
+
+        const [playlists, totalItems] = await Promise.all([
+            Playlist.find(filter).sort({ createdAt: -1 }).skip(skipIndex).limit(limit),
+            Playlist.countDocuments(filter)
+        ]);
+
+        return res.status(200).json({
+            playlists,
+            currentPage: page,
+            totalPages: Math.ceil(totalItems / limit),
+            totalItems
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ mensagem: "Erro no servidor" });
+    }
+};
+
+// playlists públicas, ordenadas por ratingSum — usado na tela de pesquisa
+const getPublicPlaylists = async (req, res) => {
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 12, 1), 50);
+
+    try {
+        const filter = { private: false };
+        const skipIndex = (page - 1) * limit;
+
+        const [playlists, totalItems] = await Promise.all([
+            Playlist.find(filter).sort({ ratingSum: -1, createdAt: -1 }).skip(skipIndex).limit(limit),
+            Playlist.countDocuments(filter)
+        ]);
+
+        return res.status(200).json({
+            playlists,
+            currentPage: page,
+            totalPages: Math.ceil(totalItems / limit),
+            totalItems
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ mensagem: "Erro no servidor" });
+    }
+};
+
+// detalhe de uma playlist, com as aulas já populadas (título, capa etc) —
+// usado na tela de ver/editar playlist
+const getPlaylistById = async (req, res) => {
+    const { playlistId } = req.params;
+    const userId = req.userId;
+
+    try {
+        const playlist = await Playlist.findById(playlistId)
+            .populate('classes', 'title cover normalizedTitle subject ratingAverage ratingCount');
+
+        if (!playlist) {
+            return res.status(404).json({ mensagem: "Playlist não encontrada" });
+        }
+
+        const souDono = Boolean(userId) && playlist.author.toString() === userId;
+
+        if (playlist.private && !souDono) {
+            return res.status(403).json({ mensagem: "Essa playlist é privada" });
+        }
+
+        return res.status(200).json(playlist);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ mensagem: "Erro no servidor" });
+    }
+};
+
+
+const editPlaylist = async (req, res) => {
+    const userId = req.userId;
+    const { playlistId } = req.params;
+    const { name, description } = req.body;
+    const coverFile = req.file;
+
+    if (!userId) {
+        return res.status(401).json({ mensagem: "Usuário não autenticado" });
+    }
+
+    try {
+        const playlist = await Playlist.findById(playlistId);
+        if (!playlist) {
+            return res.status(404).json({ mensagem: "Playlist não encontrada" });
+        }
+        if (playlist.author.toString() !== userId) {
+            return res.status(403).json({ mensagem: "Você não pode editar uma playlist que não é sua" });
+        }
+
+        if (name && name.trim()) {
+            const novoNomeNormalizado = normalizeName(name);
+            playlist.name = name.trim();
+            playlist.normalizedName = novoNomeNormalizado;
+        }
+
+        if (description && description.trim()) {
+            playlist.description = description.trim();
+        }
+
+        // Deleta a foto de capa antiga se um novo arquivo for enviado
+        if (coverFile) {
+            if (playlist.cover) {
+                const filename = playlist.cover.startsWith('/uploads/') 
+                    ? playlist.cover.replace('/uploads/', '') 
+                    : playlist.cover;
+                const oldCoverPath = path.join(__dirname, '..', 'uploads', filename);
+
+                fs.unlink(oldCoverPath, (err) => {
+                    if (err && err.code !== 'ENOENT') {
+                        console.error("Erro ao deletar imagem de capa antiga da playlist:", err);
+                    }
+                });
+            }
+
+            playlist.cover = `/uploads/${coverFile.filename}`;
+        }
+
+        await playlist.save();
+
+        return res.status(200).json({ mensagem: "Playlist atualizada com sucesso", playlist });
+    } catch (err) {
+        console.error("Erro ao editar playlist:", err);
+        return res.status(500).json({ mensagem: "Erro no servidor" });
+    }
+};
 
 const addClassToPlaylist = async (req, res) => {
     const { newClassId } = req.body
@@ -191,32 +344,50 @@ const reorderPlaylist = async (req, res) => {
 
 
 const deletePlaylist = async (req, res) => {
-    const userId = req.userId
-    const { playlistId } = req.body
+    const userId = req.userId;
+    const { playlistId } = req.body;
 
     if (!userId) {
-        return res.status(401).json({ mensagem: "Você deve estar logado para realizar essa ação"})
+        return res.status(401).json({ mensagem: "Você deve estar logado para realizar essa ação" });
     }
     if (!playlistId) {
-        return res.status(400).json({ mensagem: "Não foi possível pegar o ID da playlist"})
+        return res.status(400).json({ mensagem: "Não foi possível pegar o ID da playlist" });
     }
 
     try {
-        const playlist = await Playlist.findById(playlistId)
+        const playlist = await Playlist.findById(playlistId);
 
-        if (playlist.author.toString() !== userId) {
-            return res.status(403).json({ mensagem: "Você não pode excluir a playlist de outro usuário"})
+        if (!playlist) {
+            return res.status(404).json({ mensagem: "Playlist não encontrada" });
         }
 
-        await Playlist.deleteOne({ _id: playlistId})
+        if (playlist.author.toString() !== userId) {
+            return res.status(403).json({ mensagem: "Você não pode excluir a playlist de outro usuário" });
+        }
 
-        return res.status(201).json({ mensagem: "A playlist foi deletada"})
+        // Deleta a foto de capa do servidor ao excluir a playlist
+        if (playlist.cover) {
+            const filename = playlist.cover.startsWith('/uploads/') 
+                ? playlist.cover.replace('/uploads/', '') 
+                : playlist.cover;
+            const coverPath = path.join(__dirname, '..', 'uploads', filename);
+
+            fs.unlink(coverPath, (err) => {
+                if (err && err.code !== 'ENOENT') {
+                    console.error("Erro ao deletar capa da playlist:", err);
+                }
+            });
+        }
+
+        await Playlist.deleteOne({ _id: playlistId });
+
+        return res.status(200).json({ mensagem: "A playlist foi deletada" });
 
     } catch (err) {
-        console.error(err)
-        return res.status(500).json({ mensagem: "Erro no servidor"})
+        console.error("Erro ao deletar playlist:", err);
+        return res.status(500).json({ mensagem: "Erro no servidor" });
     }
-}
+};
 
 const changePlaylistPrivacy = async (req, res) => {
     const userId = req.userId
@@ -240,12 +411,12 @@ const changePlaylistPrivacy = async (req, res) => {
         if (playlist.private === true) {
             playlist.private = false
             await playlist.save()
-            return res.status(200).json({ mensagem: "A playlist agora é pública"})
+            return res.status(200).json({ mensagem: "A playlist agora é pública", private: false})
         } 
         if (playlist.private === false) {
             playlist.private = true
             await playlist.save()
-            return res.status(200).json({ mensagem: "A playlist agora é privada"})
+            return res.status(200).json({ mensagem: "A playlist agora é privada", private: true})
         } else {
             return res.status(500).json({ mensagem: "A privacidade da playlist tem valor nulo"})
         }
@@ -255,189 +426,104 @@ const changePlaylistPrivacy = async (req, res) => {
     }
 }
 
-
-const editPlaylist = async (req, res) => {
-    const userId = req.userId;
-    const { playlistId } = req.params;
-    const { name, description, isPrivate } = req.body;
-    
-    // multer provides the file in req.file if sent
-    const coverFile = req.file ? req.file.filename : undefined;
-
-    if (!userId) {
-        return res.status(401).json({ mensagem: "Você deve estar logado para editar playlists" });
-    }
-
-    try {
-        const playlist = await Playlist.findById(playlistId);
-        if (!playlist) {
-            return res.status(404).json({ mensagem: "Playlist não encontrada" });
-        }
-        if (playlist.author.toString() !== userId) {
-            return res.status(403).json({ mensagem: "Você não é o dono dessa playlist" });
-        }
-
-        if (name) {
-            playlist.name = name;
-            playlist.normalizedName = name.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '');
-        }
-        if (description !== undefined) {
-            playlist.description = description;
-        }
-        if (isPrivate !== undefined) {
-            playlist.private = isPrivate === 'true' || isPrivate === true;
-        }
-
-        if (coverFile) {
-            if (playlist.cover) {
-                const oldCoverPath = path.join(__dirname, '..', 'uploads', playlist.cover);
-                fs.unlink(oldCoverPath, (err) => {
-                    if (err && err.code !== 'ENOENT') {
-                        console.error("Erro ao deletar capa antiga:", err);
-                    }
-                });
-            }
-            playlist.cover = coverFile;
-        }
-
-        await playlist.save();
-        return res.status(200).json({ mensagem: "Playlist atualizada com sucesso", playlist });
-    } catch (err) {
-        console.error("Erro ao editar playlist:", err);
-        return res.status(500).json({ mensagem: "Erro no servidor" });
-    }
-};
-
+// nota de 0 a 5 — mesma lógica do rateClass, só que guardando em
+// user.ratedPlaylists em vez de user.ratedClasses
 const ratePlaylist = async (req, res) => {
     const rate = Number(req.body.rate);
     const userId = req.userId;
     const { playlistId } = req.params;
 
-    if (isNaN(rate) || rate < 0 || rate > 5) {
-        return res.status(400).json({ mensagem: "Nota inválida" });
+    if (isNaN(rate)) {
+        return res.status(400).json({ mensagem: "Nenhuma nota válida foi inserida, nada alterado" });
     }
-    if (!userId) return res.status(401).json({ mensagem: "Você deve estar logado" });
+    if (rate < 0 || rate > 5) {
+        return res.status(400).json({ mensagem: "Sua nota deve estar entre 0 e 5" });
+    }
+    if (!userId) {
+        return res.status(401).json({ mensagem: "Você deve estar logado para avaliar" });
+    }
+    if (!playlistId) {
+        return res.status(400).json({ mensagem: "Insira a playlist que quer avaliar" });
+    }
 
     try {
-        const playlist = await Playlist.findById(playlistId);
-        if (!playlist) return res.status(404).json({ mensagem: "Playlist não encontrada" });
-        if (playlist.private) return res.status(403).json({ mensagem: "Não é possível avaliar playlists privadas" });
-
+        const ratedPlaylist = await Playlist.findById(playlistId);
+        if (!ratedPlaylist) {
+            return res.status(404).json({ mensagem: "Não foi possível encontrar a playlist" });
+        }
         const user = await User.findById(userId);
-        if (user.banned) return res.status(403).json({ mensagem: "Você está banido" });
+        if (user.banned === true) {
+            return res.status(403).json({ mensagem: "Você está banido" });
+        }
 
-        const currentSum = Number(playlist.ratingSum) || 0;
-        const currentCount = Number(playlist.ratingCount) || 0;
-        const alreadyRated = user.ratedPlaylists.find(item => item.playlistsIds.toString() === playlistId);
+        const currentSum = Number(ratedPlaylist.ratingSum) || 0;
+        const currentCount = Number(ratedPlaylist.ratingCount) || 0;
+
+        const alreadyRated = (user.ratedPlaylists || []).find(
+            item => item.playlistId.toString() === playlistId
+        );
 
         if (alreadyRated) {
             const oldRate = Number(alreadyRated.rate);
-            if (oldRate === rate) return res.status(200).json({ mensagem: "A nota foi mantida a mesma" });
+
+            if (oldRate === rate) {
+                return res.status(200).json({ mensagem: "A nota foi mantida a mesma" });
+            }
 
             const newSum = currentSum - oldRate + rate;
             const newAverage = newSum / currentCount;
 
-            playlist.ratingSum = newSum;
-            playlist.ratingAverage = newAverage;
+            if (newAverage < 0 || newAverage > 5) {
+                return res.status(400).json({ mensagem: "A média não está na faixa de notas permitidas" });
+            }
+
+            ratedPlaylist.ratingSum = newSum;
+            ratedPlaylist.ratingAverage = newAverage;
             alreadyRated.rate = rate;
 
-            await playlist.save();
+            await ratedPlaylist.save();
             await user.save();
-            return res.status(200).json({ mensagem: `Sua avaliação foi alterada para ${rate}` });
+
+            return res.status(200).json({ mensagem: `Sua avaliação foi alterada de ${oldRate} para ${rate}` });
         }
 
         const newCount = currentCount + 1;
         const newSum = currentSum + rate;
-        playlist.ratingCount = newCount;
-        playlist.ratingSum = newSum;
-        playlist.ratingAverage = newSum / newCount;
+        const newAverage = newSum / newCount;
 
-        user.ratedPlaylists.push({ playlistsIds: playlistId, rate });
-        
-        await playlist.save();
+        if (newAverage < 0 || newAverage > 5) {
+            return res.status(400).json({ mensagem: "A média não está na faixa de notas permitidas" });
+        }
+
+        ratedPlaylist.ratingCount = newCount;
+        ratedPlaylist.ratingSum = newSum;
+        ratedPlaylist.ratingAverage = newAverage;
+
+        if (!user.ratedPlaylists) user.ratedPlaylists = [];
+        user.ratedPlaylists.push({ playlistId: playlistId, rate: rate });
+
         await user.save();
-        
+        await ratedPlaylist.save();
+
         return res.status(200).json({ mensagem: "Playlist avaliada com sucesso" });
+
     } catch (err) {
         console.error(err);
         return res.status(500).json({ mensagem: "Erro no servidor" });
     }
 };
 
-const getTopPlaylists = async (req, res) => {
-    try {
-        const playlists = await Playlist.find({ private: false })
-            .sort({ ratingSum: -1 })
-            .limit(12)
-            .populate('author', 'username profilePicture')
-            .populate('classes', 'title duration');
-        
-        return res.status(200).json({ playlists });
-    } catch (err) {
-        console.error("Erro ao buscar playlists:", err);
-        return res.status(500).json({ mensagem: "Erro no servidor" });
-    }
-};
-
-const getUserPlaylists = async (req, res) => {
-    const { userId } = req.params;
-    const isOwner = req.userId === userId;
-
-    try {
-        const filter = { author: userId };
-        if (!isOwner) {
-            filter.private = false;
-        }
-
-        const playlists = await Playlist.find(filter)
-            .populate('author', 'username profilePicture')
-            .sort({ createdAt: -1 });
-
-        return res.status(200).json({ playlists });
-    } catch (err) {
-        console.error("Erro ao buscar playlists do usuário:", err);
-        return res.status(500).json({ mensagem: "Erro no servidor" });
-    }
-};
-
-const getPlaylistById = async (req, res) => {
-    const { playlistId } = req.params;
-    const userId = req.userId;
-
-    try {
-        const playlist = await Playlist.findById(playlistId)
-            .populate('author', 'username profilePicture')
-            .populate({
-                path: 'classes',
-                populate: {
-                    path: 'author',
-                    select: 'username'
-                }
-            });
-
-        if (!playlist) return res.status(404).json({ mensagem: "Playlist não encontrada" });
-
-        if (playlist.private && (!userId || playlist.author._id.toString() !== userId)) {
-            return res.status(403).json({ mensagem: "Esta playlist é privada" });
-        }
-
-        return res.status(200).json(playlist);
-    } catch (err) {
-        console.error("Erro ao buscar playlist:", err);
-        return res.status(500).json({ mensagem: "Erro no servidor" });
-    }
-};
 
 module.exports = {
     createPlaylist,
+    getMyPlaylists,
+    getPublicPlaylists,
+    getPlaylistById,
+    editPlaylist,
     addClassToPlaylist,
     removeClassFromPlaylist,
     reorderPlaylist,
     deletePlaylist,
     changePlaylistPrivacy,
-    editPlaylist,
     ratePlaylist,
-    getTopPlaylists,
-    getUserPlaylists,
-    getPlaylistById
-};
+}

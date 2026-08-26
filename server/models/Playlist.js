@@ -7,9 +7,9 @@ const playlistSchema = new mongoose.Schema({
 
     normalizedName: { type: String, required: true },
 
-    description: { type: String, required: true },
+    cover: { type: String, required: true },
 
-    cover: { type: String, default: '' },
+    description: { type: String, required: true },
 
     private: { type: Boolean, required: true, default: true },
 
