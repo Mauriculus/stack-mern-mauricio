@@ -1,12 +1,23 @@
+import { useState } from 'react';
 import { COR_ASSUNTO, capaDaAula } from '../utils/classTaxonomia';
 import EstrelaRating from './EstrelaRating';
+import AddToPlaylistModal from './AddToPlaylistModal';
 import '../styles/ClassCard.css';
 
 export default function ClassCard({ aula, onAbrir }) {
+  const [modalPlaylistAberto, setModalPlaylistAberto] = useState(false);
   const capa = capaDaAula(aula);
 
   return (
-    <button type="button" className="sd-class-card" onClick={() => onAbrir(aula)}>
+    <div
+      className="sd-class-card"
+      role="button"
+      tabIndex={0}
+      onClick={() => onAbrir(aula)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') onAbrir(aula);
+      }}
+    >
       <div className="sd-class-card__thumb">
         {capa.tipo === 'imagem' ? (
           <img src={capa.src} alt="" />
@@ -24,6 +35,21 @@ export default function ClassCard({ aula, onAbrir }) {
             </svg>
           </div>
         )}
+
+        <button
+          type="button"
+          className="sd-class-card__playlist-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            setModalPlaylistAberto(true);
+          }}
+          aria-label="Adicionar à playlist"
+          title="Adicionar à playlist"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+            <path d="M4 6h11M4 12h11M4 18h6M17 14v6M14 17h6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </button>
       </div>
 
       <div className="sd-class-card__info">
@@ -38,6 +64,10 @@ export default function ClassCard({ aula, onAbrir }) {
           <EstrelaRating media={aula.ratingAverage} quantidade={aula.ratingCount} />
         </div>
       </div>
-    </button>
+
+      {modalPlaylistAberto && (
+        <AddToPlaylistModal classId={aula._id} onClose={() => setModalPlaylistAberto(false)} />
+      )}
+    </div>
   );
 }
