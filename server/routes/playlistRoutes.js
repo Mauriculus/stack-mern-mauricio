@@ -7,6 +7,8 @@ const {
     createPlaylist,
     getMyPlaylists,
     getPublicPlaylists,
+    getFollowingPlaylists,
+    getPlaylistsByAuthor,
     getPlaylistById,
     editPlaylist,
     addClassToPlaylist,
@@ -22,7 +24,9 @@ router.put("/edit/:playlistId", authMiddleware, upload.single('cover'), editPlay
 
 router.get("/mine", authMiddleware, getMyPlaylists)
 router.get("/public", getPublicPlaylists)
+router.get("/following", authMiddleware, getFollowingPlaylists)
 router.get("/byId/:playlistId", authMiddleware, getPlaylistById)
+router.get("/byAuthor/:userId", getPlaylistsByAuthor)
 
 router.post("/add/:playlistId", authMiddleware, addClassToPlaylist)
 router.delete("/remove/:playlistId", authMiddleware, removeClassFromPlaylist)
@@ -31,4 +35,4 @@ router.delete("/delete", authMiddleware, deletePlaylist)
 router.put("/changePrivacy/:playlistId", authMiddleware, changePlaylistPrivacy)
 router.put("/rate/:playlistId", authMiddleware, ratePlaylist)
 
-module.exports = router 
+module.exports = router

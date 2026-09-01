@@ -8,7 +8,7 @@ function formatarData(iso) {
   return new Date(iso).toLocaleDateString('pt-BR');
 }
 
-export default function ProfileClassRow({ aula, onExcluir }) {
+export default function ProfileClassRow({ aula, onExcluir, podeEditar }) {
   const [confirmando, setConfirmando] = useState(false);
   const [excluindo, setExcluindo] = useState(false);
   const capa = capaDaAula(aula);
@@ -49,45 +49,47 @@ export default function ProfileClassRow({ aula, onExcluir }) {
         <div className="sd-profile-row__meta">
           <span className="sd-profile-row__data">{formatarData(aula.createdAt)}</span>
 
-          {confirmando ? (
-            <span className="sd-profile-row__confirm">
-              Excluir?
-              <button type="button" onClick={confirmarExclusao} disabled={excluindo}>
-                {excluindo ? '...' : 'Sim'}
-              </button>
-              <button type="button" onClick={() => setConfirmando(false)} disabled={excluindo}>
-                Não
-              </button>
-            </span>
-          ) : (
-            <>
-              <button
-                type="button"
-                className="sd-profile-row__icon-btn"
-                onClick={() => setConfirmando(true)}
-                aria-label="Excluir aula"
-                title="Excluir aula"
-              >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="3 6 5 6 21 6"></polyline>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>
-              </button>
+          {podeEditar && (
+            confirmando ? (
+              <span className="sd-profile-row__confirm">
+                Excluir?
+                <button type="button" onClick={confirmarExclusao} disabled={excluindo}>
+                  {excluindo ? '...' : 'Sim'}
+                </button>
+                <button type="button" onClick={() => setConfirmando(false)} disabled={excluindo}>
+                  Não
+                </button>
+              </span>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="sd-profile-row__icon-btn"
+                  onClick={() => setConfirmando(true)}
+                  aria-label="Excluir aula"
+                  title="Excluir aula"
+                >
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                </button>
 
-              <Link
-                to={`/editar-aula/${aula._id}`}
-                className="sd-profile-row__icon-btn"
-                aria-label="Editar aula"
-                title="Editar aula"
-              >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 20h9"></path>
-                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                </svg>
-              </Link>
-            </>
+                <Link
+                  to={`/editar-aula/${aula._id}`}
+                  className="sd-profile-row__icon-btn"
+                  aria-label="Editar aula"
+                  title="Editar aula"
+                >
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                  </svg>
+                </Link>
+              </>
+            )
           )}
-
+          
           {Array.isArray(aula.comments) && (
             <span className="sd-profile-row__stat" title="Comentários">
               <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

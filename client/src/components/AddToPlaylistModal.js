@@ -12,6 +12,7 @@ export default function AddToPlaylistModal({ classId, onClose }) {
   const [nome, setNome] = useState('');
   const [descricao, setDescricao] = useState('');
   const [capaArquivo, setCapaArquivo] = useState(null);
+  const [privada, setPrivada] = useState(true);
   const [enviando, setEnviando] = useState(false);
   const [erroCriar, setErroCriar] = useState('');
   const capaInputRef = useRef(null);
@@ -34,6 +35,13 @@ export default function AddToPlaylistModal({ classId, onClose }) {
         return;
       }
       setPlaylists(data.playlists || []);
+
+      const iniciais = {};
+      (data.playlists || []).forEach((p) => {
+        const jaTem = (p.classes || []).some((c) => (c._id || c).toString() === classId);
+        if (jaTem) iniciais[p._id] = true;
+      });
+      setAdicionadas(iniciais);
     } catch (error) {
       setErro('Erro ao conectar com o servidor');
     } finally {
@@ -46,18 +54,46 @@ export default function AddToPlaylistModal({ classId, onClose }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const adicionar = async (playlistId) => {
+  const alternarNaPlaylist = async (playlistId) => {
+    const jaAdicionada = Boolean(adicionadas[playlistId]);
     try {
-      const response = await fetch(`${API_BASE}/api/playlists/add/${playlistId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders() },
-        body: JSON.stringify({ newClassId: classId }),
-      });
-      if (response.ok) {
-        setAdicionadas((atual) => ({ ...atual, [playlistId]: true }));
+      if (jaAdicionada) {
+        const response = await fetch(`${API_BASE}/api/playlists/remove/${playlistId}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({ removeClassId: classId }),
+        });
+        if (response.ok) {
+          setAdicionadas((atual) => {
+            const copia = { ...atual };
+            delete copia[playlistId];
+            return copia;
+          });
+          setPlaylists((atual) =>
+            atual.map((p) =>
+              p._id === playlistId
+                ? { ...p, classes: (p.classes || []).filter((c) => (c._id || c).toString() !== classId) }
+                : p
+            )
+          );
+        }
+      } else {
+        const response = await fetch(`${API_BASE}/api/playlists/add/${playlistId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({ newClassId: classId }),
+        });
+        if (response.ok) {
+          setAdicionadas((atual) => ({ ...atual, [playlistId]: true }));
+          setPlaylists((atual) =>
+            atual.map((p) =>
+              p._id === playlistId ? { ...p, classes: [...(p.classes || []), classId] } : p
+            )
+          );
+        }
       }
     } catch (error) {
-      // silencioso — o botão simplesmente não muda pra "adicionada"
+      // silencioso — o botão simplesmente não muda de estado
     }
   };
 
@@ -83,6 +119,7 @@ export default function AddToPlaylistModal({ classId, onClose }) {
       formData.append('description', descricao.trim());
       formData.append('cover', capaArquivo);
       formData.append('classIds', classId);
+      formData.append('private', String(privada));
 
       const response = await fetch(`${API_BASE}/api/playlists/create`, {
         method: 'POST',
@@ -161,6 +198,16 @@ export default function AddToPlaylistModal({ classId, onClose }) {
               onChange={(e) => setCapaArquivo(e.target.files?.[0] || null)}
             />
 
+            <label className="sd-addplaylist__label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <input
+                type="checkbox"
+                checked={privada}
+                onChange={(e) => setPrivada(e.target.checked)}
+                style={{ width: 'auto' }}
+              />
+              Playlist privada
+            </label>
+
             <div className="sd-addplaylist__form-actions">
               <button type="button" className="sd-addplaylist__cancel" onClick={() => setCriandoNova(false)}>
                 Cancelar
@@ -197,8 +244,7 @@ export default function AddToPlaylistModal({ classId, onClose }) {
                     <button
                       type="button"
                       className={`sd-addplaylist__add-btn ${adicionadas[p._id] ? 'is-done' : ''}`}
-                      onClick={() => adicionar(p._id)}
-                      disabled={Boolean(adicionadas[p._id])}
+                      onClick={() => alternarNaPlaylist(p._id)}
                     >
                       {adicionadas[p._id] ? 'Adicionada' : 'Adicionar'}
                     </button>

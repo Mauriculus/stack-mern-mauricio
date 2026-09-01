@@ -77,7 +77,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .sd-class-card__badge {
@@ -88,6 +88,10 @@
   border-radius: 999px;
   padding: 0.2rem 0.65rem;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex-shrink: 1;
 }
 
 /* dentro do card o fundo é escuro (navy), então as estrelas "sem avaliação"
@@ -96,4 +100,8 @@
 .sd-class-card .sd-estrelas--vazia,
 .sd-class-card .sd-estrelas__valor {
   color: rgba(240, 240, 240, 0.85);
+}
+
+.sd-class-card__meta .sd-estrelas {
+  flex-shrink: 0;
 }

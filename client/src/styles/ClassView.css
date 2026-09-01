@@ -401,3 +401,25 @@
     padding: 1rem 1.25rem 4rem;
   }
 }
+
+.sd-view__playlist-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--sd-card-border);
+  background: var(--sd-surface);
+  color: var(--sd-navy);
+  cursor: pointer;
+  margin-right: 0.25rem;
+}
+
+.sd-view__playlist-icon-btn:hover {
+  background: var(--sd-bg);
+}
+
+[data-theme='dark'] .sd-view__playlist-icon-btn {
+  color: var(--sd-amber);
+}

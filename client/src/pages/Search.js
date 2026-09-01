@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import ClassCard from '../components/ClassCard';
 import ClassDetailModal from '../components/ClassDetailModal';
+import EstrelaRating from '../components/EstrelaRating';
 import { API_BASE, ASSUNTOS, COR_ASSUNTO } from '../utils/classTaxonomia';
 import '../styles/Search.css';
 
@@ -33,6 +34,8 @@ export default function Search() {
   const [seguidosPagina, setSeguidosPagina] = useState(0);
   const [seguidosTotalPaginas, setSeguidosTotalPaginas] = useState(0);
   const [seguidosCarregando, setSeguidosCarregando] = useState(false);
+  const [destaquePlaylists, setDestaquePlaylists] = useState([]);
+  const [playlistsSeguidos, setPlaylistsSeguidos] = useState([]);
 
   const [aulaSelecionada, setAulaSelecionada] = useState(null);
 
@@ -121,6 +124,33 @@ export default function Search() {
   useEffect(() => {
     carregarSeguidos(1);
   }, [carregarSeguidos]);
+
+  useEffect(() => {
+    const carregarPlaylists = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const [pubRes, segRes] = await Promise.all([
+          fetch(`${API_BASE}/api/playlists/public?page=1&limit=6`),
+          token
+            ? fetch(`${API_BASE}/api/playlists/following?page=1&limit=6`, {
+                headers: { Authorization: `Bearer ${token}` },
+              })
+            : Promise.resolve(null),
+        ]);
+        if (pubRes.ok) {
+          const pubData = await pubRes.json();
+          setDestaquePlaylists(pubData.playlists || []);
+        }
+        if (segRes && segRes.ok) {
+          const segData = await segRes.json();
+          setPlaylistsSeguidos(segData.playlists || []);
+        }
+      } catch (error) {
+        // seções secundárias — se falhar, somem discretamente
+      }
+    };
+    carregarPlaylists();
+  }, []);
 
   const alternarAssunto = (assunto) => {
     setAssuntosSelecionados((atual) =>
@@ -228,6 +258,50 @@ export default function Search() {
                 {seguidosCarregando ? 'Carregando…' : 'Carregar mais'}
               </button>
             )}
+          </section>
+        )}
+
+        {!emBusca && destaquePlaylists.length > 0 && (
+          <section className="sd-search__section">
+            <h2 className="sd-search__section-title">Playlists em destaque</h2>
+            <div className="sd-search__grid">
+              {destaquePlaylists.map((pl) => (
+                <Link key={pl._id} to={`/playlist/${pl._id}`} className="sd-search__playlist-card">
+                  <div className="sd-search__playlist-thumb">
+                    <img src={`${API_BASE}${pl.cover}`} alt="" />
+                  </div>
+                  <div className="sd-search__playlist-info">
+                    <p className="sd-search__playlist-title">{pl.name}</p>
+                    <div className="sd-search__playlist-meta">
+                      <span className="sd-search__playlist-count">{pl.classes?.length || 0} aula(s)</span>
+                      <EstrelaRating media={pl.ratingAverage} quantidade={pl.ratingCount} tamanho={12} />
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {!emBusca && playlistsSeguidos.length > 0 && (
+          <section className="sd-search__section">
+            <h2 className="sd-search__section-title">Playlists de quem você segue</h2>
+            <div className="sd-search__grid">
+              {playlistsSeguidos.map((pl) => (
+                <Link key={pl._id} to={`/playlist/${pl._id}`} className="sd-search__playlist-card">
+                  <div className="sd-search__playlist-thumb">
+                    <img src={`${API_BASE}${pl.cover}`} alt="" />
+                  </div>
+                  <div className="sd-search__playlist-info">
+                    <p className="sd-search__playlist-title">{pl.name}</p>
+                    <div className="sd-search__playlist-meta">
+                      <span className="sd-search__playlist-count">{pl.classes?.length || 0} aula(s)</span>
+                      <EstrelaRating media={pl.ratingAverage} quantidade={pl.ratingCount} tamanho={12} />
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </section>
         )}
 

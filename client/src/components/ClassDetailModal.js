@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { API_BASE, COR_ASSUNTO, COR_RISCO, capaDaAula } from '../utils/classTaxonomia';
 import EstrelaRating from './EstrelaRating';
+import AddToPlaylistModal from './AddToPlaylistModal';
 import '../styles/ClassDetailModal.css';
 
 export default function ClassDetailModal({ classId, tituloProvisorio, onClose }) {
@@ -81,6 +82,8 @@ export default function ClassDetailModal({ classId, tituloProvisorio, onClose })
 
 function ClassDetailContent({ aula, onClose }) {
   const capa = capaDaAula(aula);
+  const [modalPlaylistAberto, setModalPlaylistAberto] = useState(false);
+  const logado = Boolean(localStorage.getItem('token'));
 
   return (
     <>
@@ -88,19 +91,23 @@ function ClassDetailContent({ aula, onClose }) {
         {capa.tipo === 'imagem' ? (
           <img src={capa.src} alt="" />
         ) : (
-          <div className="sd-class-modal__placeholder" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="32" height="32">
-              <path
-                d="M3 10.5L12 4l9 6.5M5 9.5V20h14V9.5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
+          <div className="sd-class-modal__placeholder" aria-hidden="true">...</div>
         )}
+
+        {logado && (
+          <button
+            type="button"
+            className="sd-class-modal__playlist-btn"
+            onClick={(e) => { e.stopPropagation(); setModalPlaylistAberto(true); }}
+            aria-label="Adicionar à playlist"
+            title="Adicionar à playlist"
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <path d="M4 6h11M4 12h11M4 18h6M17 14v6M14 17h6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </button>
+        )}
+
         <EstrelaRating media={aula.ratingAverage} quantidade={aula.ratingCount} tamanho={15} />
       </div>
 
@@ -167,6 +174,9 @@ function ClassDetailContent({ aula, onClose }) {
           Continuar
         </Link>
       </div>
+      {modalPlaylistAberto && (
+        <AddToPlaylistModal classId={aula._id} onClose={() => setModalPlaylistAberto(false)} />
+      )}
     </>
   );
 }

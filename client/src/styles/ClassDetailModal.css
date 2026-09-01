@@ -204,3 +204,23 @@
     flex: none;
   }
 }
+.sd-class-modal__playlist-btn {
+  position: absolute;
+  bottom: 0.6rem;
+  right: 0.6rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(22, 30, 107, 0.85);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+[data-theme='dark'] .sd-class-modal__playlist-btn {
+  background: var(--sd-amber);
+  color: var(--sd-navy);
+}

@@ -134,6 +134,16 @@
   color: var(--sd-text-soft);
 }
 
+/* ---------- linha de ações (editar perfil + sair da conta) ---------- */
+
+.sd-profile__actions-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+}
+
 /* ---------- edit form ---------- */
 
 .sd-profile__edit-container {
@@ -153,6 +163,7 @@
   border: 1.5px solid var(--sd-card-border);
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .sd-profile__btn-edit:hover {
@@ -433,6 +444,14 @@
   color: var(--sd-text);
 }
 
+.sd-profile__search-spacer {
+  flex: 1;
+  min-width: 220px;
+  max-width: 380px;
+  display: flex;
+  align-items: center;
+}
+
 .sd-profile__tabs {
   display: flex;
   gap: 1.5rem;
@@ -494,6 +513,16 @@
   cursor: not-allowed;
 }
 
+.sd-profile-row--link {
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease;
+}
+
+.sd-profile-row--link:hover {
+  transform: translateY(-2px);
+}
+
 /* ---------- responsivo ---------- */
 
 @media (max-width: 768px) {
@@ -530,7 +559,8 @@
     align-items: stretch;
   }
 
-  .sd-profile__search {
+  .sd-profile__search,
+  .sd-profile__search-spacer {
     max-width: none;
   }
 
@@ -574,7 +604,8 @@
   padding: 0.5rem 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-top: 0.5rem;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .sd-profile__btn-logout-small:hover {
@@ -592,4 +623,44 @@
 [data-theme='dark'] .sd-profile__btn-logout-small:hover {
   background: rgba(255, 82, 82, 0.2);
   border-color: rgba(255, 82, 82, 0.5);
+}
+
+.sd-profile__actions-row--single {
+  justify-content: flex-end;
+}
+
+.sd-profile__btn-follow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 999px;
+  background: var(--sd-navy);
+  color: #fff;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  border: 1.5px solid var(--sd-navy);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+[data-theme='dark'] .sd-profile__btn-follow {
+  background: var(--sd-amber);
+  color: var(--sd-navy);
+  border-color: var(--sd-amber);
+}
+
+.sd-profile__btn-follow.is-following {
+  background: var(--sd-bg);
+  color: var(--sd-navy);
+}
+
+[data-theme='dark'] .sd-profile__btn-follow.is-following {
+  color: var(--sd-text);
+}
+
+.sd-profile__btn-follow:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

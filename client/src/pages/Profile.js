@@ -2,10 +2,13 @@ import { useCallback, useEffect, useState, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import ProfileClassRow from '../components/ProfileClassRow';
+import EstrelaRating from '../components/EstrelaRating';
+import CreatePlaylistModal from '../components/CreatePlaylistModal';
 import { API_BASE } from '../utils/classTaxonomia';
 import '../styles/Profile.css';
 
 const LIMITE_AULAS = 10;
+const LIMITE_PLAYLISTS = 10;
 
 // lê o userId de dentro do próprio token (só decodifica o payload, não
 // precisa validar assinatura aqui — é só pra decidir o que mostrar na tela,
@@ -40,6 +43,12 @@ export default function Profile() {
   const [aulasTotalPaginas, setAulasTotalPaginas] = useState(0);
   const [aulasCarregando, setAulasCarregando] = useState(false);
 
+  const [playlists, setPlaylists] = useState([]);
+  const [playlistsPagina, setPlaylistsPagina] = useState(0);
+  const [playlistsTotalPaginas, setPlaylistsTotalPaginas] = useState(0);
+  const [playlistsCarregando, setPlaylistsCarregando] = useState(false);
+  const [mostrarCriarPlaylist, setMostrarCriarPlaylist] = useState(false);
+
   // Edit profile states
   const [isEditing, setIsEditing] = useState(false);
   const [editUsername, setEditUsername] = useState('');
@@ -53,6 +62,9 @@ export default function Profile() {
   const [followingList, setFollowingList] = useState([]);
   const [loadingFollowing, setLoadingFollowing] = useState(false);
 
+  const [seguindo, setSeguindo] = useState(false);
+  const [alterandoSeguir, setAlterandoSeguir] = useState(false);
+
   const authHeaders = () => {
     const token = localStorage.getItem('token');
     return token ? { Authorization: `Bearer ${token}` } : {};
@@ -64,6 +76,9 @@ export default function Profile() {
     setAulas([]);
     setAulasPagina(0);
     setAulasTotalPaginas(0);
+    setPlaylists([]);
+    setPlaylistsPagina(0);
+    setPlaylistsTotalPaginas(0);
     setIsEditing(false);
     setBusca('');
     setAba('aulas');
@@ -96,6 +111,23 @@ export default function Profile() {
     buscarPerfil();
   }, [buscarPerfil]);
 
+  useEffect(() => {
+    const checarSeguindo = async () => {
+      if (souEuMesmo || !meuId || !perfil?._id) {
+        setSeguindo(false);
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE}/api/users/followingList/${meuId}`, { headers: authHeaders() });
+        const data = await res.json();
+        if (res.ok && Array.isArray(data)) {
+          setSeguindo(data.some((u) => u._id === perfil._id));
+        }
+      } catch (error) {}
+    };
+    checarSeguindo();
+  }, [souEuMesmo, meuId, perfil?._id]);
+
   const buscarAulas = useCallback(async (pagina, userId) => {
     setAulasCarregando(true);
     try {
@@ -118,6 +150,31 @@ export default function Profile() {
     if (perfil?._id) buscarAulas(1, perfil._id);
   }, [perfil?._id, buscarAulas]);
 
+  const buscarPlaylists = useCallback(async (pagina) => {
+    if (!perfil?._id) return;
+    setPlaylistsCarregando(true);
+    try {
+      const params = new URLSearchParams({ page: String(pagina), limit: String(LIMITE_PLAYLISTS) });
+      const url = souEuMesmo
+        ? `${API_BASE}/api/playlists/mine?${params.toString()}`
+        : `${API_BASE}/api/playlists/byAuthor/${perfil._id}?${params.toString()}`;
+      const response = await fetch(url, { headers: authHeaders() });
+      const data = await response.json();
+      if (response.ok) {
+        setPlaylists((atual) => (pagina === 1 ? data.playlists || [] : [...atual, ...(data.playlists || [])]));
+        setPlaylistsPagina(pagina);
+        setPlaylistsTotalPaginas(data.totalPages || 0);
+      }
+    } catch (error) {
+    } finally {
+      setPlaylistsCarregando(false);
+    }
+  }, [souEuMesmo, perfil?._id]);
+
+  useEffect(() => {
+    if (aba === 'playlists' && perfil?._id) buscarPlaylists(1);
+  }, [aba, perfil?._id, buscarPlaylists]);
+
   const excluirAula = async (classId) => {
     try {
       const response = await fetch(`${API_BASE}/api/classes/${classId}`, {
@@ -132,6 +189,19 @@ export default function Profile() {
     } catch (error) {
       return false;
     }
+  };
+
+  const excluirPlaylist = async (playlistId) => {
+    try {
+      const response = await fetch(`${API_BASE}/api/playlists/delete`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ playlistId }),
+      });
+      if (response.ok) {
+        setPlaylists((atual) => atual.filter((p) => p._id !== playlistId));
+      }
+    } catch (error) {}
   };
 
   const handleEditProfile = async (e) => {
@@ -222,6 +292,34 @@ export default function Profile() {
     window.location.href = '/login';
   };
 
+  const handleToggleFollow = async () => {
+    if (alterandoSeguir || !perfil?._id) return;
+    setAlterandoSeguir(true);
+
+    const seguindoAntes = seguindo;
+    // otimista: já muda na tela, desfaz se a chamada falhar
+    setSeguindo(!seguindoAntes);
+    setPerfil((atual) => ({ ...atual, followers: (atual.followers || 0) + (seguindoAntes ? -1 : 1) }));
+
+    try {
+      const url = seguindoAntes ? `${API_BASE}/api/users/unfollow` : `${API_BASE}/api/users/follow`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ followingId: perfil._id }),
+      });
+      if (!response.ok) {
+        setSeguindo(seguindoAntes);
+        setPerfil((atual) => ({ ...atual, followers: (atual.followers || 0) + (seguindoAntes ? 1 : -1) }));
+      }
+    } catch (error) {
+      setSeguindo(seguindoAntes);
+      setPerfil((atual) => ({ ...atual, followers: (atual.followers || 0) + (seguindoAntes ? 1 : -1) }));
+    } finally {
+      setAlterandoSeguir(false);
+    }
+  };
+
   const aulasFiltradas = busca.trim()
     ? aulas.filter((a) => a.title.toLowerCase().includes(busca.trim().toLowerCase()))
     : aulas;
@@ -253,18 +351,78 @@ export default function Profile() {
                       <h1 className="sd-profile__username">{perfil.username}</h1>
                       {perfil.email && <p className="sd-profile__email">{perfil.email}</p>}
                     </div>
-                    <div className="sd-profile__stats-col">
-                      <div className="sd-profile__stats">
-                        <div className="sd-profile__stat-box">
-                          <strong>{perfil.followers || 0}</strong>
-                          <span>Seguidores</span>
-                        </div>
-                        <div className="sd-profile__stat-box" onClick={openFollowingModal} style={{cursor: 'pointer'}}>
-                          <strong>{perfil.following ? perfil.following.length : 0}</strong>
-                          <span>Seguindo</span>
-                        </div>
+                    <div className="sd-profile__stats">
+                      <div className="sd-profile__stat-box">
+                        <strong>{perfil.followers || 0}</strong>
+                        <span>Seguidores</span>
                       </div>
-                      {souEuMesmo && (
+                      <div className="sd-profile__stat-box" onClick={openFollowingModal} style={{cursor: 'pointer'}}>
+                        <strong>{perfil.following ? perfil.following.length : 0}</strong>
+                        <span>Seguindo</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {souEuMesmo ? (
+                    <div className="sd-profile__actions-row">
+                      <div className="sd-profile__edit-container">
+                        {isEditing ? (
+                          <form onSubmit={handleEditProfile} className="sd-profile__edit-form">
+                            <div className="sd-profile__inputs-row">
+                              <div className="sd-profile__input-group">
+                                <label>Nome de Usuário</label>
+                                <input 
+                                  type="text" 
+                                  value={editUsername} 
+                                  onChange={e => setEditUsername(e.target.value)} 
+                                  placeholder="Novo nome" 
+                                  className="sd-profile__edit-input"
+                                />
+                              </div>
+                              <div className="sd-profile__input-group">
+                                <label>Foto de Perfil</label>
+                                <div className="sd-profile__file-wrapper">
+                                  <input 
+                                    type="file" 
+                                    id="profilePicInput"
+                                    accept="image/*" 
+                                    onChange={e => setEditPicture(e.target.files[0])} 
+                                    className="sd-profile__file-input"
+                                    ref={fileInputRef}
+                                  />
+                                  <label htmlFor="profilePicInput" className="sd-profile__file-label">
+                                    {editPicture ? editPicture.name : 'Escolher nova foto...'}
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="sd-profile__input-group" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem', marginTop: '1rem', marginBottom: '1rem' }}>
+                              <input 
+                                type="checkbox"
+                                id="hideEmailToggle"
+                                checked={editEsconderEmail}
+                                onChange={e => setEditEsconderEmail(e.target.checked)}
+                                style={{ width: 'auto' }}
+                              />
+                              <label htmlFor="hideEmailToggle" style={{ margin: 0, fontWeight: 500 }}>Esconder e-mail de outros usuários</label>
+                            </div>
+                            {editMsg && <p className="sd-profile__edit-msg">{editMsg}</p>}
+                            <div className="sd-profile__edit-actions">
+                              <button type="submit" className="sd-profile__btn-save">Salvar Alterações</button>
+                              <button type="button" onClick={() => setIsEditing(false)} className="sd-profile__btn-cancel">Cancelar</button>
+                            </div>
+                          </form>
+                        ) : (
+                          <button onClick={() => setIsEditing(true)} className="sd-profile__btn-edit">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z" />
+                            </svg>
+                            Editar Perfil
+                          </button>
+                        )}
+                      </div>
+
+                      {!isEditing && (
                         <button type="button" className="sd-profile__btn-logout-small" onClick={handleLogout}>
                           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
@@ -273,84 +431,52 @@ export default function Profile() {
                         </button>
                       )}
                     </div>
-                  </div>
-
-                  {souEuMesmo && (
-                    <div className="sd-profile__edit-container">
-                      {isEditing ? (
-                        <form onSubmit={handleEditProfile} className="sd-profile__edit-form">
-                          <div className="sd-profile__inputs-row">
-                            <div className="sd-profile__input-group">
-                              <label>Nome de Usuário</label>
-                              <input 
-                                type="text" 
-                                value={editUsername} 
-                                onChange={e => setEditUsername(e.target.value)} 
-                                placeholder="Novo nome" 
-                                className="sd-profile__edit-input"
-                              />
-                            </div>
-                            <div className="sd-profile__input-group">
-                              <label>Foto de Perfil</label>
-                              <div className="sd-profile__file-wrapper">
-                                <input 
-                                  type="file" 
-                                  id="profilePicInput"
-                                  accept="image/*" 
-                                  onChange={e => setEditPicture(e.target.files[0])} 
-                                  className="sd-profile__file-input"
-                                  ref={fileInputRef}
-                                />
-                                <label htmlFor="profilePicInput" className="sd-profile__file-label">
-                                  {editPicture ? editPicture.name : 'Escolher nova foto...'}
-                                </label>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="sd-profile__input-group" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem', marginTop: '1rem', marginBottom: '1rem' }}>
-                            <input 
-                              type="checkbox"
-                              id="hideEmailToggle"
-                              checked={editEsconderEmail}
-                              onChange={e => setEditEsconderEmail(e.target.checked)}
-                              style={{ width: 'auto' }}
-                            />
-                            <label htmlFor="hideEmailToggle" style={{ margin: 0, fontWeight: 500 }}>Esconder e-mail de outros usuários</label>
-                          </div>
-                          {editMsg && <p className="sd-profile__edit-msg">{editMsg}</p>}
-                          <div className="sd-profile__edit-actions">
-                            <button type="submit" className="sd-profile__btn-save">Salvar Alterações</button>
-                            <button type="button" onClick={() => setIsEditing(false)} className="sd-profile__btn-cancel">Cancelar</button>
-                          </div>
-                        </form>
-                      ) : (
-                        <button onClick={() => setIsEditing(true)} className="sd-profile__btn-edit">
-                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z" />
-                          </svg>
-                          Editar Perfil
+                  ) : (
+                    meuId && (
+                      <div className="sd-profile__actions-row sd-profile__actions-row--single">
+                        <button
+                          type="button"
+                          className={`sd-profile__btn-follow ${seguindo ? 'is-following' : ''}`}
+                          onClick={handleToggleFollow}
+                          disabled={alterandoSeguir}
+                        >
+                          {seguindo ? 'Deixar de seguir' : '+ Seguir'}
                         </button>
-                      )}
-                    </div>
+                      </div>
+                    )
                   )}
                 </div>
               </div>
             </div>
 
             <div className="sd-profile__toolbar">
-              <div className="sd-profile__search">
-                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-                  <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="1.8" />
-                  <path d="M20 20l-4-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                </svg>
-                <input
-                  type="search"
-                  placeholder="Pesquise uma aula"
-                  value={busca}
-                  onChange={(e) => setBusca(e.target.value)}
-                  aria-label="Pesquisar entre as aulas"
-                />
-              </div>
+              {aba === 'playlists' ? (
+                <div className="sd-profile__search-spacer">
+                  {souEuMesmo && (
+                    <button
+                      type="button"
+                      className="sd-profile__btn-edit"
+                      onClick={() => setMostrarCriarPlaylist(true)}
+                    >
+                      + Criar playlist
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="sd-profile__search">
+                  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="1.8" />
+                    <path d="M20 20l-4-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  </svg>
+                  <input
+                    type="search"
+                    placeholder="Pesquise uma aula"
+                    value={busca}
+                    onChange={(e) => setBusca(e.target.value)}
+                    aria-label="Pesquisar entre as aulas"
+                  />
+                </div>
+              )}
 
               <div className="sd-profile__tabs" role="tablist">
                 <button
@@ -375,9 +501,56 @@ export default function Profile() {
             </div>
 
             {aba === 'playlists' ? (
-              <div className="sd-profile__empty">
-                <p>Playlists ainda não existem por aqui — em breve.</p>
-              </div>
+              playlists.length === 0 && !playlistsCarregando ? (
+                <div className="sd-profile__empty">
+                  <p>{souEuMesmo ? 'Você ainda não criou nenhuma playlist.' : 'Essa pessoa ainda não criou nenhuma playlist.'}</p>
+                </div>
+              ) : (
+                <>
+                  {playlists.map((pl) => (
+                    <Link key={pl._id} to={`/playlist/${pl._id}`} className="sd-profile-row sd-profile-row--link">
+                      <div className="sd-profile-row__thumb">
+                        <img src={`${API_BASE}${pl.cover}`} alt="" />
+                      </div>
+                      <div className="sd-profile-row__body">
+                        <span className="sd-profile-row__title">{pl.name}</span>
+                        <div className="sd-profile-row__meta">
+                          <span className="sd-profile-row__data">{pl.classes?.length || 0} aula(s)</span>
+                          <span className="sd-profile-row__data">{pl.private ? 'Privada' : 'Pública'}</span>
+                          {souEuMesmo && (
+                            <button
+                              type="button"
+                              className="sd-profile-row__icon-btn"
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); excluirPlaylist(pl._id); }}
+                              aria-label="Excluir playlist"
+                              title="Excluir playlist"
+                            >
+                              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                              </svg>
+                            </button>
+                          )}
+                          <div className="sd-profile-row__meta-right">
+                            <EstrelaRating media={pl.ratingAverage} quantidade={pl.ratingCount} tamanho={13} />
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+
+                  {playlistsPagina < playlistsTotalPaginas && (
+                    <button
+                      type="button"
+                      className="sd-profile__load-more"
+                      onClick={() => buscarPlaylists(playlistsPagina + 1)}
+                      disabled={playlistsCarregando}
+                    >
+                      {playlistsCarregando ? 'Carregando…' : 'Carregar mais'}
+                    </button>
+                  )}
+                </>
+              )
             ) : aulasFiltradas.length === 0 && !aulasCarregando ? (
               <div className="sd-profile__empty">
                 <p>
@@ -445,6 +618,13 @@ export default function Profile() {
             </div>
           </div>
         </div>
+      )}
+
+      {mostrarCriarPlaylist && (
+        <CreatePlaylistModal
+          onClose={() => setMostrarCriarPlaylist(false)}
+          onCriada={(novaPlaylist) => setPlaylists((atual) => [novaPlaylist, ...atual])}
+        />
       )}
     </div>
   );

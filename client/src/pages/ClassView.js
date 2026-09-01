@@ -6,6 +6,7 @@ import StarRatingInput from '../components/StarRatingInput';
 import EstrelaRating from '../components/EstrelaRating';
 import CommentItem from '../components/CommentItem';
 import ClassReportModal from '../components/ClassReportModal';
+import AddToPlaylistModal from '../components/AddToPlaylistModal';
 import { API_BASE, COR_ASSUNTO, COR_RISCO, extrairIdYoutube } from '../utils/classTaxonomia';
 import '../styles/ClassView.css';
 
@@ -25,6 +26,7 @@ export default function ClassView() {
   const [mensagemAvaliacao, setMensagemAvaliacao] = useState('');
   const [denunciaAberta, setDenunciaAberta] = useState(false);
   const [avisoLoginAberto, setAvisoLoginAberto] = useState(false);
+  const [modalPlaylistAberto, setModalPlaylistAberto] = useState(false);
 
   const [souAdmin, setSouAdmin] = useState(false);
 
@@ -158,6 +160,15 @@ export default function ClassView() {
     setDenunciaAberta(true);
   };
 
+  const handleAdicionarPlaylist = () => {
+    const headers = authHeaders();
+    if (!headers) {
+      setAvisoLoginAberto(true);
+      return;
+    }
+    setModalPlaylistAberto(true);
+  };
+
   const irParaComentarios = () => {
     document.getElementById('comentarios')?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -281,6 +292,17 @@ export default function ClassView() {
                 <EstrelaRating media={aula.ratingAverage} quantidade={aula.ratingCount} tamanho={14} />
 
                 <div className="sd-view__rate-row">
+                  <button
+                    type="button"
+                    className="sd-view__playlist-icon-btn"
+                    onClick={handleAdicionarPlaylist}
+                    aria-label="Adicionar à playlist"
+                    title="Adicionar à playlist"
+                  >
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                      <path d="M4 6h11M4 12h11M4 18h6M17 14v6M14 17h6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                  </button>
                   <span className="sd-view__rate-label">Sua nota:</span>
                   <StarRatingInput valorAtual={minhaAvaliacao} onAvaliar={handleAvaliar} desabilitado={avaliando} />
                 </div>
@@ -388,6 +410,10 @@ export default function ClassView() {
 
       {denunciaAberta && (
         <ClassReportModal classId={classId} onClose={() => setDenunciaAberta(false)} />
+      )}
+
+      {modalPlaylistAberto && (
+        <AddToPlaylistModal classId={classId} onClose={() => setModalPlaylistAberto(false)} />
       )}
 
       {avisoLoginAberto && (
