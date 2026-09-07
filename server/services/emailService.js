@@ -115,7 +115,8 @@ const renderButton = (href, label) => `
 `;
 
 const sendVerificationEmail = async (toEmail, verificationToken) => {
-  const verifyLink = `http://localhost:3000/verify-email?verificationToken=${verificationToken}`; // link do front end que depois vai ter o token extraido pelo back
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  const verifyLink = `${frontendUrl}/verify-email?verificationToken=${verificationToken}`;
 
   const bodyHtml = `
     <h1 style="margin:0 0 12px; font-size:20px; font-weight:700; color:${BRAND.navy};">
@@ -158,7 +159,8 @@ const sendVerificationEmail = async (toEmail, verificationToken) => {
 };
 
 const sendPasswordResetEmail = async (toEmail, resetToken) => {
-  const resetLink = `http://localhost:3000/reset-password?resetToken=${resetToken}`; // link do front end
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  const resetLink = `${frontendUrl}/reset-password?resetToken=${resetToken}`;
 
   const bodyHtml = `
     <h1 style="margin:0 0 12px; font-size:20px; font-weight:700; color:${BRAND.navy};">

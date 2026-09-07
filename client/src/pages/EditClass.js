@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import ColorSelect from '../components/ColorSelect';
-import EstrelaRating from '../components/EstrelaRating';
 import { API_BASE, COR_ASSUNTO, COR_RISCO, extrairIdYoutube } from '../utils/classTaxonomia';
 import '../styles/ClassView.css';
 

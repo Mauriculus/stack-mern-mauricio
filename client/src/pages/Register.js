@@ -17,7 +17,6 @@ export default function Register() {
   const [mensagem, setMensagem] = useState('');
   const [carregando, setCarregando] = useState(false);
   const [registrado, setRegistrado] = useState(false);
-  const navigate = useNavigate();
 
   const validarLocalmente = () => {
     const usernameLimpo = username.trim();
