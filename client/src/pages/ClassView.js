@@ -13,7 +13,19 @@ import '../styles/ClassView.css';
 const LIMITE_COMENTARIOS = 10;
 const LIMITE_COMENTARIO_TEXTO = 500;
 
+function obterMeuUserId() {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.userId || null;
+  } catch (error) {
+    return null;
+  }
+}
+
 export default function ClassView() {
+  const meuId = obterMeuUserId();
   const { classId } = useParams();
   const navigate = useNavigate();
 
@@ -233,10 +245,9 @@ export default function ClassView() {
     const headers = authHeaders();
     if (!headers || !aula) return;
     try {
-      const response = await fetch(`${API_BASE}/api/admin/deleteComment`, {
+      const response = await fetch(`${API_BASE}/api/classes/deleteComment/${commentId}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json', ...headers },
-        body: JSON.stringify({ commentId }),
+        headers,
       });
       if (response.ok) {
         buscarComentarios(1, aula.normalizedTitle);
@@ -250,10 +261,9 @@ export default function ClassView() {
     const headers = authHeaders();
     if (!headers || !aula) return;
     try {
-      const response = await fetch(`${API_BASE}/api/admin/deleteResponse`, {
+      const response = await fetch(`${API_BASE}/api/classes/deleteResponse/${responseId}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json', ...headers },
-        body: JSON.stringify({ responseId }),
+        headers,
       });
       if (response.ok) {
         buscarComentarios(1, aula.normalizedTitle);
@@ -262,7 +272,6 @@ export default function ClassView() {
       // idem
     }
   };
-
   return (
     <div className="sd-view">
       <Sidebar />
@@ -297,7 +306,7 @@ export default function ClassView() {
                     className="sd-view__playlist-icon-btn"
                     onClick={handleAdicionarPlaylist}
                     aria-label="Adicionar à playlist"
-                    title="Adicionar à playlist"
+                    data-hint="Adicionar à playlist"
                   >
                     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
                       <path d="M4 6h11M4 12h11M4 18h6M17 14v6M14 17h6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -387,6 +396,7 @@ export default function ClassView() {
                     comentario={c}
                     onEnviarResposta={enviarResposta}
                     souAdmin={souAdmin}
+                    meuId={meuId}
                     onExcluirComentario={excluirComentario}
                     onExcluirResposta={excluirResposta}
                   />

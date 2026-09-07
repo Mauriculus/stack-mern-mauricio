@@ -27,6 +27,7 @@ function obterMeuUserId() {
 export default function Profile() {
   const { userId: paramUserId } = useParams();
   const meuId = obterMeuUserId();
+  const estaLogado = Boolean(localStorage.getItem('token'));
   // sem :userId na URL (rota /perfil) OU o :userId bate com quem tá logado
   // (por exemplo, clicou no próprio comentário) — os dois casos são "eu mesmo"
   const souEuMesmo = !paramUserId || paramUserId === meuId;
@@ -48,6 +49,8 @@ export default function Profile() {
   const [playlistsTotalPaginas, setPlaylistsTotalPaginas] = useState(0);
   const [playlistsCarregando, setPlaylistsCarregando] = useState(false);
   const [mostrarCriarPlaylist, setMostrarCriarPlaylist] = useState(false);
+  const [confirmandoExcluirPlaylist, setConfirmandoExcluirPlaylist] = useState(null);
+  const [excluindoPlaylist, setExcluindoPlaylist] = useState(false);
 
   // Edit profile states
   const [isEditing, setIsEditing] = useState(false);
@@ -64,6 +67,8 @@ export default function Profile() {
 
   const [seguindo, setSeguindo] = useState(false);
   const [alterandoSeguir, setAlterandoSeguir] = useState(false);
+  
+  const [avisoLoginAberto, setAvisoLoginAberto] = useState(false);
 
   const authHeaders = () => {
     const token = localStorage.getItem('token');
@@ -204,6 +209,15 @@ export default function Profile() {
     } catch (error) {}
   };
 
+  const confirmarExcluirPlaylist = async (e, playlistId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setExcluindoPlaylist(true);
+    await excluirPlaylist(playlistId);
+    setExcluindoPlaylist(false);
+    setConfirmandoExcluirPlaylist(null);
+  };
+
   const handleEditProfile = async (e) => {
     e.preventDefault();
     setEditMsg('');
@@ -293,6 +307,10 @@ export default function Profile() {
   };
 
   const handleToggleFollow = async () => {
+    if (!estaLogado) {
+      setAvisoLoginAberto(true);
+      return;
+    }
     if (alterandoSeguir || !perfil?._id) return;
     setAlterandoSeguir(true);
 
@@ -518,18 +536,34 @@ export default function Profile() {
                           <span className="sd-profile-row__data">{pl.classes?.length || 0} aula(s)</span>
                           <span className="sd-profile-row__data">{pl.private ? 'Privada' : 'Pública'}</span>
                           {souEuMesmo && (
-                            <button
-                              type="button"
-                              className="sd-profile-row__icon-btn"
-                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); excluirPlaylist(pl._id); }}
-                              aria-label="Excluir playlist"
-                              title="Excluir playlist"
-                            >
-                              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                                <polyline points="3 6 5 6 21 6"></polyline>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                              </svg>
-                            </button>
+                            confirmandoExcluirPlaylist === pl._id ? (
+                              <span className="sd-profile-row__confirm" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                                Excluir?
+                                <button type="button" onClick={(e) => confirmarExcluirPlaylist(e, pl._id)} disabled={excluindoPlaylist}>
+                                  {excluindoPlaylist ? '...' : 'Sim'}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirmandoExcluirPlaylist(null); }}
+                                  disabled={excluindoPlaylist}
+                                >
+                                  Não
+                                </button>
+                              </span>
+                            ) : (
+                              <button
+                                type="button"
+                                className="sd-profile-row__icon-btn"
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirmandoExcluirPlaylist(pl._id); }}
+                                aria-label="Excluir playlist"
+                                title="Jogar essa playlist fora"
+                              >
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                                  <polyline points="3 6 5 6 21 6"></polyline>
+                                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                              </button>
+                            )
                           )}
                           <div className="sd-profile-row__meta-right">
                             <EstrelaRating media={pl.ratingAverage} quantidade={pl.ratingCount} tamanho={13} />
@@ -625,6 +659,25 @@ export default function Profile() {
           onClose={() => setMostrarCriarPlaylist(false)}
           onCriada={(novaPlaylist) => setPlaylists((atual) => [novaPlaylist, ...atual])}
         />
+      )}
+
+      {avisoLoginAberto && (
+        <div className="sd-report-modal__overlay" onClick={() => setAvisoLoginAberto(false)} style={{ zIndex: 9999 }}>
+          <div className="sd-report-modal" onClick={(e) => e.stopPropagation()} style={{ textAlign: 'center' }}>
+            <h2 className="sd-report-modal__title">Faça login</h2>
+            <p className="sd-report-modal__subtitle" style={{ marginBottom: '1.5rem' }}>
+              Você precisa estar conectado para seguir esse usuário.
+            </p>
+            <div className="sd-report-modal__actions" style={{ justifyContent: 'center', marginTop: '1rem' }}>
+              <button type="button" className="sd-report-modal__cancel" onClick={() => setAvisoLoginAberto(false)}>
+                Voltar
+              </button>
+              <button type="button" className="sd-report-modal__submit" onClick={() => window.location.href = '/login'}>
+                Fazer Login
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

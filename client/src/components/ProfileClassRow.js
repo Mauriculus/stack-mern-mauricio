@@ -67,7 +67,7 @@ export default function ProfileClassRow({ aula, onExcluir, podeEditar }) {
                   className="sd-profile-row__icon-btn"
                   onClick={() => setConfirmando(true)}
                   aria-label="Excluir aula"
-                  title="Excluir aula"
+                  data-hint="Excluir aula"
                 >
                   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="3 6 5 6 21 6"></polyline>
@@ -79,7 +79,7 @@ export default function ProfileClassRow({ aula, onExcluir, podeEditar }) {
                   to={`/editar-aula/${aula._id}`}
                   className="sd-profile-row__icon-btn"
                   aria-label="Editar aula"
-                  title="Editar aula"
+                  data-hint="Editar aula"
                 >
                   <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 20h9"></path>

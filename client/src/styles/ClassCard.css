@@ -94,6 +94,11 @@
   flex-shrink: 1;
 }
 
+.sd-class-card__playlist-btn[data-hint]::after {
+  bottom: auto;
+  top: calc(100% + 8px);
+}
+
 /* dentro do card o fundo é escuro (navy), então as estrelas "sem avaliação"
    e o número da nota precisam de um tom claro em vez do --sd-text-soft
    padrão, que é escuro e sumiria ali */

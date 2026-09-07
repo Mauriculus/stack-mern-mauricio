@@ -14,7 +14,7 @@ const createAuthToken = (user) => {
   }
 
   return jwt.sign({ userId: user._id, type: user.type }, process.env.JWT_SECRET, {
-    expiresIn: '30d',
+    expiresIn: '60d',
   });
 };
 
@@ -169,7 +169,7 @@ const registerUser = async (req, res) => {
 
     await sendVerificationEmail(emailNormalized, verificationToken)
 
-    res.status(201).json({ mensagem: 'Usuário registrado com sucesso. Verifique seu email para ativar a conta', verificationToken: verificationToken }); // verificationToken só para testes, retirar depois
+    res.status(201).json({ mensagem: 'Usuário registrado com sucesso. Verifique seu email para ativar a conta'});
   } catch (erro) {
     console.error('Erro no cadastro:', erro);
     if (erro.name === 'ValidationError') {

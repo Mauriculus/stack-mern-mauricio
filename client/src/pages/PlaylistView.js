@@ -43,6 +43,10 @@ export default function PlaylistView() {
   const [ordemSalvando, setOrdemSalvando] = useState(false);
   const [alterandoPrivacidade, setAlterandoPrivacidade] = useState(false);
 
+  const [copiando, setCopiando] = useState(false);
+  const [copiado, setCopiado] = useState(false);
+  const [avisoLoginAberto, setAvisoLoginAberto] = useState(false);
+
   const authHeaders = () => {
     const token = localStorage.getItem('token');
     return token ? { Authorization: `Bearer ${token}` } : {};
@@ -76,8 +80,13 @@ export default function PlaylistView() {
   }, [buscarPlaylist]);
 
   const souDono = Boolean(playlist) && Boolean(meuId) && playlist.author === meuId;
+  const estaLogado = Boolean(localStorage.getItem('token'));
 
   const handleAvaliar = async (nota) => {
+    if (!estaLogado) {
+      setAvisoLoginAberto(true);
+      return;
+    }
     if (avaliando) return;
     setAvaliando(true);
     setMensagemAvaliacao('');
@@ -166,6 +175,32 @@ export default function PlaylistView() {
       });
       if (response.ok) navigate('/perfil');
     } catch (error) {}
+  };
+  
+  const copiarPlaylist = async () => {
+    if (!estaLogado) {
+      setAvisoLoginAberto(true);
+      return;
+    }
+    if (copiando) return;
+    setCopiando(true);
+    try {
+      const response = await fetch(`${API_BASE}/api/playlists/copy`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ playlistId }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setCopiado(true);
+        if (data.playlist?._id) {
+          navigate(`/playlist/${data.playlist._id}`);
+        }
+      }
+    } catch (error) {
+    } finally {
+      setCopiando(false);
+    }
   };
 
   const salvarEdicao = async (e) => {
@@ -278,6 +313,36 @@ export default function PlaylistView() {
                             </button>
                           </div>
                         )}
+
+                        {!souDono && (
+                          <div className="sd-playlist-view__owner-actions">
+                            <button
+                              type="button"
+                              className="sd-playlist-view__btn-edit"
+                              onClick={copiarPlaylist}
+                              disabled={copiando}
+                              aria-label="Copiar playlist para o meu perfil"
+                              data-hint="Copiar playlist para o meu perfil"
+                            >
+                              <svg
+                                viewBox="0 0 24 24"
+                                width="16"
+                                height="16"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.8"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                                style={{ marginRight: '0.4rem', verticalAlign: 'middle' }}
+                              >
+                                <rect x="9" y="9" width="11" height="11" rx="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                              </svg>
+                              {copiando ? 'Copiando…' : copiado ? 'Copiada!' : 'Copiar playlist'}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>                  </>
                 )}
@@ -299,6 +364,7 @@ export default function PlaylistView() {
                           onClick={() => moverAula(i, -1)}
                           disabled={i === 0 || ordemSalvando}
                           aria-label="Mover para cima"
+                          data-hint="Mover para cima"
                         >
                           ▲
                         </button>
@@ -307,6 +373,7 @@ export default function PlaylistView() {
                           onClick={() => moverAula(i, 1)}
                           disabled={i === playlist.classes.length - 1 || ordemSalvando}
                           aria-label="Mover para baixo"
+                          data-hint="Mover para baixo"
                         >
                           ▼
                         </button>
@@ -339,6 +406,25 @@ export default function PlaylistView() {
           onClose={() => setAulaSelecionada(null)}
         />
       )}
+
+      {avisoLoginAberto && (
+        <div className="sd-report-modal__overlay" onClick={() => setAvisoLoginAberto(false)} style={{ zIndex: 9999 }}>
+          <div className="sd-report-modal" onClick={(e) => e.stopPropagation()} style={{ textAlign: 'center' }}>
+            <h2 className="sd-report-modal__title">Faça login</h2>
+            <p className="sd-report-modal__subtitle" style={{ marginBottom: '1.5rem' }}>
+              Você precisa estar conectado para copiar esta playlist.
+            </p>
+            <div className="sd-report-modal__actions" style={{ justifyContent: 'center', marginTop: '1rem' }}>
+              <button type="button" className="sd-report-modal__cancel" onClick={() => setAvisoLoginAberto(false)}>
+                Voltar
+              </button>
+              <button type="button" className="sd-report-modal__submit" onClick={() => navigate('/login')}>
+                Fazer Login
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+} 

@@ -36,6 +36,10 @@ export default function Search() {
   const [seguidosCarregando, setSeguidosCarregando] = useState(false);
   const [destaquePlaylists, setDestaquePlaylists] = useState([]);
   const [playlistsSeguidos, setPlaylistsSeguidos] = useState([]);
+  const [resultadosPlaylists, setResultadosPlaylists] = useState([]);
+  const [resultadosPlaylistsPagina, setResultadosPlaylistsPagina] = useState(1);
+  const [resultadosPlaylistsTotalPaginas, setResultadosPlaylistsTotalPaginas] = useState(1);
+  const [buscandoPlaylists, setBuscandoPlaylists] = useState(false);
 
   const [aulaSelecionada, setAulaSelecionada] = useState(null);
 
@@ -80,7 +84,7 @@ export default function Search() {
         setResultadosTotalPaginas(data.totalPages || 1);
 
         if (pagina === 1 && !termo.trim() && assuntosSelecionados.length === 0) {
-          setDestaque(lista.slice(0, 7));
+          setDestaque(lista.slice(0, 8));
         }
       } catch (error) {
         setErro('Erro ao conectar com o servidor');
@@ -93,11 +97,49 @@ export default function Search() {
     [termo, assuntosSelecionados]
   );
 
+  const buscarPlaylistsResultados = useCallback(
+    async (pagina = 1) => {
+      setBuscandoPlaylists(true);
+      try {
+        const params = new URLSearchParams();
+        if (termo.trim()) params.set('q', termo.trim());
+        params.set('page', String(pagina));
+        params.set('limit', String(LIMITE_RESULTADOS));
+
+        const response = await fetch(`${API_BASE}/api/playlists/search?${params.toString()}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          setResultadosPlaylists((atual) => (pagina === 1 ? data.playlists || [] : [...atual, ...(data.playlists || [])]));
+          setResultadosPlaylistsPagina(pagina);
+          setResultadosPlaylistsTotalPaginas(data.totalPages || 1);
+        }
+      } catch (error) {
+      } finally {
+        setBuscandoPlaylists(false);
+      }
+    },
+    [termo]
+  );
+
   // toda mudança na busca/filtro volta pra página 1, com um pequeno debounce
   useEffect(() => {
     const timer = setTimeout(() => buscar(1), 350);
     return () => clearTimeout(timer);
   }, [buscar]);
+
+  // playlists só entram na busca de verdade — sem termo/filtro, elas já
+  // aparecem nas seções de destaque/seguindo mais acima
+  useEffect(() => {
+    if (!emBusca) {
+      setResultadosPlaylists([]);
+      setResultadosPlaylistsPagina(1);
+      setResultadosPlaylistsTotalPaginas(1);
+      return;
+    }
+    const timer = setTimeout(() => buscarPlaylistsResultados(1), 350);
+    return () => clearTimeout(timer);
+  }, [emBusca, buscarPlaylistsResultados]);
 
   const carregarSeguidos = useCallback(async (pagina) => {
     setSeguidosCarregando(true);
@@ -306,7 +348,7 @@ export default function Search() {
         )}
 
         <section className="sd-search__section">
-          <h2 className="sd-search__section-title">{emBusca ? 'Resultados' : 'Todas as aulas'}</h2>
+          <h2 className="sd-search__section-title">{emBusca ? 'Aulas' : 'Todas as aulas'}</h2>
 
           {primeiraCarga ? (
             <p className="sd-search__hint">Buscando…</p>
@@ -341,6 +383,45 @@ export default function Search() {
             </>
           )}
         </section>
+        {emBusca && (
+          <section className="sd-search__section">
+            <h2 className="sd-search__section-title">Playlists</h2>
+
+            {resultadosPlaylists.length === 0 && !buscandoPlaylists ? (
+              <p className="sd-search__hint">Nenhuma playlist encontrada.</p>
+            ) : (
+              <>
+                <div className={`sd-search__grid ${buscandoPlaylists ? 'is-loading' : ''}`}>
+                  {resultadosPlaylists.map((pl) => (
+                    <Link key={pl._id} to={`/playlist/${pl._id}`} className="sd-search__playlist-card">
+                      <div className="sd-search__playlist-thumb">
+                        <img src={`${API_BASE}${pl.cover}`} alt="" />
+                      </div>
+                      <div className="sd-search__playlist-info">
+                        <p className="sd-search__playlist-title">{pl.name}</p>
+                        <div className="sd-search__playlist-meta">
+                          <span className="sd-search__playlist-count">{pl.classes?.length || 0} aula(s)</span>
+                          <EstrelaRating media={pl.ratingAverage} quantidade={pl.ratingCount} tamanho={12} />
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+
+                {resultadosPlaylistsPagina < resultadosPlaylistsTotalPaginas && (
+                  <button
+                    type="button"
+                    className="sd-search__load-more"
+                    onClick={() => buscarPlaylistsResultados(resultadosPlaylistsPagina + 1)}
+                    disabled={buscandoPlaylists}
+                  >
+                    {buscandoPlaylists ? 'Carregando…' : 'Carregar mais'}
+                  </button>
+                )}
+              </>
+            )}
+          </section>
+        )}
       </main>
 
       {aulaSelecionada && (

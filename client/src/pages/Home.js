@@ -94,7 +94,7 @@ export default function Home() {
       <footer className="sd-home__footer">
         <span>
           Envie feedback ou aplique para se tornar um administrador para:{' '}
-          mauroscan20@gmail.com
+          sobrevivencia1domestica@gmail.com
         </span>
       </footer>
     </div>

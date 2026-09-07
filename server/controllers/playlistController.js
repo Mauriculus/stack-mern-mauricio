@@ -60,7 +60,6 @@ const createPlaylist = async (req, res) => {
 
         const playlist = new Playlist({
             author: userId,
-            authorUsername: user.username,
             name,
             normalizedName,
             description,
@@ -273,19 +272,21 @@ const editPlaylist = async (req, res) => {
             playlist.description = description.trim();
         }
 
-        // Deleta a foto de capa antiga se um novo arquivo for enviado
         if (coverFile) {
             if (playlist.cover) {
-                const filename = playlist.cover.startsWith('/uploads/') 
-                    ? playlist.cover.replace('/uploads/', '') 
-                    : playlist.cover;
-                const oldCoverPath = path.join(__dirname, '..', 'uploads', filename);
+                const aindaEmUso = await Playlist.exists({ cover: playlist.cover, _id: { $ne: playlistId } });
+                if (!aindaEmUso) {
+                    const filename = playlist.cover.startsWith('/uploads/') 
+                        ? playlist.cover.replace('/uploads/', '') 
+                        : playlist.cover;
+                    const oldCoverPath = path.join(__dirname, '..', 'uploads', filename);
 
-                fs.unlink(oldCoverPath, (err) => {
-                    if (err && err.code !== 'ENOENT') {
-                        console.error("Erro ao deletar imagem de capa antiga da playlist:", err);
-                    }
-                });
+                    fs.unlink(oldCoverPath, (err) => {
+                        if (err && err.code !== 'ENOENT') {
+                            console.error("Erro ao deletar imagem de capa antiga da playlist:", err);
+                        }
+                    });
+                }
             }
 
             playlist.cover = `/uploads/${coverFile.filename}`;
@@ -448,18 +449,20 @@ const deletePlaylist = async (req, res) => {
             return res.status(403).json({ mensagem: "Você não pode excluir a playlist de outro usuário" });
         }
 
-        // Deleta a foto de capa do servidor ao excluir a playlist
         if (playlist.cover) {
-            const filename = playlist.cover.startsWith('/uploads/') 
-                ? playlist.cover.replace('/uploads/', '') 
-                : playlist.cover;
-            const coverPath = path.join(__dirname, '..', 'uploads', filename);
+            const aindaEmUso = await Playlist.exists({ cover: playlist.cover, _id: { $ne: playlistId } });
+            if (!aindaEmUso) {
+                const filename = playlist.cover.startsWith('/uploads/') 
+                    ? playlist.cover.replace('/uploads/', '') 
+                    : playlist.cover;
+                const coverPath = path.join(__dirname, '..', 'uploads', filename);
 
-            fs.unlink(coverPath, (err) => {
-                if (err && err.code !== 'ENOENT') {
-                    console.error("Erro ao deletar capa da playlist:", err);
-                }
-            });
+                fs.unlink(coverPath, (err) => {
+                    if (err && err.code !== 'ENOENT') {
+                        console.error("Erro ao deletar capa da playlist:", err);
+                    }
+                });
+            }
         }
 
         await Playlist.deleteOne({ _id: playlistId });
@@ -597,6 +600,89 @@ const ratePlaylist = async (req, res) => {
 };
 
 
+const copyPlaylist = async (req, res) => {
+    const userId = req.userId
+    const { playlistId } = req.body
+
+    if(!userId) {
+        return res.status(401).json({ mensagem: "É necessário estar autenticado para realizar essa ação"})
+    }
+    if(!playlistId){
+        return res.status(400).json({ mensagem: "Envie o ID da playlist desejada"})
+    }
+    try {
+        const copiedPlaylist = await Playlist.findById(playlistId)
+        
+        if (!copiedPlaylist) {
+            return res.status(404).json({ mensagem: "Não foi possível encontrar a playlist desejada"})
+        }
+
+        if(copiedPlaylist.author.toString() !== userId && copiedPlaylist.private) {
+            return res.status(400).json({ mensagem: "Essa playlis é privada"})
+        }
+
+        const playlist = new Playlist ({
+            author: userId,
+            name: copiedPlaylist.name,
+            normalizedName: copiedPlaylist.normalizedName,
+            cover: copiedPlaylist.cover,
+            description: copiedPlaylist.description,
+            private: true,
+            classes: copiedPlaylist.classes
+        })
+
+        await playlist.save()
+
+        return res.status(201).json({ mensagem: "Playlist copiada com sucesso", playlist})
+    } catch (err) {
+        console.error("Erro ao copiar playlis ", err)
+        return res.status(500).json({ mensagem: "Erro no servidor"})
+    }
+}
+
+const searchPlaylists = async (req, res) => {
+    const { q } = req.query;
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 12, 1), 50);
+    const skip = (page - 1) * limit;
+
+    try {
+        const filter = { private: false };
+
+        if (q && q.trim()) {
+            filter.$text = { $search: q.trim() };
+        }
+
+        let query = Playlist.find(filter);
+
+        if (q && q.trim()) {
+            query = query
+                .select({ score: { $meta: 'textScore' } })
+                .sort({ score: { $meta: 'textScore' } });
+        } else {
+            query = query.sort({ ratingSum: -1, createdAt: -1 });
+        }
+
+        query = query.skip(skip).limit(limit);
+
+        const [playlists, totalItems] = await Promise.all([
+            query.exec(),
+            Playlist.countDocuments(filter)
+        ]);
+
+        return res.status(200).json({
+            playlists,
+            currentPage: page,
+            totalPages: Math.ceil(totalItems / limit),
+            totalItems
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ mensagem: "Erro no servidor" });
+    }
+};
+
+
 
 
 module.exports = {
@@ -613,4 +699,6 @@ module.exports = {
     deletePlaylist,
     changePlaylistPrivacy,
     ratePlaylist,
+    copyPlaylist,
+    searchPlaylists,
 }

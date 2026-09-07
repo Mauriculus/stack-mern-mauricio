@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 
@@ -26,6 +26,28 @@ export default function App() {
     setToken(novoToken);
   };
 
+  useEffect(() => {
+    const originalFetch = window.fetch;
+
+    window.fetch = async (...args) => {
+      const response = await originalFetch(...args);
+
+      if (response.status === 401 && localStorage.getItem('token')) {
+        localStorage.removeItem('token');
+        setToken(null);
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+      }
+
+      return response;
+    };
+
+    return () => {
+      window.fetch = originalFetch;
+    };
+  }, []);
+
   return (
     <ThemeProvider>
       <Router>
@@ -41,7 +63,7 @@ export default function App() {
           <Route path="/aula/:classId" element={<ClassView />} />
           <Route path="/playlist/:playlistId" element={<PlaylistView />} />
           <Route path="/editar-aula/:classId" element={token ? <EditClass /> : <Navigate to="/login" replace />} />
-          <Route path="/perfil" element={token ? <Profile /> : <Navigate to="/login" replace />} />
+          <Route path="/perfil/:userId" element={<Profile />} />
           <Route path="/perfil/:userId" element={token ? <Profile /> : <Navigate to="/login" replace />} />
           <Route path="/admin" element={token ? <Admin /> : <Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -44,7 +44,7 @@ export default function ClassCard({ aula, onAbrir }) {
             setModalPlaylistAberto(true);
           }}
           aria-label="Adicionar à playlist"
-          title="Adicionar à playlist"
+          data-hint="Adicionar à playlist"
         >
           <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
             <path d="M4 6h11M4 12h11M4 18h6M17 14v6M14 17h6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />

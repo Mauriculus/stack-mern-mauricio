@@ -20,4 +20,9 @@ const playlistSchema = new mongoose.Schema({
     ratingAverage: {type: Number, default: 0, min: 0, max: 5},
 })
 
+playlistSchema.index(
+    { name: 'text', description: 'text' },
+    { default_language: 'portuguese', weights: { name: 3, description: 1 } }
+)
+
 module.exports = mongoose.model('Playlist', playlistSchema);

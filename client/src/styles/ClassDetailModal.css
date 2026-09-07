@@ -220,6 +220,17 @@
   cursor: pointer;
 }
 
+.sd-class-modal__playlist-btn[data-hint]::after {
+  left: auto;
+  right: 0;
+  transform: translateY(4px);
+}
+
+.sd-class-modal__playlist-btn[data-hint]:hover::after,
+.sd-class-modal__playlist-btn[data-hint]:focus-visible::after {
+  transform: translateY(0);
+}
+
 [data-theme='dark'] .sd-class-modal__playlist-btn {
   background: var(--sd-amber);
   color: var(--sd-navy);

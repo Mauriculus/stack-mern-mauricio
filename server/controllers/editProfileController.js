@@ -151,7 +151,7 @@ const requestChangePassword = async (req, res) => {
 
     await sendPasswordResetEmail(emailNormalized, resetToken)
 
-    return res.status(200).json({ mensagem: "Se o email está cadastrado, você receberá um link de recuperação", resetToken: resetToken }) // resetToken só para testes, retirar depois
+    return res.status(200).json({ mensagem: "Se o email está cadastrado, você receberá um link de recuperação" })
 
   } catch (error){ 
     console.error("Erro ao requisitar troca de senha ", error)
