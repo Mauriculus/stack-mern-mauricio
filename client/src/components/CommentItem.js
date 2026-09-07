@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { API_BASE } from '../utils/classTaxonomia';
 import '../styles/CommentItem.css';
 
 const LIMITE_RESPOSTA = 500;
