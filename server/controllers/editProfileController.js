@@ -76,8 +76,7 @@ const editUsername = async (req, res) => {
   }
 };
 
-const fs = require('fs');
-const path = require('path');
+const { deleteCloudinaryImage } = require('../services/cloudinaryHelpers');
 
 const editPicture = async (req, res) => {
   const userId = req.userId; 
@@ -97,14 +96,9 @@ const editPicture = async (req, res) => {
     }
 
     if (user.profilePicture) {
-      const oldPicturePath = path.join(__dirname, '..', 'uploads', user.profilePicture);
-      fs.unlink(oldPicturePath, (err) => {
-        if (err && err.code !== 'ENOENT') {
-          console.error("Erro ao deletar a foto de perfil antiga:", err);
-        }
-      });
+      await deleteCloudinaryImage(user.profilePicture);
     }
-
+    
     user.profilePicture = profilePicture;
 
     await user.save();

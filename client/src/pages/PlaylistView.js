@@ -244,7 +244,7 @@ export default function PlaylistView() {
         ) : (
           <>
             <div className="sd-playlist-view__hero">
-              <img src={`${API_BASE}${playlist.cover}`} alt="" className="sd-playlist-view__cover" />
+              <img src={playlist.cover} alt="" className="sd-playlist-view__cover" />
 
               <div className="sd-playlist-view__hero-info">
                 {editando ? (

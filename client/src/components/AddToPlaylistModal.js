@@ -236,7 +236,7 @@ export default function AddToPlaylistModal({ classId, onClose }) {
               <ul className="sd-addplaylist__list">
                 {playlists.map((p) => (
                   <li key={p._id} className="sd-addplaylist__item">
-                    <img src={`${API_BASE}${p.cover}`} alt="" className="sd-addplaylist__item-cover" />
+                    <img src={p.cover} alt="" className="sd-addplaylist__item-cover" />
                     <div className="sd-addplaylist__item-info">
                       <span className="sd-addplaylist__item-name">{p.name}</span>
                       <span className="sd-addplaylist__item-count">{p.classes?.length || 0} aulas</span>

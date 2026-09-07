@@ -310,7 +310,7 @@ export default function Search() {
               {destaquePlaylists.map((pl) => (
                 <Link key={pl._id} to={`/playlist/${pl._id}`} className="sd-search__playlist-card">
                   <div className="sd-search__playlist-thumb">
-                    <img src={`${API_BASE}${pl.cover}`} alt="" />
+                    <img src={pl.cover} alt="" />
                   </div>
                   <div className="sd-search__playlist-info">
                     <p className="sd-search__playlist-title">{pl.name}</p>
@@ -332,7 +332,7 @@ export default function Search() {
               {playlistsSeguidos.map((pl) => (
                 <Link key={pl._id} to={`/playlist/${pl._id}`} className="sd-search__playlist-card">
                   <div className="sd-search__playlist-thumb">
-                    <img src={`${API_BASE}${pl.cover}`} alt="" />
+                    <img src={pl.cover} alt="" />
                   </div>
                   <div className="sd-search__playlist-info">
                     <p className="sd-search__playlist-title">{pl.name}</p>
@@ -395,7 +395,7 @@ export default function Search() {
                   {resultadosPlaylists.map((pl) => (
                     <Link key={pl._id} to={`/playlist/${pl._id}`} className="sd-search__playlist-card">
                       <div className="sd-search__playlist-thumb">
-                        <img src={`${API_BASE}${pl.cover}`} alt="" />
+                        <img src={pl.cover} alt="" />
                       </div>
                       <div className="sd-search__playlist-info">
                         <p className="sd-search__playlist-title">{pl.name}</p>

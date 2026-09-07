@@ -64,7 +64,6 @@ export default function App() {
           <Route path="/playlist/:playlistId" element={<PlaylistView />} />
           <Route path="/editar-aula/:classId" element={token ? <EditClass /> : <Navigate to="/login" replace />} />
           <Route path="/perfil/:userId" element={<Profile />} />
-          <Route path="/perfil/:userId" element={token ? <Profile /> : <Navigate to="/login" replace />} />
           <Route path="/admin" element={token ? <Admin /> : <Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

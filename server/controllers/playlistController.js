@@ -1,6 +1,5 @@
-const fs = require('fs');
-const path = require('path');
 const Playlist = require('../models/Playlist');
+const { deleteCloudinaryImage } = require('../services/cloudinaryHelpers');
 const Class = require('../models/Class');
 const User = require('../models/User');
 
@@ -27,20 +26,13 @@ const createPlaylist = async (req, res) => {
         return res.status(400).json({ mensagem: "A imagem de capa é obrigatória" })
     }
 
-    // form-data manda um único valor como string solta, não como array —
-    // sem isso, criar a partir de "adicionar aula à playlist" (que sempre
-    // manda só 1 classId) cairia sempre no "As aulas devem ser enviadas em
-    // um array" por engano
     const classIdsArray = Array.isArray(classIds) ? classIds : (classIds ? [classIds] : []);
-    // playlist vazia é permitida — é assim que ela é criada direto pela aba
-    // de playlists do perfil, sem nenhuma aula escolhida ainda
 
     const hasDuplicateClasses = new Set(classIdsArray.map(String)).size !== classIdsArray.length;
     if (hasDuplicateClasses) {
         return res.status(400).json({ mensagem: "Existem aulas repetidas na playlist" });
     }
 
-    // form-data manda tudo como string — só é pública se vier explicitamente "false"
     const isPrivate = privateInput === 'false' ? false : true;
 
     try {
@@ -63,7 +55,7 @@ const createPlaylist = async (req, res) => {
             name,
             normalizedName,
             description,
-            cover: `/uploads/${coverFile.filename}`,
+            cover: coverFile.path,
             classes: classIdsArray,
             private: isPrivate,
         })
@@ -276,20 +268,11 @@ const editPlaylist = async (req, res) => {
             if (playlist.cover) {
                 const aindaEmUso = await Playlist.exists({ cover: playlist.cover, _id: { $ne: playlistId } });
                 if (!aindaEmUso) {
-                    const filename = playlist.cover.startsWith('/uploads/') 
-                        ? playlist.cover.replace('/uploads/', '') 
-                        : playlist.cover;
-                    const oldCoverPath = path.join(__dirname, '..', 'uploads', filename);
-
-                    fs.unlink(oldCoverPath, (err) => {
-                        if (err && err.code !== 'ENOENT') {
-                            console.error("Erro ao deletar imagem de capa antiga da playlist:", err);
-                        }
-                    });
+                    await deleteCloudinaryImage(playlist.cover);
                 }
             }
 
-            playlist.cover = `/uploads/${coverFile.filename}`;
+            playlist.cover = coverFile.path;
         }
 
         await playlist.save();
@@ -448,20 +431,11 @@ const deletePlaylist = async (req, res) => {
         if (playlist.author.toString() !== userId) {
             return res.status(403).json({ mensagem: "Você não pode excluir a playlist de outro usuário" });
         }
-
+        
         if (playlist.cover) {
             const aindaEmUso = await Playlist.exists({ cover: playlist.cover, _id: { $ne: playlistId } });
             if (!aindaEmUso) {
-                const filename = playlist.cover.startsWith('/uploads/') 
-                    ? playlist.cover.replace('/uploads/', '') 
-                    : playlist.cover;
-                const coverPath = path.join(__dirname, '..', 'uploads', filename);
-
-                fs.unlink(coverPath, (err) => {
-                    if (err && err.code !== 'ENOENT') {
-                        console.error("Erro ao deletar capa da playlist:", err);
-                    }
-                });
+                await deleteCloudinaryImage(playlist.cover);
             }
         }
 

@@ -110,7 +110,7 @@ export default function EditClass() {
               <div className="sd-view__cover">
                 <span className="sd-view__cover-label">Foto de capa</span>
                 <div className="sd-view__cover-box">
-                  {aula.cover && <img src={`${API_BASE}${aula.cover}`} alt="" />}
+                  {aula.cover && <img src={aula.cover} alt="" />}
                 </div>
               </div>
 
@@ -148,7 +148,7 @@ export default function EditClass() {
                   aula.medias.map((media, i) =>
                     media.type === 'imagem' ? (
                       <div key={i} className="sd-view-media">
-                        <img src={`${API_BASE}${media.value}`} alt="" />
+                        <img src={media.value} alt="" />
                       </div>
                     ) : (
                       <ClassViewYoutube key={i} url={media.value} indice={i} />

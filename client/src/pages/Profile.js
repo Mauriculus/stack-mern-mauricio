@@ -357,7 +357,7 @@ export default function Profile() {
               <div className="sd-profile__banner-content">
                 <span className="sd-profile__avatar-large" aria-hidden="true">
                   {perfil.profilePicture ? (
-                    <img src={`${API_BASE}/uploads/${perfil.profilePicture}`} alt="foto de perfil" />
+                    <img src={perfil.profilePicture} alt="" />
                   ) : (
                     perfil.username?.[0]?.toUpperCase() || '?'
                   )}
@@ -528,7 +528,7 @@ export default function Profile() {
                   {playlists.map((pl) => (
                     <Link key={pl._id} to={`/playlist/${pl._id}`} className="sd-profile-row sd-profile-row--link">
                       <div className="sd-profile-row__thumb">
-                        <img src={`${API_BASE}${pl.cover}`} alt="" />
+                        <img src={pl.cover} alt="" />
                       </div>
                       <div className="sd-profile-row__body">
                         <span className="sd-profile-row__title">{pl.name}</span>
@@ -637,7 +637,7 @@ export default function Profile() {
                         >
                           <span className="sd-following-avatar">
                             {u.profilePicture ? (
-                              <img src={`${API_BASE}/uploads/${u.profilePicture}`} alt="" />
+                              <img src={u.profilePicture} alt="" />
                             ) : (
                               u.username?.[0]?.toUpperCase() || '?'
                             )}

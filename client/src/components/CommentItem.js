@@ -25,7 +25,7 @@ function LinhaComentario({ comentario, indentado, podeResponder, aoResponder, po
       <Link to={`/perfil/${comentario.author?._id}`} className="sd-comment__avatar" aria-label={comentario.author?.username}>
         {comentario.author?.profilePicture ? (
           <img
-            src={`${API_BASE}/uploads/${comentario.author.profilePicture}`}
+            src={comentario.author.profilePicture}
             alt=""
             style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
           />

@@ -1,4 +1,4 @@
-export const API_BASE = 'http://localhost:7777';
+export const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:7777';
 
 export const ASSUNTOS = [
   'Elétrica',
@@ -49,13 +49,13 @@ export function extrairIdYoutube(url) {
 // antigas, de antes da capa virar obrigatória) > thumb do youtube > nada
 export function capaDaAula(aula) {
   if (aula.cover) {
-    return { tipo: 'imagem', src: `${API_BASE}${aula.cover}` };
+    return { tipo: 'imagem', src: aula.cover };
   }
 
   const medias = aula.medias || [];
   const imagem = medias.find((m) => m.type === 'imagem');
   if (imagem) {
-    return { tipo: 'imagem', src: `${API_BASE}${imagem.value}` };
+    return { tipo: 'imagem', src: imagem.value };
   }
 
   const video = medias.find((m) => m.type === 'youtube');

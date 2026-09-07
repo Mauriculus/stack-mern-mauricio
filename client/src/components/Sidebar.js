@@ -19,7 +19,7 @@ export default function Sidebar() {
       .then(res => res.json())
       .then(data => {
         if (data && data.profilePicture) {
-          setProfilePic(`${API_BASE}/uploads/${data.profilePicture}`);
+          setProfilePic(data.profilePicture);
         }
         if (data && data.type === 'admin') {
           setIsAdmin(true);

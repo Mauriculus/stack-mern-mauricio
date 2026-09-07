@@ -4,8 +4,7 @@ const { Comment, Response } = require('../models/Comment')
 const Playlist = require('../models/Playlist')
 const Report = require('../models/Report')
 
-const fs = require('fs');
-const path = require('path');
+const { deleteCloudinaryImage } = require('../services/cloudinaryHelpers');
 
 const cascadeDeleteClass = async (bannedUserId) => {
     const classes = await Class.find({ author: bannedUserId }).select('_id cover medias')
@@ -19,24 +18,16 @@ const cascadeDeleteClass = async (bannedUserId) => {
         const classId = currentClass._id
         const stats = await cascadeDeleteClassPendencies(classId)
 
-        // Delete cover image
-        if (currentClass.cover && currentClass.cover.startsWith('/uploads/')) {
-            const coverPath = path.join(__dirname, '..', 'uploads', currentClass.cover.replace('/uploads/', ''));
-            fs.unlink(coverPath, (err) => {
-                if (err && err.code !== 'ENOENT') console.error("Erro ao deletar capa da aula (ban):", err);
-            });
+        // Deleta capa e mídias de imagem do Cloudinary
+        if (currentClass.cover) {
+            await deleteCloudinaryImage(currentClass.cover);
         }
-
-        // Delete media images
         if (currentClass.medias && currentClass.medias.length > 0) {
-            currentClass.medias.forEach(media => {
-                if (media.type === 'imagem' && media.value && media.value.startsWith('/uploads/')) {
-                    const mediaPath = path.join(__dirname, '..', 'uploads', media.value.replace('/uploads/', ''));
-                    fs.unlink(mediaPath, (err) => {
-                        if (err && err.code !== 'ENOENT') console.error("Erro ao deletar mídia da aula (ban):", err);
-                    });
+            for (const media of currentClass.medias) {
+                if (media.type === 'imagem' && media.value) {
+                    await deleteCloudinaryImage(media.value);
                 }
-            });
+            }
         }
 
         const deletedClass = await Class.findByIdAndDelete(classId)
@@ -96,24 +87,16 @@ const deleteClass = async (req, res) => {
 
         const stats = await cascadeDeleteClassPendencies(classId)
 
-        // Delete cover image
-        if (deletedClass.cover && deletedClass.cover.startsWith('/uploads/')) {
-            const coverPath = path.join(__dirname, '..', 'uploads', deletedClass.cover.replace('/uploads/', ''));
-            fs.unlink(coverPath, (err) => {
-                if (err && err.code !== 'ENOENT') console.error("Erro ao deletar capa da aula (admin):", err);
-            });
+        // Deleta capa e mídias de imagem do Cloudinary
+        if (deletedClass.cover) {
+            await deleteCloudinaryImage(deletedClass.cover);
         }
-
-        // Delete media images
         if (deletedClass.medias && deletedClass.medias.length > 0) {
-            deletedClass.medias.forEach(media => {
-                if (media.type === 'imagem' && media.value && media.value.startsWith('/uploads/')) {
-                    const mediaPath = path.join(__dirname, '..', 'uploads', media.value.replace('/uploads/', ''));
-                    fs.unlink(mediaPath, (err) => {
-                        if (err && err.code !== 'ENOENT') console.error("Erro ao deletar mídia da aula (admin):", err);
-                    });
+            for (const media of deletedClass.medias) {
+                if (media.type === 'imagem' && media.value) {
+                    await deleteCloudinaryImage(media.value);
                 }
-            });
+            }
         }
 
         await deletedClass.deleteOne()

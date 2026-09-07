@@ -73,7 +73,7 @@ const createClass = async (req, res) => {
         for (const file of galeria) {
             medias.push({
                 type: 'imagem',
-                value: `/uploads/${file.filename}`
+                value: file.path
             });
         }
 
@@ -102,7 +102,7 @@ const createClass = async (req, res) => {
             dangerLevel,
             author: userId,
             authorUsername: user.username,
-            cover: `/uploads/${coverFile.filename}`,
+            cover: coverFile.path,
             medias: medias
         });
 
@@ -243,9 +243,8 @@ const getClassesByAuthor = async (req, res) => {
     }
 };
 
-const fs = require('fs');
-const path = require('path');
 const { cascadeDeleteClassPendencies } = require('./adminController');
+const { deleteCloudinaryImage } = require('../services/cloudinaryHelpers');
 
 // Exclui uma aula — só o próprio autor pode excluir a própria aula.
 const deleteClass = async (req, res) => {
@@ -269,24 +268,16 @@ const deleteClass = async (req, res) => {
             return res.status(403).json({ mensagem: "Você só pode excluir suas próprias aulas" });
         }
 
-        // Delete cover image
-        if (targetClass.cover && targetClass.cover.startsWith('/uploads/')) {
-            const coverPath = path.join(__dirname, '..', 'uploads', targetClass.cover.replace('/uploads/', ''));
-            fs.unlink(coverPath, (err) => {
-                if (err && err.code !== 'ENOENT') console.error("Erro ao deletar capa da aula:", err);
-            });
+        // Deleta capa e mídias de imagem do Cloudinary
+        if (targetClass.cover) {
+            await deleteCloudinaryImage(targetClass.cover);
         }
-
-        // Delete media images
         if (targetClass.medias && targetClass.medias.length > 0) {
-            targetClass.medias.forEach(media => {
-                if (media.type === 'imagem' && media.value && media.value.startsWith('/uploads/')) {
-                    const mediaPath = path.join(__dirname, '..', 'uploads', media.value.replace('/uploads/', ''));
-                    fs.unlink(mediaPath, (err) => {
-                        if (err && err.code !== 'ENOENT') console.error("Erro ao deletar mídia da aula:", err);
-                    });
+            for (const media of targetClass.medias) {
+                if (media.type === 'imagem' && media.value) {
+                    await deleteCloudinaryImage(media.value);
                 }
-            });
+            }
         }
         
         await cascadeDeleteClassPendencies(classId);
