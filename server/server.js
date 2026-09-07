@@ -29,6 +29,8 @@ function sanitizarContraInjecao(obj) {
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 // Servir arquivos estáticos ANTES do Helmet para que o CORP não bloqueie as imagens
 // quando o frontend (porta 3000) tenta carregar de porta diferente (7777)
 app.use('/uploads', (req, res, next) => {
