@@ -1,26 +1,4 @@
-const nodemailer = require('nodemailer');
-
-const hasSmtpConfig = Boolean(
-  process.env.SMTP_HOST &&
-  process.env.SMTP_PORT &&
-  process.env.SMTP_USER &&
-  process.env.SMTP_PASS
-);
-
-// Em desenvolvimento, evita tentar conectar em localhost:587 quando o SMTP não foi configurado.
-const transporter = hasSmtpConfig
-  ? nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: process.env.SMTP_PORT === '465',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    })
-  : nodemailer.createTransport({
-      jsonTransport: true,
-    });
+const hasBrevoConfig = Boolean(process.env.BREVO_API_KEY);
 
 // Cores da marca. Clientes de email não suportam variáveis CSS nem a
 // maioria das fontes customizadas, então tudo aqui vai inline e com
@@ -102,7 +80,7 @@ const renderButton = (href, label) => `
   <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 28px 0;">
     <tr>
       <td style="border-radius:4px; background-color:${BRAND.navy};">
-        <a
+        
           href="${href}"
           target="_blank"
           style="display:inline-block; padding:13px 26px; font-size:14px; font-weight:600; color:${BRAND.offWhite}; text-decoration:none; border-radius:4px;"
@@ -113,6 +91,35 @@ const renderButton = (href, label) => `
     </tr>
   </table>
 `;
+
+// Envia via API HTTPS do Brevo em vez de SMTP — hosts como Render bloqueiam
+// conexão SMTP direta por padrão, mas chamadas de API comuns passam normal
+const sendViaBrevo = async ({ to, subject, html }) => {
+  if (!hasBrevoConfig) {
+    console.warn(`BREVO_API_KEY não configurada. Email para ${to} não será enviado de verdade em ambiente local.`);
+    return;
+  }
+
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      'api-key': process.env.BREVO_API_KEY,
+    },
+    body: JSON.stringify({
+      sender: { name: 'Sobrevivência Doméstica', email: 'sobrevivencia1domestica@gmail.com' },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
+  });
+
+  if (!response.ok) {
+    const erroTexto = await response.text();
+    throw new Error(`Falha ao enviar email via Brevo (${response.status}): ${erroTexto}`);
+  }
+};
 
 const sendVerificationEmail = async (toEmail, verificationToken) => {
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
@@ -141,21 +148,14 @@ const sendVerificationEmail = async (toEmail, verificationToken) => {
     </p>
   `;
 
-  const mailOptions = {
-    from: '"Sobrevivência Doméstica" <nao-responda@sobrevivenciadomestica.com>',
+  return sendViaBrevo({
     to: toEmail,
     subject: 'Confirme seu email — Sobrevivência Doméstica',
     html: renderEmailShell({
       preheaderText: 'Confirme seu email para ativar sua conta no Sobrevivência Doméstica.',
       bodyHtml,
     }),
-  };
-
-  if (!hasSmtpConfig) {
-    console.warn('SMTP não configurado. Email de verificação não será enviado de verdade em ambiente local.');
-  }
-
-  return await transporter.sendMail(mailOptions);
+  });
 };
 
 const sendPasswordResetEmail = async (toEmail, resetToken) => {
@@ -183,21 +183,14 @@ const sendPasswordResetEmail = async (toEmail, resetToken) => {
     </p>
   `;
 
-  const mailOptions = {
-    from: '"Sobrevivência Doméstica" <nao-responda@sobrevivenciadomestica.com>',
+  return sendViaBrevo({
     to: toEmail,
     subject: 'Redefinir sua senha — Sobrevivência Doméstica',
     html: renderEmailShell({
       preheaderText: 'Redefina sua senha no Sobrevivência Doméstica.',
       bodyHtml,
     }),
-  };
-
-  if (!hasSmtpConfig) {
-    console.warn('SMTP não configurado. Email de redefinição de senha não será enviado de verdade em ambiente local.');
-  }
-
-  return await transporter.sendMail(mailOptions);
+  });
 };
 
 module.exports = {
