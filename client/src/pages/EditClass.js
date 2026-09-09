@@ -6,6 +6,7 @@ import { API_BASE, COR_ASSUNTO, COR_RISCO, extrairIdYoutube } from '../utils/cla
 import '../styles/ClassView.css';
 
 const LIMITE_CONTEUDO = 4000;
+const LIMITE_RISCO = 1500;
 
 export default function EditClass() {
   const { classId } = useParams();
@@ -167,9 +168,13 @@ export default function EditClass() {
                     id="riscoTexto"
                     className="sd-view__risk-text"
                     value={riscoTexto}
-                    onChange={(e) => setRiscoTexto(e.target.value)}
+                    onChange={(e) => setRiscoTexto(e.target.value.slice(0, LIMITE_RISCO))}
+                    maxLength={LIMITE_RISCO}
                     style={{ width: '100%', boxSizing: 'border-box', background: 'transparent', border: 'none', resize: 'none', outline: 'none' }}
                   />
+                  <span style={{ fontSize: '0.8rem', color: 'var(--sd-text-soft)', textAlign: 'right', display: 'block', marginTop: '0.5rem' }}>
+                    {riscoTexto.length}/{LIMITE_RISCO}
+                  </span>
                 </div>
               </div>
             </div>

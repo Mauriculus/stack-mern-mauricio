@@ -8,6 +8,7 @@ import '../styles/CreateClass.css';
 
 const RISCOS = Object.keys(COR_RISCO);
 const LIMITE_CONTEUDO = 4000;
+const LIMITE_RISCO = 1500;
 
 const SLOT_VAZIO = { tipo: null, arquivo: null, previewUrl: null, youtubeUrl: '', youtubeId: null };
 
@@ -216,9 +217,13 @@ export default function CreateClass() {
                 <span className="sd-create__risk-title">Alerte dos possíveis riscos desta aula</span>
                 <textarea
                   value={riscoTexto}
-                  onChange={(e) => setRiscoTexto(e.target.value)}
+                  onChange={(e) => setRiscoTexto(e.target.value.slice(0, LIMITE_RISCO))}
                   placeholder="Ex.: risco de choque elétrico — desligue o disjuntor antes de começar."
+                  maxLength={LIMITE_RISCO}
                 />
+                <span className="sd-create__content-counter">
+                  {riscoTexto.length}/{LIMITE_RISCO}
+                </span>
               </div>
             </div>
           </div>

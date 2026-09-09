@@ -41,6 +41,8 @@
   font-size: clamp(1.6rem, 3vw, 2.5rem);
   color: var(--sd-off-white);
   text-align: center;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 /* ---------- barra de tema / capa / avaliação ---------- */

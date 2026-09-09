@@ -60,6 +60,8 @@
   font-size: 1.8rem;
   color: var(--sd-navy);
   margin: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 [data-theme='dark'] .sd-playlist-view__title {
@@ -70,6 +72,8 @@
   font-size: 0.95rem;
   color: var(--sd-text-soft);
   margin: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .sd-playlist-view__rate-row {

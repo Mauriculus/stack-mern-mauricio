@@ -70,6 +70,10 @@ export default function Profile() {
   
   const [avisoLoginAberto, setAvisoLoginAberto] = useState(false);
 
+  const [souAdmin, setSouAdmin] = useState(false);
+  const [confirmandoBan, setConfirmandoBan] = useState(false);
+  const [banindo, setBanindo] = useState(false);
+
   const authHeaders = () => {
     const token = localStorage.getItem('token');
     return token ? { Authorization: `Bearer ${token}` } : {};
@@ -175,6 +179,35 @@ export default function Profile() {
       setPlaylistsCarregando(false);
     }
   }, [souEuMesmo, perfil?._id]);
+
+  const banirUsuario = async () => {
+    setBanindo(true);
+    try {
+      const response = await fetch(`${API_BASE}/api/admin/banUser`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ bannedUserId: perfil._id }),
+      });
+      if (response.ok) {
+        await buscarPerfil();
+        setConfirmandoBan(false);
+      }
+    } catch (error) {
+    } finally {
+      setBanindo(false);
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    fetch(`${API_BASE}/api/users/me`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.type === 'admin') setSouAdmin(true);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (aba === 'playlists' && perfil?._id) buscarPlaylists(1);
@@ -439,7 +472,6 @@ export default function Profile() {
                           </button>
                         )}
                       </div>
-
                       {!isEditing && (
                         <button type="button" className="sd-profile__btn-logout-small" onClick={handleLogout}>
                           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -450,8 +482,8 @@ export default function Profile() {
                       )}
                     </div>
                   ) : (
-                    meuId && (
-                      <div className="sd-profile__actions-row sd-profile__actions-row--single">
+                    <div className="sd-profile__actions-row">
+                      {meuId && (
                         <button
                           type="button"
                           className={`sd-profile__btn-follow ${seguindo ? 'is-following' : ''}`}
@@ -460,8 +492,35 @@ export default function Profile() {
                         >
                           {seguindo ? 'Deixar de seguir' : '+ Seguir'}
                         </button>
-                      </div>
-                    )
+                      )}
+                      
+                      {souAdmin && (
+                        confirmandoBan ? (
+                          <span className="sd-profile__ban-confirm">
+                            Banir este usuário?
+                            <button type="button" onClick={banirUsuario} disabled={banindo}>
+                              {banindo ? '...' : 'Sim'}
+                            </button>
+                            <button type="button" onClick={() => setConfirmandoBan(false)} disabled={banindo}>
+                              Não
+                            </button>
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            className="sd-profile__btn-ban"
+                            onClick={() => setConfirmandoBan(true)}
+                            aria-label="Banir usuário"
+                            data-hint="Banir usuário"
+                          >
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                              <circle cx="12" cy="12" r="10" />
+                              <path d="M4.9 4.9l14.2 14.2" />
+                            </svg>
+                          </button>
+                        )
+                      )}
+                    </div>
                   )}
                 </div>
               </div>

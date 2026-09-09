@@ -68,6 +68,10 @@ const createClass = async (req, res) => {
             return res.status(400).json({mensagem: "O conteúdo da aula deve estar entre 20 e 4000 caracteres"})
         }
 
+        if (danger.length > 1500){
+            return res.status(400).json({mensagem: "O alerta de risco deve ter no máximo 800 caracteres"})
+        }
+
         const medias = [];
 
         for (const file of galeria) {
@@ -417,6 +421,10 @@ const editClass = async (req, res) => {
 
         if (newContent && (newContent.length > 4000 || newContent.length < 20)) {
             return res.status(400).json({ mensagem: "O conteúdo deve estar entre 20 e 4000 caracteres"})
+        }
+
+        if (newDanger && newDanger.length > 1500) {
+            return res.status(400).json({ mensagem: "O alerta de risco deve ter no máximo 800 caracteres"})
         }
 
         if (newContent) targetClass.content = newContent;

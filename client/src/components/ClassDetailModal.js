@@ -117,7 +117,7 @@ function ClassDetailContent({ aula, onClose }) {
         <Link to={`/perfil/${aula.author}`} className="sd-class-modal__author" onClick={onClose}>
           <span className="sd-class-modal__avatar" aria-hidden="true">
             {aula.authorProfilePicture ? (
-              <img src={`${API_BASE}/uploads/${aula.authorProfilePicture}`} alt="" />
+              <img src={aula.authorProfilePicture} alt="" />
             ) : (
               aula.authorUsername?.[0]?.toUpperCase() || '?'
             )}

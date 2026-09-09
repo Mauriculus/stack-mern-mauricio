@@ -82,8 +82,8 @@ const editPicture = async (req, res) => {
   const userId = req.userId; 
 
   // O multer disponibiliza o arquivo em req.file se for enviado
-  const profilePicture = req.file ? req.file.filename : undefined;
-
+  const profilePicture = req.file ? req.file.path : undefined;
+  
   try {
     const user = await User.findById(userId);
 

@@ -91,6 +91,8 @@
   font-size: 1.5rem;
   color: var(--sd-navy);
   margin: 0 0 1rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 [data-theme='dark'] .sd-class-modal__title {
