@@ -34,6 +34,9 @@
   color: var(--sd-navy);
   text-decoration: none;
   margin-bottom: 0.4rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 [data-theme='dark'] .sd-admin-report__class {

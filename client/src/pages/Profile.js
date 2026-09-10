@@ -482,18 +482,7 @@ export default function Profile() {
                       )}
                     </div>
                   ) : (
-                    <div className="sd-profile__actions-row">
-                      {meuId && (
-                        <button
-                          type="button"
-                          className={`sd-profile__btn-follow ${seguindo ? 'is-following' : ''}`}
-                          onClick={handleToggleFollow}
-                          disabled={alterandoSeguir}
-                        >
-                          {seguindo ? 'Deixar de seguir' : '+ Seguir'}
-                        </button>
-                      )}
-                      
+                    <div className="sd-profile__actions-row sd-profile__actions-row--single">
                       {souAdmin && (
                         confirmandoBan ? (
                           <span className="sd-profile__ban-confirm">
@@ -519,6 +508,17 @@ export default function Profile() {
                             </svg>
                           </button>
                         )
+                      )}
+
+                      {meuId && (
+                        <button
+                          type="button"
+                          className={`sd-profile__btn-follow ${seguindo ? 'is-following' : ''}`}
+                          onClick={handleToggleFollow}
+                          disabled={alterandoSeguir}
+                        >
+                          {seguindo ? 'Deixar de seguir' : '+ Seguir'}
+                        </button>
                       )}
                     </div>
                   )}
