@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import '../styles/VerifyEmail.css';
+import { API_BASE } from '../utils/classTaxonomia';
 
 // status possíveis: 'verificando' | 'sucesso' | 'ja-verificada' | 'expirado' | 'erro'
 
@@ -27,7 +28,7 @@ export default function VerifyEmail({ onLogin }) {
 
     const verificar = async () => {
       try {
-        const url = `http://localhost:7777/api/users/verify?verificationToken=${encodeURIComponent(verificationToken)}`;
+        const url = `${API_BASE}/api/users/verify?verificationToken=${encodeURIComponent(verificationToken)}`;
         const response = await fetch(url, { method: 'GET' });
 
         const data = await response.json();

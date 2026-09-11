@@ -53,7 +53,7 @@ const classSchema = new mongoose.Schema({
         required: true
     },
 
-    danger: {type: String, required: true},
+    danger: {type: String, required: true, maxlength: 1500 },
 
     dangerLevel: {
         type: String,

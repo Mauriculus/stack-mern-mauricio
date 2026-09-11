@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { API_BASE } from '../utils/classTaxonomia';
 import '../styles/CommentItem.css';
 
 const LIMITE_RESPOSTA = 500;
@@ -25,7 +24,7 @@ function LinhaComentario({ comentario, indentado, podeResponder, aoResponder, po
       <Link to={`/perfil/${comentario.author?._id}`} className="sd-comment__avatar" aria-label={comentario.author?.username}>
         {comentario.author?.profilePicture ? (
           <img
-            src={`${API_BASE}/uploads/${comentario.author.profilePicture}`}
+            src={comentario.author.profilePicture}
             alt=""
             style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
           />
@@ -65,8 +64,8 @@ function LinhaComentario({ comentario, indentado, podeResponder, aoResponder, po
                 type="button"
                 className="sd-comment__excluir"
                 onClick={() => setConfirmando(true)}
-                aria-label="Excluir (administração)"
-                title="Excluir (administração)"
+                aria-label="Excluir"
+                data-hint="Excluir"
               >
                 <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="3 6 5 6 21 6"></polyline>
@@ -80,7 +79,7 @@ function LinhaComentario({ comentario, indentado, podeResponder, aoResponder, po
   );
 }
 
-export default function CommentItem({ comentario, onEnviarResposta, souAdmin, onExcluirComentario, onExcluirResposta }) {
+export default function CommentItem({ comentario, onEnviarResposta, souAdmin, meuId, onExcluirComentario, onExcluirResposta }) {
   const [respostasAbertas, setRespostasAbertas] = useState(false);
   const [respondendo, setRespondendo] = useState(false);
   const [textoResposta, setTextoResposta] = useState('');
@@ -106,7 +105,7 @@ export default function CommentItem({ comentario, onEnviarResposta, souAdmin, on
         comentario={comentario}
         podeResponder
         aoResponder={() => setRespondendo((v) => !v)}
-        podeExcluir={souAdmin}
+        podeExcluir={souAdmin || comentario.author?._id === meuId}
         aoExcluir={() => onExcluirComentario(comentario._id)}
       />
 
@@ -147,7 +146,7 @@ export default function CommentItem({ comentario, onEnviarResposta, souAdmin, on
               key={resposta._id}
               comentario={resposta}
               indentado
-              podeExcluir={souAdmin}
+              podeExcluir={souAdmin || resposta.author?._id === meuId}
               aoExcluir={() => onExcluirResposta(resposta._id)}
             />
           ))}

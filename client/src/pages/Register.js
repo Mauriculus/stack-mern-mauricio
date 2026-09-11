@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import '../styles/Register.css';
+import { API_BASE } from '../utils/classTaxonomia';
 
 const PASSWORD_RULES = [
   { key: 'length', label: 'Pelo menos 6 caracteres', test: (p) => p.length >= 6 },
@@ -17,7 +18,6 @@ export default function Register() {
   const [mensagem, setMensagem] = useState('');
   const [carregando, setCarregando] = useState(false);
   const [registrado, setRegistrado] = useState(false);
-  const navigate = useNavigate();
 
   const validarLocalmente = () => {
     const usernameLimpo = username.trim();
@@ -50,7 +50,7 @@ export default function Register() {
     setCarregando(true);
 
     try {
-      const response = await fetch('http://localhost:7777/api/users/register', {
+      const response = await fetch(`${API_BASE}/api/users/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: username.trim(), email, password }),

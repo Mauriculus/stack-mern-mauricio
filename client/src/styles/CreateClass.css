@@ -195,7 +195,7 @@
 }
 
 .sd-create__medias {
-  height: 100%;
+  align-self: start;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;

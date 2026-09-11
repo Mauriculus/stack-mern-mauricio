@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import ColorSelect from '../components/ColorSelect';
-import EstrelaRating from '../components/EstrelaRating';
 import { API_BASE, COR_ASSUNTO, COR_RISCO, extrairIdYoutube } from '../utils/classTaxonomia';
 import '../styles/ClassView.css';
 
 const LIMITE_CONTEUDO = 4000;
+const LIMITE_RISCO = 1500;
 
 export default function EditClass() {
   const { classId } = useParams();
@@ -110,7 +110,7 @@ export default function EditClass() {
               <div className="sd-view__cover">
                 <span className="sd-view__cover-label">Foto de capa</span>
                 <div className="sd-view__cover-box">
-                  {aula.cover && <img src={`${API_BASE}${aula.cover}`} alt="" />}
+                  {aula.cover && <img src={aula.cover} alt="" />}
                 </div>
               </div>
 
@@ -148,7 +148,7 @@ export default function EditClass() {
                   aula.medias.map((media, i) =>
                     media.type === 'imagem' ? (
                       <div key={i} className="sd-view-media">
-                        <img src={`${API_BASE}${media.value}`} alt="" />
+                        <img src={media.value} alt="" />
                       </div>
                     ) : (
                       <ClassViewYoutube key={i} url={media.value} indice={i} />
@@ -168,9 +168,13 @@ export default function EditClass() {
                     id="riscoTexto"
                     className="sd-view__risk-text"
                     value={riscoTexto}
-                    onChange={(e) => setRiscoTexto(e.target.value)}
+                    onChange={(e) => setRiscoTexto(e.target.value.slice(0, LIMITE_RISCO))}
+                    maxLength={LIMITE_RISCO}
                     style={{ width: '100%', boxSizing: 'border-box', background: 'transparent', border: 'none', resize: 'none', outline: 'none' }}
                   />
+                  <span style={{ fontSize: '0.8rem', color: 'var(--sd-text-soft)', textAlign: 'right', display: 'block', marginTop: '0.5rem' }}>
+                    {riscoTexto.length}/{LIMITE_RISCO}
+                  </span>
                 </div>
               </div>
             </div>

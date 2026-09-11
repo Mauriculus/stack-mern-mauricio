@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/ForgotPassword.css';
+import { API_BASE } from '../utils/classTaxonomia';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -20,7 +21,7 @@ export default function ForgotPassword() {
     setCarregando(true);
 
     try {
-      const response = await fetch('http://localhost:7777/api/users/requestChangePassword', {
+      const response = await fetch(`${API_BASE}/api/users/requestChangePassword`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim() }),

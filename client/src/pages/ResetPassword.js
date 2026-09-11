@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import '../styles/ResetPassword.css';
+import { API_BASE } from '../utils/classTaxonomia';
 
 const PASSWORD_RULES = [
   { key: 'length', label: 'Pelo menos 6 caracteres', test: (p) => p.length >= 6 },
@@ -44,7 +45,7 @@ export default function ResetPassword() {
     setCarregando(true);
 
     try {
-      const response = await fetch('http://localhost:7777/api/users/changePassword', {
+      const response = await fetch(`${API_BASE}/api/users/changePassword`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ resetToken, newPassword }),

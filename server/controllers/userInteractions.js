@@ -259,6 +259,70 @@ const respondComment = async (req, res) => {
   }
 }
 
+const deleteComment = async (req, res) => {
+  const userId = req.userId;
+  const { commentId } = req.params;
+
+  if (!userId) {
+    return res.status(401).json({ mensagem: 'Usuário não autenticado' });
+  }
+  if (!commentId) {
+    return res.status(400).json({ mensagem: 'Comentário é obrigatório' });
+  }
+
+  try {
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      return res.status(404).json({ mensagem: 'Comentário não encontrado' });
+    }
+
+    if (comment.author.toString() !== userId) {
+      return res.status(403).json({ mensagem: 'Você não pode excluir esse comentário' });
+    }
+
+    await Response.deleteMany({ _id: { $in: comment.responses } });
+    await Class.updateOne({ _id: comment.commentedClass }, { $pull: { comments: comment._id } });
+    await Comment.deleteOne({ _id: commentId });
+
+    return res.status(200).json({ mensagem: 'Comentário excluído com sucesso' });
+  } catch (error) {
+    console.error('Erro ao excluir comentário:', error);
+    return res.status(500).json({ mensagem: 'Erro no servidor' });
+  }
+};
+
+
+const deleteResponse = async (req, res) => {
+  const userId = req.userId;
+  const { responseId } = req.params;
+
+  if (!userId) {
+    return res.status(401).json({ mensagem: 'Usuário não autenticado' });
+  }
+  if (!responseId) {
+    return res.status(400).json({ mensagem: 'Resposta é obrigatória' });
+  }
+
+  try {
+    const response = await Response.findById(responseId);
+    if (!response) {
+      return res.status(404).json({ mensagem: 'Resposta não encontrada' });
+    }
+
+    if (response.author.toString() !== userId) {
+      return res.status(403).json({ mensagem: 'Você não pode excluir essa resposta' });
+    }
+
+    await Comment.updateOne({ _id: response.comment }, { $pull: { responses: response._id } });
+    await Response.deleteOne({ _id: responseId });
+
+    return res.status(200).json({ mensagem: 'Resposta excluída com sucesso' });
+  } catch (error) {
+    console.error('Erro ao excluir resposta:', error);
+    return res.status(500).json({ mensagem: 'Erro no servidor' });
+  }
+};
+
 
 const getCommentsByClass = async (req, res) => { 
   const { normalizedTitle } = req.params;
@@ -479,4 +543,6 @@ module.exports = {
   getCommentsByClass,
   rateClass,
   reportClass,
+  deleteComment,
+  deleteResponse,
 };

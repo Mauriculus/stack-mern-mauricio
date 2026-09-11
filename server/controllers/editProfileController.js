@@ -76,15 +76,14 @@ const editUsername = async (req, res) => {
   }
 };
 
-const fs = require('fs');
-const path = require('path');
+const { deleteCloudinaryImage } = require('../services/cloudinaryHelpers');
 
 const editPicture = async (req, res) => {
   const userId = req.userId; 
 
   // O multer disponibiliza o arquivo em req.file se for enviado
-  const profilePicture = req.file ? req.file.filename : undefined;
-
+  const profilePicture = req.file ? req.file.path : undefined;
+  
   try {
     const user = await User.findById(userId);
 
@@ -97,14 +96,9 @@ const editPicture = async (req, res) => {
     }
 
     if (user.profilePicture) {
-      const oldPicturePath = path.join(__dirname, '..', 'uploads', user.profilePicture);
-      fs.unlink(oldPicturePath, (err) => {
-        if (err && err.code !== 'ENOENT') {
-          console.error("Erro ao deletar a foto de perfil antiga:", err);
-        }
-      });
+      await deleteCloudinaryImage(user.profilePicture);
     }
-
+    
     user.profilePicture = profilePicture;
 
     await user.save();
@@ -151,7 +145,7 @@ const requestChangePassword = async (req, res) => {
 
     await sendPasswordResetEmail(emailNormalized, resetToken)
 
-    return res.status(200).json({ mensagem: "Se o email está cadastrado, você receberá um link de recuperação", resetToken: resetToken }) // resetToken só para testes, retirar depois
+    return res.status(200).json({ mensagem: "Se o email está cadastrado, você receberá um link de recuperação" })
 
   } catch (error){ 
     console.error("Erro ao requisitar troca de senha ", error)

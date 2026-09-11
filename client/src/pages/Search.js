@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import ClassCard from '../components/ClassCard';
 import ClassDetailModal from '../components/ClassDetailModal';
+import EstrelaRating from '../components/EstrelaRating';
 import { API_BASE, ASSUNTOS, COR_ASSUNTO } from '../utils/classTaxonomia';
 import '../styles/Search.css';
 
@@ -33,6 +34,12 @@ export default function Search() {
   const [seguidosPagina, setSeguidosPagina] = useState(0);
   const [seguidosTotalPaginas, setSeguidosTotalPaginas] = useState(0);
   const [seguidosCarregando, setSeguidosCarregando] = useState(false);
+  const [destaquePlaylists, setDestaquePlaylists] = useState([]);
+  const [playlistsSeguidos, setPlaylistsSeguidos] = useState([]);
+  const [resultadosPlaylists, setResultadosPlaylists] = useState([]);
+  const [resultadosPlaylistsPagina, setResultadosPlaylistsPagina] = useState(1);
+  const [resultadosPlaylistsTotalPaginas, setResultadosPlaylistsTotalPaginas] = useState(1);
+  const [buscandoPlaylists, setBuscandoPlaylists] = useState(false);
 
   const [aulaSelecionada, setAulaSelecionada] = useState(null);
 
@@ -77,7 +84,7 @@ export default function Search() {
         setResultadosTotalPaginas(data.totalPages || 1);
 
         if (pagina === 1 && !termo.trim() && assuntosSelecionados.length === 0) {
-          setDestaque(lista.slice(0, 7));
+          setDestaque(lista.slice(0, 8));
         }
       } catch (error) {
         setErro('Erro ao conectar com o servidor');
@@ -90,11 +97,49 @@ export default function Search() {
     [termo, assuntosSelecionados]
   );
 
+  const buscarPlaylistsResultados = useCallback(
+    async (pagina = 1) => {
+      setBuscandoPlaylists(true);
+      try {
+        const params = new URLSearchParams();
+        if (termo.trim()) params.set('q', termo.trim());
+        params.set('page', String(pagina));
+        params.set('limit', String(LIMITE_RESULTADOS));
+
+        const response = await fetch(`${API_BASE}/api/playlists/search?${params.toString()}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          setResultadosPlaylists((atual) => (pagina === 1 ? data.playlists || [] : [...atual, ...(data.playlists || [])]));
+          setResultadosPlaylistsPagina(pagina);
+          setResultadosPlaylistsTotalPaginas(data.totalPages || 1);
+        }
+      } catch (error) {
+      } finally {
+        setBuscandoPlaylists(false);
+      }
+    },
+    [termo]
+  );
+
   // toda mudança na busca/filtro volta pra página 1, com um pequeno debounce
   useEffect(() => {
     const timer = setTimeout(() => buscar(1), 350);
     return () => clearTimeout(timer);
   }, [buscar]);
+
+  // playlists só entram na busca de verdade — sem termo/filtro, elas já
+  // aparecem nas seções de destaque/seguindo mais acima
+  useEffect(() => {
+    if (!emBusca) {
+      setResultadosPlaylists([]);
+      setResultadosPlaylistsPagina(1);
+      setResultadosPlaylistsTotalPaginas(1);
+      return;
+    }
+    const timer = setTimeout(() => buscarPlaylistsResultados(1), 350);
+    return () => clearTimeout(timer);
+  }, [emBusca, buscarPlaylistsResultados]);
 
   const carregarSeguidos = useCallback(async (pagina) => {
     setSeguidosCarregando(true);
@@ -121,6 +166,33 @@ export default function Search() {
   useEffect(() => {
     carregarSeguidos(1);
   }, [carregarSeguidos]);
+
+  useEffect(() => {
+    const carregarPlaylists = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const [pubRes, segRes] = await Promise.all([
+          fetch(`${API_BASE}/api/playlists/public?page=1&limit=6`),
+          token
+            ? fetch(`${API_BASE}/api/playlists/following?page=1&limit=6`, {
+                headers: { Authorization: `Bearer ${token}` },
+              })
+            : Promise.resolve(null),
+        ]);
+        if (pubRes.ok) {
+          const pubData = await pubRes.json();
+          setDestaquePlaylists(pubData.playlists || []);
+        }
+        if (segRes && segRes.ok) {
+          const segData = await segRes.json();
+          setPlaylistsSeguidos(segData.playlists || []);
+        }
+      } catch (error) {
+        // seções secundárias — se falhar, somem discretamente
+      }
+    };
+    carregarPlaylists();
+  }, []);
 
   const alternarAssunto = (assunto) => {
     setAssuntosSelecionados((atual) =>
@@ -231,8 +303,52 @@ export default function Search() {
           </section>
         )}
 
+        {!emBusca && destaquePlaylists.length > 0 && (
+          <section className="sd-search__section">
+            <h2 className="sd-search__section-title">Playlists em destaque</h2>
+            <div className="sd-search__grid">
+              {destaquePlaylists.map((pl) => (
+                <Link key={pl._id} to={`/playlist/${pl._id}`} className="sd-search__playlist-card">
+                  <div className="sd-search__playlist-thumb">
+                    <img src={pl.cover} alt="" />
+                  </div>
+                  <div className="sd-search__playlist-info">
+                    <p className="sd-search__playlist-title">{pl.name}</p>
+                    <div className="sd-search__playlist-meta">
+                      <span className="sd-search__playlist-count">{pl.classes?.length || 0} aula(s)</span>
+                      <EstrelaRating media={pl.ratingAverage} quantidade={pl.ratingCount} tamanho={12} />
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {!emBusca && playlistsSeguidos.length > 0 && (
+          <section className="sd-search__section">
+            <h2 className="sd-search__section-title">Playlists de quem você segue</h2>
+            <div className="sd-search__grid">
+              {playlistsSeguidos.map((pl) => (
+                <Link key={pl._id} to={`/playlist/${pl._id}`} className="sd-search__playlist-card">
+                  <div className="sd-search__playlist-thumb">
+                    <img src={pl.cover} alt="" />
+                  </div>
+                  <div className="sd-search__playlist-info">
+                    <p className="sd-search__playlist-title">{pl.name}</p>
+                    <div className="sd-search__playlist-meta">
+                      <span className="sd-search__playlist-count">{pl.classes?.length || 0} aula(s)</span>
+                      <EstrelaRating media={pl.ratingAverage} quantidade={pl.ratingCount} tamanho={12} />
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
         <section className="sd-search__section">
-          <h2 className="sd-search__section-title">{emBusca ? 'Resultados' : 'Todas as aulas'}</h2>
+          <h2 className="sd-search__section-title">{emBusca ? 'Aulas' : 'Todas as aulas'}</h2>
 
           {primeiraCarga ? (
             <p className="sd-search__hint">Buscando…</p>
@@ -267,6 +383,45 @@ export default function Search() {
             </>
           )}
         </section>
+        {emBusca && (
+          <section className="sd-search__section">
+            <h2 className="sd-search__section-title">Playlists</h2>
+
+            {resultadosPlaylists.length === 0 && !buscandoPlaylists ? (
+              <p className="sd-search__hint">Nenhuma playlist encontrada.</p>
+            ) : (
+              <>
+                <div className={`sd-search__grid ${buscandoPlaylists ? 'is-loading' : ''}`}>
+                  {resultadosPlaylists.map((pl) => (
+                    <Link key={pl._id} to={`/playlist/${pl._id}`} className="sd-search__playlist-card">
+                      <div className="sd-search__playlist-thumb">
+                        <img src={pl.cover} alt="" />
+                      </div>
+                      <div className="sd-search__playlist-info">
+                        <p className="sd-search__playlist-title">{pl.name}</p>
+                        <div className="sd-search__playlist-meta">
+                          <span className="sd-search__playlist-count">{pl.classes?.length || 0} aula(s)</span>
+                          <EstrelaRating media={pl.ratingAverage} quantidade={pl.ratingCount} tamanho={12} />
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+
+                {resultadosPlaylistsPagina < resultadosPlaylistsTotalPaginas && (
+                  <button
+                    type="button"
+                    className="sd-search__load-more"
+                    onClick={() => buscarPlaylistsResultados(resultadosPlaylistsPagina + 1)}
+                    disabled={buscandoPlaylists}
+                  >
+                    {buscandoPlaylists ? 'Carregando…' : 'Carregar mais'}
+                  </button>
+                )}
+              </>
+            )}
+          </section>
+        )}
       </main>
 
       {aulaSelecionada && (

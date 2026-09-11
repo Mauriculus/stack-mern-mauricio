@@ -6,6 +6,7 @@ export default function CreatePlaylistModal({ onClose, onCriada }) {
   const [nome, setNome] = useState('');
   const [descricao, setDescricao] = useState('');
   const [capaArquivo, setCapaArquivo] = useState(null);
+  const [privada, setPrivada] = useState(true);
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState('');
   const capaInputRef = useRef(null);
@@ -36,6 +37,7 @@ export default function CreatePlaylistModal({ onClose, onCriada }) {
       formData.append('name', nome.trim());
       formData.append('description', descricao.trim());
       formData.append('cover', capaArquivo);
+      formData.append('private', String(privada));
 
       const response = await fetch(`${API_BASE}/api/playlists/create`, {
         method: 'POST',
@@ -95,6 +97,16 @@ export default function CreatePlaylistModal({ onClose, onCriada }) {
             hidden
             onChange={(e) => setCapaArquivo(e.target.files?.[0] || null)}
           />
+
+          <label className="sd-addplaylist__label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <input
+              type="checkbox"
+              checked={privada}
+              onChange={(e) => setPrivada(e.target.checked)}
+              style={{ width: 'auto' }}
+            />
+            Playlist privada
+          </label>
 
           <div className="sd-addplaylist__form-actions">
             <button type="button" className="sd-addplaylist__cancel" onClick={onClose}>

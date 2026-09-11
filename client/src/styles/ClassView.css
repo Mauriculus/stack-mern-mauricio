@@ -41,6 +41,8 @@
   font-size: clamp(1.6rem, 3vw, 2.5rem);
   color: var(--sd-off-white);
   text-align: center;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 /* ---------- barra de tema / capa / avaliação ---------- */
@@ -199,20 +201,17 @@
 }
 
 .sd-view__medias {
-  height: 550px;
+  align-self: start;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
 .sd-view-media {
-  flex: 1;
   background: #e3e4ef;
   border: 1.5px solid var(--sd-navy);
   border-radius: 10px;
   overflow: hidden;
-  min-height: 0;
-  display: flex;
 }
 
 [data-theme='dark'] .sd-view-media {
@@ -220,14 +219,17 @@
 }
 
 .sd-view-media img {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
 }
 
+/* vídeo do YouTube não tem "tamanho natural" pra se adaptar — mantém 16:9,
+   que é o padrão do próprio player */
 .sd-view-media__embed {
+  display: block;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 16 / 9;
   border: none;
 }
 
@@ -400,4 +402,26 @@
   .sd-view__comments {
     padding: 1rem 1.25rem 4rem;
   }
+}
+
+.sd-view__playlist-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--sd-card-border);
+  background: var(--sd-surface);
+  color: var(--sd-navy);
+  cursor: pointer;
+  margin-right: 0.25rem;
+}
+
+.sd-view__playlist-icon-btn:hover {
+  background: var(--sd-bg);
+}
+
+[data-theme='dark'] .sd-view__playlist-icon-btn {
+  color: var(--sd-amber);
 }

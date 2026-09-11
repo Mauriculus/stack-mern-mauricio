@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 
@@ -13,6 +13,7 @@ import CreateClass from './pages/CreateClass';
 import ClassView from './pages/ClassView';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
+import PlaylistView from './pages/PlaylistView.js';
 
 
 import EditClass from './pages/EditClass';
@@ -24,6 +25,28 @@ export default function App() {
     localStorage.setItem('token', novoToken);
     setToken(novoToken);
   };
+
+  useEffect(() => {
+    const originalFetch = window.fetch;
+
+    window.fetch = async (...args) => {
+      const response = await originalFetch(...args);
+
+      if (response.status === 401 && localStorage.getItem('token')) {
+        localStorage.removeItem('token');
+        setToken(null);
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+      }
+
+      return response;
+    };
+
+    return () => {
+      window.fetch = originalFetch;
+    };
+  }, []);
 
   return (
     <ThemeProvider>
@@ -38,9 +61,10 @@ export default function App() {
           <Route path="/pesquisar" element={<Search />} />
           <Route path="/criar-aula" element={token ? <CreateClass /> : <Navigate to="/login" replace />} />
           <Route path="/aula/:classId" element={<ClassView />} />
+          <Route path="/playlist/:playlistId" element={<PlaylistView />} />
           <Route path="/editar-aula/:classId" element={token ? <EditClass /> : <Navigate to="/login" replace />} />
           <Route path="/perfil" element={token ? <Profile /> : <Navigate to="/login" replace />} />
-          <Route path="/perfil/:userId" element={token ? <Profile /> : <Navigate to="/login" replace />} />
+          <Route path="/perfil/:userId" element={<Profile />} />
           <Route path="/admin" element={token ? <Admin /> : <Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

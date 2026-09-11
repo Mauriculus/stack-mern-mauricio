@@ -19,7 +19,7 @@ export default function Sidebar() {
       .then(res => res.json())
       .then(data => {
         if (data && data.profilePicture) {
-          setProfilePic(`${API_BASE}/uploads/${data.profilePicture}`);
+          setProfilePic(data.profilePicture);
         }
         if (data && data.type === 'admin') {
           setIsAdmin(true);
@@ -39,7 +39,7 @@ export default function Sidebar() {
         <Link
           to="/perfil"
           className={['sd-sidebar__icon', 'sd-sidebar__icon--grande', pathname === '/perfil' ? 'is-active' : ''].join(' ').trim()}
-          title="Perfil"
+          data-hint="Perfil"
           aria-label="Perfil"
         >
           {profilePic ? (
@@ -51,7 +51,7 @@ export default function Sidebar() {
         <Link
           to="/criar-aula"
           className={['sd-sidebar__icon', pathname === '/criar-aula' ? 'is-active' : ''].join(' ').trim()}
-          title="Criar aula"
+          data-hint="Criar aula"
           aria-label="Criar aula"
         >
           <img src="/icons/caderno.svg" alt="" />
@@ -59,7 +59,7 @@ export default function Sidebar() {
         <Link
           to="/pesquisar"
           className={['sd-sidebar__icon', pathname === '/pesquisar' ? 'is-active' : ''].join(' ').trim()}
-          title="Pesquisar aula"
+          data-hint="Pesquisar aula"
           aria-label="Pesquisar aula"
         >
           <img src="/icons/lupa.svg" alt="" />
@@ -68,7 +68,7 @@ export default function Sidebar() {
           <Link
             to="/admin"
             className={['sd-sidebar__icon', pathname === '/admin' ? 'is-active' : ''].join(' ').trim()}
-            title="Administração"
+            data-hint="Administração"
             aria-label="Administração"
           >
             <img src="/icons/admin.svg" alt="" />
@@ -81,8 +81,8 @@ export default function Sidebar() {
           type="button"
           className={`sd-sidebar__icon ${theme === 'dark' ? 'is-active' : ''}`}
           onClick={toggleTheme}
-          title={theme === 'dark' ? 'Desativar modo escuro' : 'Ativar modo escuro'}
-          aria-label={theme === 'dark' ? 'Desativar modo escuro' : 'Ativar modo escuro'}
+          data-hint={theme === 'dark' ? 'Modo claro' : 'Modo escuro'}
+          aria-label={theme === 'dark' ? 'Modo claro' : 'Modo escuro'}
           aria-pressed={theme === 'dark'}
         >
           <img src="/icons/lua.svg" alt="" />

@@ -31,3 +31,42 @@
   --sd-text-soft: #a9adc9;
   --sd-card-border: #3b437d;
 }
+
+[data-hint] {
+  position: relative;
+}
+
+[data-hint]::after {
+  content: attr(data-hint);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: var(--sd-navy);
+  color: var(--sd-off-white);
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  padding: 0.4rem 0.7rem;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(13, 18, 70, 0.25);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+  z-index: 200;
+}
+
+[data-hint]:hover::after,
+[data-hint]:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  transition-delay: 0.5s;
+}
+
+[data-theme='dark'] [data-hint]::after {
+  background: var(--sd-amber);
+  color: var(--sd-navy);
+}

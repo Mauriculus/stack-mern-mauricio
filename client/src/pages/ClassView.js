@@ -6,13 +6,26 @@ import StarRatingInput from '../components/StarRatingInput';
 import EstrelaRating from '../components/EstrelaRating';
 import CommentItem from '../components/CommentItem';
 import ClassReportModal from '../components/ClassReportModal';
+import AddToPlaylistModal from '../components/AddToPlaylistModal';
 import { API_BASE, COR_ASSUNTO, COR_RISCO, extrairIdYoutube } from '../utils/classTaxonomia';
 import '../styles/ClassView.css';
 
 const LIMITE_COMENTARIOS = 10;
 const LIMITE_COMENTARIO_TEXTO = 500;
 
+function obterMeuUserId() {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.userId || null;
+  } catch (error) {
+    return null;
+  }
+}
+
 export default function ClassView() {
+  const meuId = obterMeuUserId();
   const { classId } = useParams();
   const navigate = useNavigate();
 
@@ -25,6 +38,7 @@ export default function ClassView() {
   const [mensagemAvaliacao, setMensagemAvaliacao] = useState('');
   const [denunciaAberta, setDenunciaAberta] = useState(false);
   const [avisoLoginAberto, setAvisoLoginAberto] = useState(false);
+  const [modalPlaylistAberto, setModalPlaylistAberto] = useState(false);
 
   const [souAdmin, setSouAdmin] = useState(false);
 
@@ -158,6 +172,15 @@ export default function ClassView() {
     setDenunciaAberta(true);
   };
 
+  const handleAdicionarPlaylist = () => {
+    const headers = authHeaders();
+    if (!headers) {
+      setAvisoLoginAberto(true);
+      return;
+    }
+    setModalPlaylistAberto(true);
+  };
+
   const irParaComentarios = () => {
     document.getElementById('comentarios')?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -222,10 +245,9 @@ export default function ClassView() {
     const headers = authHeaders();
     if (!headers || !aula) return;
     try {
-      const response = await fetch(`${API_BASE}/api/admin/deleteComment`, {
+      const response = await fetch(`${API_BASE}/api/classes/deleteComment/${commentId}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json', ...headers },
-        body: JSON.stringify({ commentId }),
+        headers,
       });
       if (response.ok) {
         buscarComentarios(1, aula.normalizedTitle);
@@ -239,10 +261,9 @@ export default function ClassView() {
     const headers = authHeaders();
     if (!headers || !aula) return;
     try {
-      const response = await fetch(`${API_BASE}/api/admin/deleteResponse`, {
+      const response = await fetch(`${API_BASE}/api/classes/deleteResponse/${responseId}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json', ...headers },
-        body: JSON.stringify({ responseId }),
+        headers,
       });
       if (response.ok) {
         buscarComentarios(1, aula.normalizedTitle);
@@ -251,7 +272,6 @@ export default function ClassView() {
       // idem
     }
   };
-
   return (
     <div className="sd-view">
       <Sidebar />
@@ -273,7 +293,7 @@ export default function ClassView() {
               <div className="sd-view__cover">
                 <span className="sd-view__cover-label">Foto de capa</span>
                 <div className="sd-view__cover-box">
-                  {aula.cover && <img src={`${API_BASE}${aula.cover}`} alt="" />}
+                  {aula.cover && <img src={aula.cover} alt="" />}
                 </div>
               </div>
 
@@ -281,6 +301,17 @@ export default function ClassView() {
                 <EstrelaRating media={aula.ratingAverage} quantidade={aula.ratingCount} tamanho={14} />
 
                 <div className="sd-view__rate-row">
+                  <button
+                    type="button"
+                    className="sd-view__playlist-icon-btn"
+                    onClick={handleAdicionarPlaylist}
+                    aria-label="Adicionar à playlist"
+                    data-hint="Adicionar à playlist"
+                  >
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                      <path d="M4 6h11M4 12h11M4 18h6M17 14v6M14 17h6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                  </button>
                   <span className="sd-view__rate-label">Sua nota:</span>
                   <StarRatingInput valorAtual={minhaAvaliacao} onAvaliar={handleAvaliar} desabilitado={avaliando} />
                 </div>
@@ -308,7 +339,7 @@ export default function ClassView() {
                   aula.medias.map((media, i) =>
                     media.type === 'imagem' ? (
                       <div key={i} className="sd-view-media">
-                        <img src={`${API_BASE}${media.value}`} alt="" />
+                        <img src={media.value} alt="" />
                       </div>
                     ) : (
                       <ClassViewYoutube key={i} url={media.value} indice={i} />
@@ -365,6 +396,7 @@ export default function ClassView() {
                     comentario={c}
                     onEnviarResposta={enviarResposta}
                     souAdmin={souAdmin}
+                    meuId={meuId}
                     onExcluirComentario={excluirComentario}
                     onExcluirResposta={excluirResposta}
                   />
@@ -388,6 +420,10 @@ export default function ClassView() {
 
       {denunciaAberta && (
         <ClassReportModal classId={classId} onClose={() => setDenunciaAberta(false)} />
+      )}
+
+      {modalPlaylistAberto && (
+        <AddToPlaylistModal classId={classId} onClose={() => setModalPlaylistAberto(false)} />
       )}
 
       {avisoLoginAberto && (
