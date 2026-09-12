@@ -3,7 +3,7 @@ const User = require('../models/User');
 const Class = require('../models/Class');
 const Report = require ('../models/Report')
 const { Comment, Response } = require('../models/Comment');
-const { find } = require('../models/Appointment');
+const { contemPalavrao } = require('../services/profanityFilter');
 
 
 const followUser = async (req, res) => {
@@ -161,6 +161,9 @@ const comment = async (req, res) => {
   if (!content) {
     return res.status(400).json({ mensagem: 'Conteúdo do comentário é obrigatório' });
   }
+  if (contemPalavrao(content)) {
+    return res.status(400).json({ mensagem: 'Seu comentário contém linguagem imprópria. Revise o texto antes de enviar.' });
+  }
 
   try {
     const user = await User.findById(userId)
@@ -219,6 +222,9 @@ const respondComment = async (req, res) => {
   }
   if (!content) {
     return res.status(400).json({ mensagem: 'Conteúdo da resposta é obrigatório' });
+  }
+  if (contemPalavrao(content)) {
+    return res.status(400).json({ mensagem: 'Sua resposta contém linguagem imprópria. Revise o texto antes de enviar.' });
   }
 
   try {

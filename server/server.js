@@ -13,7 +13,7 @@ const adminRoutes = require('./routes/adminRoutes')
 const { PORT } = require('./config');
 const dns = require('dns');
 
-
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 connectDB();
 
 function sanitizarContraInjecao(obj) {
