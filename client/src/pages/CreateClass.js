@@ -145,7 +145,7 @@ export default function CreateClass() {
               />
             </div>
 
-            <button type="submit" className="sd-create__publish" disabled={enviando}>
+            <button type="submit" className="sd-create__publish sd-create__publish--top" disabled={enviando}>
               {enviando ? 'Publicando…' : 'Publicar aula'}
             </button>
           </div>
@@ -227,6 +227,9 @@ export default function CreateClass() {
               </div>
             </div>
           </div>
+          <button type="submit" className="sd-create__publish sd-create__publish--mobile" disabled={enviando}>
+            {enviando ? 'Publicando…' : 'Publicar aula'}
+          </button>
         </form>
       </main>
     </div>

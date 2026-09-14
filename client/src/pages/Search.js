@@ -273,7 +273,7 @@ export default function Search() {
 
         {!emBusca && destaque.length > 0 && (
           <section className="sd-search__section">
-            <h2 className="sd-search__section-title">Em destaque</h2>
+            <h2 className="sd-search__section-title">Aulas em destaque</h2>
             <div className="sd-search__grid">
               {destaque.map((aula) => (
                 <ClassCard key={aula._id || aula.normalizedTitle} aula={aula} onAbrir={setAulaSelecionada} />

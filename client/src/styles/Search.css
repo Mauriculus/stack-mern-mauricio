@@ -16,6 +16,7 @@
 /* ---------- barra de busca ---------- */
 
 .sd-search__topbar {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -159,11 +160,17 @@
 
 /* em telas estreitas não cabe um flyout pra direita — vira um dropdown
    normal, alinhado à direita do próprio botão */
-@media (max-width: 900px) {
+@media (max-width: 1400px) {
+  .sd-search__filter-wrap {
+    position: static;
+  }
+
   .sd-search__filters {
-    left: auto;
+    left: 0;
     right: 0;
     top: calc(100% + 0.5rem);
+    width: auto;
+    max-width: none;
   }
 }
 

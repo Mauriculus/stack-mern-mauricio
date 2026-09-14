@@ -223,7 +223,7 @@ const getMyProfile = async (req, res) => {
   }
 
   try {
-    const user = await User.findById(userId).select('username email profilePicture followers following type hideEmail');
+    const user = await User.findById(userId).select('username email profilePicture followers following type hideEmail banned');
 
     if (!user) {
       return res.status(404).json({ mensagem: 'Usuário não encontrado' });
@@ -232,12 +232,13 @@ const getMyProfile = async (req, res) => {
     return res.status(200).json({
       _id: user._id,
       username: user.username,
-      email: user.email,
       profilePicture: user.profilePicture,
       followers: user.followers,
       following: user.following,
       type: user.type,
       hideEmail: user.hideEmail,
+      email: user.hideEmail ? undefined : user.email,
+      banned: user.banned,
     });
   } catch (error) {
     console.error('Erro ao buscar perfil:', error);
@@ -255,7 +256,7 @@ const getUserProfile = async (req, res) => {
   }
 
   try {
-    const user = await User.findById(userId).select('username profilePicture followers following hideEmail email');
+    const user = await User.findById(userId).select('username profilePicture followers following hideEmail email banned');
 
     if (!user) {
       return res.status(404).json({ mensagem: 'Usuário não encontrado' });
@@ -267,6 +268,7 @@ const getUserProfile = async (req, res) => {
       profilePicture: user.profilePicture,
       followers: user.followers,
       following: user.following,
+      banned: user.banned,
       email: user.hideEmail ? undefined : user.email,
     });
   } catch (error) {

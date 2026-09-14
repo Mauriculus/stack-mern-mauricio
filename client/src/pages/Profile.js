@@ -191,6 +191,7 @@ export default function Profile() {
       if (response.ok) {
         await buscarPerfil();
         setConfirmandoBan(false);
+        console.log(perfil.banned)
       }
     } catch (error) {
     } finally {
