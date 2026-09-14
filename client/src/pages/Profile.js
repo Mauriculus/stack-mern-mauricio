@@ -198,6 +198,24 @@ export default function Profile() {
     }
   };
 
+  const desbanirUsuario = async () => {
+    setBanindo(true);
+    try {
+      const response = await fetch(`${API_BASE}/api/admin/unbanUser`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ unbannedUserId: perfil._id }),
+      });
+      if (response.ok) {
+        await buscarPerfil();
+        setConfirmandoBan(false);
+      }
+    } catch (error) {
+    } finally {
+      setBanindo(false);
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return;
@@ -486,8 +504,12 @@ export default function Profile() {
                       {souAdmin && (
                         confirmandoBan ? (
                           <span className="sd-profile__ban-confirm">
-                            Banir este usuário?
-                            <button type="button" onClick={banirUsuario} disabled={banindo}>
+                            {perfil.banned ? 'Desbanir este usuário?' : 'Banir este usuário?'}
+                            <button
+                              type="button"
+                              onClick={perfil.banned ? desbanirUsuario : banirUsuario}
+                              disabled={banindo}
+                            >
                               {banindo ? '...' : 'Sim'}
                             </button>
                             <button type="button" onClick={() => setConfirmandoBan(false)} disabled={banindo}>
@@ -497,15 +519,22 @@ export default function Profile() {
                         ) : (
                           <button
                             type="button"
-                            className="sd-profile__btn-ban"
+                            className={`sd-profile__btn-ban ${perfil.banned ? 'is-banned' : ''}`}
                             onClick={() => setConfirmandoBan(true)}
-                            aria-label="Banir usuário"
-                            data-hint="Banir usuário"
+                            aria-label={perfil.banned ? 'Desbanir usuário' : 'Banir usuário'}
+                            data-hint={perfil.banned ? 'Desbanir usuário' : 'Banir usuário'}
                           >
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                              <circle cx="12" cy="12" r="10" />
-                              <path d="M4.9 4.9l14.2 14.2" />
-                            </svg>
+                            {perfil.banned ? (
+                              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M8 12l2.5 2.5L16 9" />
+                              </svg>
+                            ) : (
+                              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M4.9 4.9l14.2 14.2" />
+                              </svg>
+                            )}
                           </button>
                         )
                       )}

@@ -2,6 +2,7 @@ const Playlist = require('../models/Playlist');
 const { deleteCloudinaryImage } = require('../services/cloudinaryHelpers');
 const Class = require('../models/Class');
 const User = require('../models/User');
+const { contemPalavrao } = require('../services/profanityFilter');
 
 const normalizeName = (value) =>
     value
@@ -24,6 +25,10 @@ const createPlaylist = async (req, res) => {
     }
     if (!coverFile) {
         return res.status(400).json({ mensagem: "A imagem de capa é obrigatória" })
+    }
+
+    if (contemPalavrao(description)) {
+        return res.status(400).json({ mensagem: "A descrição contém linguagem imprópria. Revise o texto antes de publicar." })
     }
 
     const classIdsArray = Array.isArray(classIds) ? classIds : (classIds ? [classIds] : []);
@@ -261,6 +266,9 @@ const editPlaylist = async (req, res) => {
         }
 
         if (description && description.trim()) {
+            if (contemPalavrao(description)) {
+                return res.status(400).json({ mensagem: "A descrição contém linguagem imprópria. Revise o texto antes de salvar." })
+            }
             playlist.description = description.trim();
         }
 

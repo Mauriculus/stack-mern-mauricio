@@ -682,6 +682,16 @@
   background: rgba(179, 38, 30, 0.15);
 }
 
+.sd-profile__btn-ban.is-banned {
+  border-color: rgba(46, 125, 50, 0.4);
+  background: rgba(46, 125, 50, 0.08);
+  color: #2e7d32;
+}
+
+.sd-profile__btn-ban.is-banned:hover {
+  background: rgba(46, 125, 50, 0.15);
+}
+
 .sd-profile__ban-confirm {
   display: flex;
   align-items: center;

@@ -2,6 +2,7 @@ const { urlencoded } = require('express');
 const Class = require('../models/Class');
 const User = require("../models/User");
 const { default: mongoose } = require('mongoose');
+const { contemPalavrao } = require('../services/profanityFilter');
 
 
 const availableSubjects = [
@@ -70,6 +71,10 @@ const createClass = async (req, res) => {
 
         if (danger.length > 1500){
             return res.status(400).json({mensagem: "O alerta de risco deve ter no máximo 800 caracteres"})
+        }
+
+        if (contemPalavrao(content) || contemPalavrao(danger)) {
+            return res.status(400).json({ mensagem: "O conteúdo ou o alerta de risco contém linguagem imprópria. Revise o texto antes de publicar." })
         }
 
         const medias = [];
@@ -425,6 +430,10 @@ const editClass = async (req, res) => {
 
         if (newDanger && newDanger.length > 1500) {
             return res.status(400).json({ mensagem: "O alerta de risco deve ter no máximo 800 caracteres"})
+        }
+
+        if ((newContent && contemPalavrao(newContent)) || (newDanger && contemPalavrao(newDanger))) {
+            return res.status(400).json({ mensagem: "O conteúdo ou o alerta de risco contém linguagem imprópria. Revise o texto antes de salvar." })
         }
 
         if (newContent) targetClass.content = newContent;
