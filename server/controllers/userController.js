@@ -223,7 +223,7 @@ const getMyProfile = async (req, res) => {
   }
 
   try {
-    const user = await User.findById(userId).select('username email profilePicture followers following type hideEmail');
+    const user = await User.findById(userId).select('username email profilePicture followers following type hideEmail banned');
 
     if (!user) {
       return res.status(404).json({ mensagem: 'Usuário não encontrado' });
@@ -256,7 +256,7 @@ const getUserProfile = async (req, res) => {
   }
 
   try {
-    const user = await User.findById(userId).select('username profilePicture followers following hideEmail email');
+    const user = await User.findById(userId).select('username profilePicture followers following hideEmail email banned');
 
     if (!user) {
       return res.status(404).json({ mensagem: 'Usuário não encontrado' });
