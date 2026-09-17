@@ -160,7 +160,7 @@
 
 /* em telas estreitas não cabe um flyout pra direita — vira um dropdown
    normal, alinhado à direita do próprio botão */
-@media (max-width: 900px) {
+@media (max-width: 1400px) {
   .sd-search__filter-wrap {
     position: static;
   }

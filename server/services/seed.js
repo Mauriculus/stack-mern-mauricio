@@ -490,7 +490,7 @@ const PLAYLISTS = [
     description: 'Tudo que você precisa saber pra lidar com os problemas elétricos mais comuns de casa.',
     private: false,
     aulas: ['chuveiro', 'tomada-queimada', 'disjuntor'],
-    cover: 'https://picsum.photos/seed/sd-playlist-eletrica/800/450',
+    cover: 'https://dutotec.com.br/blog/wp-content/uploads/2021/02/manutencao-eletrica.jpg',
   },
   {
     owner: 'ricardo',
@@ -498,7 +498,7 @@ const PLAYLISTS = [
     description: 'Receitas simples pra quem tá começando a cozinhar sozinho.',
     private: false,
     aulas: ['arroz', 'frango-assado', 'feijao-pressao'],
-    cover: 'https://picsum.photos/seed/sd-playlist-cozinha/800/450',
+    cover: 'https://ms.senac.br/Portals/0/Cursos/33168/Anexo_33168_133601858618739087.webp',
   },
   {
     owner: 'juliana',
@@ -506,7 +506,7 @@ const PLAYLISTS = [
     description: 'Rotina de limpeza pra manter a casa em ordem sem complicação.',
     private: false,
     aulas: ['rejunte', 'mofo-box', 'geladeira-organizada', 'desentupir-ralo'],
-    cover: 'https://picsum.photos/seed/sd-playlist-limpeza/800/450',
+    cover: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRs-i2-eDuhghqbwCGs-Rrmkty5d1VdeA-5Apl2hI9bNny3jwRsSS0MH5kL&s=10',
   },
   {
     owner: 'marina',
