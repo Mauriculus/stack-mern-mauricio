@@ -68,7 +68,7 @@ export default function ClassReportModal({ classId, onClose }) {
               </svg>
             </div>
             <h2 className="sd-report-modal__title">Denúncia enviada</h2>
-            <p className="sd-report-modal__subtitle">Obrigado por avisar — nossa equipe vai analisar.</p>
+            <p className="sd-report-modal__subtitle">Obrigado por avisar, nossa equipe irá analisar.</p>
             <button type="button" className="sd-report-modal__submit" onClick={onClose}>
               Fechar
             </button>
