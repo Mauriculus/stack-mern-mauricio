@@ -237,7 +237,6 @@ const getMyProfile = async (req, res) => {
       following: user.following,
       type: user.type,
       hideEmail: user.hideEmail,
-      email: user.hideEmail ? undefined : user.email,
       banned: user.banned,
     });
   } catch (error) {
@@ -270,6 +269,7 @@ const getUserProfile = async (req, res) => {
       following: user.following,
       banned: user.banned,
       email: user.hideEmail ? undefined : user.email,
+      banned: user.banned,
     });
   } catch (error) {
     console.error('Erro ao buscar perfil público:', error);
