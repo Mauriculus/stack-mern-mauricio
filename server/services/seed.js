@@ -466,17 +466,20 @@ const DENUNCIAS = [
     by: 'juliana',
     reason: 'Conteúdo incorreto ou perigoso',
     text: 'As cores dos fios podem variar dependendo da instalação elétrica da casa, acho que devia ter um aviso mais forte sobre isso antes de generalizar.',
+    type: "Aula",
   },
   {
     aula: 'descongelar-geladeira',
     by: 'marina',
     reason: 'Informações desatualizadas',
+    type: "Aula",
   },
   {
     aula: 'feijao-pressao',
     by: 'ricardo',
     reason: 'Outro',
     text: 'Achei o tempo de cozimento meio curto pro tipo de feijão que uso aqui em casa.',
+    type: "Aula",
   },
 ];
 
@@ -674,6 +677,7 @@ async function criarDenuncias(usuarios, aulas) {
       class: aula._id,
       reason: dados.reason,
       text: dados.text,
+      type: dados.type
     });
     await denuncia.save();
 

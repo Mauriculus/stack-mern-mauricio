@@ -4,7 +4,19 @@ import '../styles/ClassReportModal.css';
 
 const LIMITE_TEXTO = 500;
 
-export default function ClassReportModal({ classId, onClose }) {
+const TITULOS = {
+  aula: 'Denunciar aula',
+  comentario: 'Denunciar comentário',
+  resposta: 'Denunciar resposta',
+};
+
+const ENDPOINTS = {
+  aula: (id) => `report/${id}`,
+  comentario: (id) => `reportComment/${id}`,
+  resposta: (id) => `reportResponse/${id}`,
+};
+
+export default function ClassReportModal({ itemId, tipo = 'aula', onClose }) {
   const [razao, setRazao] = useState('');
   const [texto, setTexto] = useState('');
   const [enviando, setEnviando] = useState(false);
@@ -22,7 +34,7 @@ export default function ClassReportModal({ classId, onClose }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/api/classes/report/${classId}`, {
+      const response = await fetch(`${API_BASE}/api/classes/${ENDPOINTS[tipo](itemId)}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -75,7 +87,7 @@ export default function ClassReportModal({ classId, onClose }) {
           </div>
         ) : (
           <>
-            <h2 className="sd-report-modal__title">Denunciar aula</h2>
+            <h2 className="sd-report-modal__title">{TITULOS[tipo]}</h2>
             <p className="sd-report-modal__subtitle">Escolha o motivo que melhor descreve o problema.</p>
 
             {erro && (
