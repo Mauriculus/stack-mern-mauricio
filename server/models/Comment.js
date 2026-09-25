@@ -11,6 +11,9 @@ const commentSchema = new mongoose.Schema({
 
     content: { type: String, required: true },
 
+    reports: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Report'}],
+    reportCount: { type: Number, required: true, default: 0},
+
     responses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Response' }]
 
 }, {timestamps: true});
@@ -26,7 +29,10 @@ const responseSchema = new mongoose.Schema({
 
     class: { type: mongoose.Schema.Types.ObjectId, ref: 'Class', required: true },
 
-    content: { type: String, required: true }
+    content: { type: String, required: true },
+
+    reports: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Report'}],
+    reportCount: { type: Number, required: true, default: 0},
 
 }, {timestamps: true});
 

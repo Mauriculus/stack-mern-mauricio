@@ -8,6 +8,7 @@ import CommentItem from '../components/CommentItem';
 import ClassReportModal from '../components/ClassReportModal';
 import AddToPlaylistModal from '../components/AddToPlaylistModal';
 import { API_BASE, COR_ASSUNTO, COR_RISCO, extrairIdYoutube } from '../utils/classTaxonomia';
+import SafetyWarningModal from '../components/SafetyWarningModal';
 import '../styles/ClassView.css';
 
 const LIMITE_COMENTARIOS = 10;
@@ -37,6 +38,7 @@ export default function ClassView() {
   const [avaliando, setAvaliando] = useState(false);
   const [mensagemAvaliacao, setMensagemAvaliacao] = useState('');
   const [denunciaAberta, setDenunciaAberta] = useState(false);
+  const [denunciaItemAberta, setDenunciaItemAberta] = useState(null);
   const [avisoLoginAberto, setAvisoLoginAberto] = useState(false);
   const [modalPlaylistAberto, setModalPlaylistAberto] = useState(false);
 
@@ -51,6 +53,8 @@ export default function ClassView() {
 
   const [novoComentario, setNovoComentario] = useState('');
   const [enviandoComentario, setEnviandoComentario] = useState(false);
+
+  const [avisoSegurancaAberto, setAvisoSegurancaAberto] = useState(true);
 
   const authHeaders = () => {
     const token = localStorage.getItem('token');
@@ -170,6 +174,24 @@ export default function ClassView() {
       return;
     }
     setDenunciaAberta(true);
+  };
+
+  const handleDenunciarComentario = (commentId) => {
+    const headers = authHeaders();
+    if (!headers) {
+      setAvisoLoginAberto(true);
+      return;
+    }
+    setDenunciaItemAberta({ tipo: 'comentario', id: commentId });
+  };
+
+  const handleDenunciarResposta = (responseId) => {
+    const headers = authHeaders();
+    if (!headers) {
+      setAvisoLoginAberto(true);
+      return;
+    }
+    setDenunciaItemAberta({ tipo: 'resposta', id: responseId });
   };
 
   const handleAdicionarPlaylist = () => {
@@ -399,6 +421,8 @@ export default function ClassView() {
                     meuId={meuId}
                     onExcluirComentario={excluirComentario}
                     onExcluirResposta={excluirResposta}
+                    onDenunciarComentario={handleDenunciarComentario}
+                    onDenunciarResposta={handleDenunciarResposta}
                   />
                 ))
               )}
@@ -419,11 +443,23 @@ export default function ClassView() {
       </main>
 
       {denunciaAberta && (
-        <ClassReportModal classId={classId} onClose={() => setDenunciaAberta(false)} />
+        <ClassReportModal itemId={classId} tipo="aula" onClose={() => setDenunciaAberta(false)} />
+      )}
+
+      {denunciaItemAberta && (
+        <ClassReportModal
+          itemId={denunciaItemAberta.id}
+          tipo={denunciaItemAberta.tipo}
+          onClose={() => setDenunciaItemAberta(null)}
+        />
       )}
 
       {modalPlaylistAberto && (
         <AddToPlaylistModal classId={classId} onClose={() => setModalPlaylistAberto(false)} />
+      )}
+
+      {avisoSegurancaAberto && (
+        <SafetyWarningModal onClose={() => setAvisoSegurancaAberto(false)} />
       )}
 
       {avisoLoginAberto && (

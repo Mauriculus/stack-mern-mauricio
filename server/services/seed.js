@@ -71,7 +71,7 @@ const AULAS = [
     content:
       'Antes de tudo, desligue o disjuntor específico do chuveiro (não só o botão do próprio chuveiro) e confirme com um teste de contato que não há energia chegando. Abra a tampa do chuveiro removendo os parafusos visíveis, geralmente dois ou quatro pontos. Localize a resistência (fica na parte de trás, presa por dois bornes com parafusos) e anote a posição dos fios antes de soltar, tirando foto se puder. Solte os dois parafusos dos bornes, remova a resistência antiga e compare com a nova para garantir que é o mesmo modelo e voltagem (127V ou 220V, isso não pode ser trocado por engano). Encaixe a resistência nova, aperte bem os bornes e feche a tampa. Só ligue o disjuntor de novo depois de tudo fechado e teste em uma potência baixa primeiro.',
     danger:
-      'Risco alto de choque elétrico e queimaduras. Nunca troque a resistência com o disjuntor ligado, mesmo que o chuveiro esteja "desligado" no botão. Confirme sempre a voltagem correta antes de comprar a peça — usar a resistência errada pode danificar a instalação ou causar um curto.',
+      'Risco alto de choque elétrico e queimaduras. Nunca troque a resistência com o disjuntor ligado, mesmo que o chuveiro esteja "desligado" no botão. Confirme sempre a voltagem correta antes de comprar a peça, usar a resistência errada pode danificar a instalação ou causar um curto.',
     cover: 'https://www.ecompletocdn.com.br/i/fp/1517/1134092_2_1591631056.jpg',
     medias: [
       { type: 'imagem', value: 'https://s2-casaejardim.glbimg.com/okIYOGfTy8HRqD0yB4ivj2R8Cjg=/0x0:1400x1000/924x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_a0b7e59562ef42049f4e191fe476fe7d/internal_photos/bs/2023/x/B/wwPo0GT8GzQNLPBpUZpQ/tudo-sobre-resistencia-eletrica-do-chuveiro-casaejardim.jpg' },
@@ -86,7 +86,7 @@ const AULAS = [
     subject: 'Elétrica',
     dangerLevel: 'Médio Risco',
     content:
-      'Sinais de uma tomada queimada: marcas pretas ao redor do encaixe, cheiro de queimado ou pino que não encaixa mais firme. Desligue o disjuntor do cômodo antes de tocar em qualquer fio. Remova a placa da tomada com uma chave de fenda e puxe o corpo da tomada para fora da caixa de embutir. Solte os três fios (fase, neutro e terra), anotando qual cor estava em qual parafuso — geralmente vermelho ou preto para fase, azul para neutro e verde/amarelo para terra. Conecte os mesmos fios na tomada nova, respeitando essa posição, aperte bem os parafusos e empurre o corpo de volta para dentro da caixa. Recoloque a placa e só então religue o disjuntor.',
+      'Sinais de uma tomada queimada: marcas pretas ao redor do encaixe, cheiro de queimado ou pino que não encaixa mais firme. Desligue o disjuntor do cômodo antes de tocar em qualquer fio. Remova a placa da tomada com uma chave de fenda e puxe o corpo da tomada para fora da caixa de embutir. Solte os três fios (fase, neutro e terra), anotando qual cor estava em qual parafuso, geralmente vermelho ou preto para fase, azul para neutro e verde/amarelo para terra. Conecte os mesmos fios na tomada nova, respeitando essa posição, aperte bem os parafusos e empurre o corpo de volta para dentro da caixa. Recoloque a placa e só então religue o disjuntor.',
     danger:
       'Nunca mexa em uma tomada sem desligar o disjuntor primeiro, mesmo que ela pareça sem uso. Se os fios estiverem muito ressecados, quebradiços ou se a caixa de embutir estiver derretida, chame um eletricista em vez de tentar consertar sozinho.',
     cover: 'https://eletricistafloripa.com.br/images/tomada-queimada-florianopolis-destaque.webp',
@@ -103,9 +103,9 @@ const AULAS = [
     subject: 'Elétrica',
     dangerLevel: 'Médio Risco',
     content:
-      'Quando um disjuntor desarma sozinho repetidamente, geralmente é sinal de sobrecarga (muitos aparelhos ligados no mesmo circuito) ou de um curto-circuito. Primeiro, desligue todos os aparelhos que estavam ligados naquele circuito antes de tentar religar. Vá até o quadro de disjuntores e observe qual disjuntor está na posição intermediária ou para baixo — empurre-o totalmente para baixo primeiro e depois para cima para religar. Se ele desarmar de novo assim que você ligar um aparelho específico, esse é provavelmente o problema. Se desarmar mesmo sem nada ligado, o problema pode estar na fiação.',
+      'Quando um disjuntor desarma sozinho repetidamente, geralmente é sinal de sobrecarga (muitos aparelhos ligados no mesmo circuito) ou de um curto-circuito. Primeiro, desligue todos os aparelhos que estavam ligados naquele circuito antes de tentar religar. Vá até o quadro de disjuntores e observe qual disjuntor está na posição intermediária ou para baixo, empurre-o totalmente para baixo primeiro e depois para cima para religar. Se ele desarmar de novo assim que você ligar um aparelho específico, esse é provavelmente o problema. Se desarmar mesmo sem nada ligado, o problema pode estar na fiação.',
     danger:
-      'Se o disjuntor desarmar imediatamente ao religar, sem nenhum aparelho ligado, não insista tentando religar várias vezes — isso pode indicar um curto-circuito na fiação e requer um eletricista. Nunca troque um disjuntor por um de amperagem maior só para "parar de desarmar".',
+      'Se o disjuntor desarmar imediatamente ao religar, sem nenhum aparelho ligado, não insista tentando religar várias vezes, isso pode indicar um curto-circuito na fiação e requer um eletricista. Nunca troque um disjuntor por um de amperagem maior só para "parar de desarmar".',
     cover: 'https://blog.leveros.com.br/wp-content/uploads/2023/12/mulher-desligando-o-interruptor-de-luz-scaled.webp',
     medias: [
       { type: 'imagem', value: 'https://cdn.awsli.com.br/2541/2541980/produto/264292691/disjuntor-bipolar-tdj3ka-63a-curva-c-tramontina-bf34122f-b52j7alp65.jpg' },
@@ -124,7 +124,7 @@ const AULAS = [
     content:
       'Antes de começar, feche o registro de água daquele ponto (geralmente embaixo da pia) para não precisar fechar o registro geral da casa. Abra a torneira para escoar a água que restou na tubulação. Remova o capuz decorativo do registro da torneira com uma chave de fenda pequena, solte o parafuso e retire o manípulo. Use uma chave inglesa para soltar a porca interna e retire o conjunto do vedante (courinho ou vedação de borracha). Leve a peça velha até uma loja de materiais de construção para comprar uma igual, encaixe a nova, remonte tudo na ordem inversa e abra o registro devagar para testar.',
     danger:
-      'Risco baixo, mas tenha um pano ou balde por perto — sempre sobra um pouco de água na tubulação mesmo com o registro fechado. Não aperte demais a porca ao remontar, isso pode rachar peças plásticas do registro.',
+      'Risco baixo, mas tenha um pano ou balde por perto, sempre sobra um pouco de água na tubulação mesmo com o registro fechado. Não aperte demais a porca ao remontar, isso pode rachar peças plásticas do registro.',
     cover: 'https://www.encanador.srv.br/wp-content/uploads/2019/08/torneira-pingando-como-resolver.jpg',
     medias: [
       { type: 'imagem', value: 'https://images.tcdn.com.br/img/img_prod/920732/vedante_de_borracha_para_torneira_liege_1_2_20321_1_f4f88b5220518748169e9c0a111235ad_20240514144116.jpeg' },
@@ -139,9 +139,9 @@ const AULAS = [
     subject: 'Hidráulica',
     dangerLevel: 'Médio Risco',
     content:
-      'Entupimentos de ralo de banheiro costumam ser causados por acúmulo de cabelo e sabão. Primeiro, remova a grelha do ralo e tire manualmente o que estiver visível, usando uma luva. Depois, jogue meia xícara de bicarbonato de sódio seguido de meia xícara de vinagre branco, direto no ralo, e tampe com um pano por cerca de 15 minutos — a reação ajuda a soltar a gordura e o sabão grudados na parede do cano. Em seguida, jogue um litro de água quente (não fervente) para arrastar o que soltou. Se ainda estiver lento, repita o processo uma segunda vez antes de considerar chamar um profissional.',
+      'Entupimentos de ralo de banheiro costumam ser causados por acúmulo de cabelo e sabão. Primeiro, remova a grelha do ralo e tire manualmente o que estiver visível, usando uma luva. Depois, jogue meia xícara de bicarbonato de sódio seguido de meia xícara de vinagre branco, direto no ralo, e tampe com um pano por cerca de 15 minutos, a reação ajuda a soltar a gordura e o sabão grudados na parede do cano. Em seguida, jogue um litro de água quente (não fervente) para arrastar o que soltou. Se ainda estiver lento, repita o processo uma segunda vez antes de considerar chamar um profissional.',
     danger:
-      'Nunca misture vinagre com produtos desentupidores químicos comprados prontos — a combinação pode gerar gases tóxicos. Use luvas ao remover cabelo e sujeira manualmente da grelha.',
+      'Nunca misture vinagre com produtos desentupidores químicos comprados prontos, a combinação pode gerar gases tóxicos. Use luvas ao remover cabelo e sujeira manualmente da grelha.',
     cover: 'https://triider-prd-blog-files.s3.sa-east-1.amazonaws.com/wp-content/uploads/2018/06/21195932/208651-conheca-4-maneiras-de-desentupir-ralo.jpg',
     medias: [
       { type: 'imagem', value: "https://www.ype.ind.br/assets-NS/vinagre_e_bicarbonato_de_sodio-scaled.jpg" },
@@ -158,7 +158,7 @@ const AULAS = [
     content:
       'O registro de gaveta é aquele que fica embutido na parede e controla a água que vai para o chuveiro. Antes de trocar, feche o registro geral de água da casa, já que normalmente não há um registro individual antes dele. Remova o acabamento (a "canopla") girando ou soltando o parafuso lateral, dependendo do modelo. Com uma chave de grifo, solte a rosca do registro antigo, tomando cuidado para não forçar demais o cano embutido na parede. Vede as roscas do registro novo com fita veda-rosca antes de instalar, rosqueie no lugar do antigo e recoloque o acabamento.',
     danger:
-      'Trabalhar com o registro geral fechado ainda deixa uma quantidade de água na tubulação — tenha panos por perto. Se o cano estiver muito antigo ou enferrujado dentro da parede, force o mínimo possível e considere chamar um encanador para evitar quebrar a tubulação embutida.',
+      'Trabalhar com o registro geral fechado ainda deixa uma quantidade de água na tubulação, tenha panos por perto. Se o cano estiver muito antigo ou enferrujado dentro da parede, force o mínimo possível e considere chamar um encanador para evitar quebrar a tubulação embutida.',
     cover: 'https://www.hidraulicapotenza.com.br/wp-content/uploads/2023/03/P1_1170500.png',
     medias: [
       { type: 'imagem', value: "https://i.ytimg.com/vi/sCcWJRiPOa0/maxresdefault.jpg" },
@@ -175,7 +175,7 @@ const AULAS = [
     subject: 'Eletrodomésticos',
     dangerLevel: 'Baixo Risco',
     content:
-      'Desligue a máquina da tomada antes de qualquer manutenção. Localize o filtro — na maioria dos modelos ele fica na parte de baixo, atrás de uma tampinha, ou dentro do agitador central em máquinas mais antigas. Retire o filtro girando levemente ou puxando (verifique o manual do modelo se tiver dúvida) e lave com água corrente, removendo fiapos e pelos acumulados com uma escova pequena. Aproveite para limpar o compartimento de sabão e amaciante com uma esponja, já que ali também acumula resíduo. Encaixe o filtro de volta com firmeza antes de usar a máquina novamente.',
+      'Desligue a máquina da tomada antes de qualquer manutenção. Localize o filtro, na maioria dos modelos ele fica na parte de baixo, atrás de uma tampinha, ou dentro do agitador central em máquinas mais antigas. Retire o filtro girando levemente ou puxando (verifique o manual do modelo se tiver dúvida) e lave com água corrente, removendo fiapos e pelos acumulados com uma escova pequena. Aproveite para limpar o compartimento de sabão e amaciante com uma esponja, já que ali também acumula resíduo. Encaixe o filtro de volta com firmeza antes de usar a máquina novamente.',
     danger:
       'Risco baixo, mas sempre desligue da tomada antes de tocar em qualquer parte interna. Nunca use a máquina sem o filtro no lugar, mesmo que pareça funcionar normalmente sem ele.',
     cover: 'https://compracerta.vtexassets.com/arquivos/ids/419180-800-800?v=637357110060300000&width=800&height=800&aspect=true',
@@ -194,7 +194,7 @@ const AULAS = [
     content:
       'Antes de começar, retire todos os alimentos e guarde em uma caixa de isopor ou cooler. Desligue a geladeira da tomada e deixe a porta aberta para o gelo derreter naturalmente — isso pode levar de 3 a 6 horas dependendo da quantidade de gelo acumulado. Coloque toalhas no chão ao redor para absorver a água. Nunca acelere o processo com faca ou objetos pontiagudos tentando quebrar o gelo, isso pode furar a serpentina interna e estragar o aparelho de vez. Se quiser acelerar, uma bacia com água quente (não fervente) dentro do freezer ajuda a soltar o gelo mais rápido.',
     danger:
-      'Nunca use faca, chave de fenda ou qualquer objeto pontiagudo para tentar quebrar ou raspar o gelo do freezer — é a causa mais comum de furos na serpentina, que exigem conserto caro ou troca do aparelho.',
+      'Nunca use faca, chave de fenda ou qualquer objeto pontiagudo para tentar quebrar ou raspar o gelo do freezer, é a causa mais comum de furos na serpentina, que exigem conserto caro ou troca do aparelho.',
     cover: 'https://static.vecteezy.com/ti/fotos-gratis/p2/7675482-muito-gelo-no-congelador-da-antiga-geladeira-gratis-foto.jpg',
     medias: [
       { type: 'imagem', value: "https://images.ctfassets.net/qfxflpv0atz9/6g7IdqGyQLzQzL8IkCB5Oh/459a42e776a8f7fecbc3e312116d93e3/como-descongelar-freezer-post4.webp?fm=webp&q=90" },
@@ -243,7 +243,7 @@ const AULAS = [
     content:
       'Mofo no silicone do box costuma aparecer pela umidade constante sem ventilação adequada. Prepare uma solução com água sanitária diluída em água (uma parte de água sanitária para três partes de água) e aplique com um pano ou escova de cerdas macias direto nas manchas escuras do silicone. Deixe agir por cerca de 10 minutos sem deixar secar completamente e enxágue bem com água. Depois de seco, para evitar que volte, deixe o box entreaberto por um tempo após o banho para o ambiente ventilar e secar mais rápido.',
     danger:
-      'Nunca misture água sanitária com nenhum outro produto de limpeza, principalmente os que contêm amônia ou vinagre — a mistura libera gás cloro, que é tóxico. Use luvas e mantenha a janela ou porta do banheiro aberta durante a aplicação.',
+      'Nunca misture água sanitária com nenhum outro produto de limpeza, principalmente os que contêm amônia ou vinagre, a mistura libera gás cloro, que é tóxico. Use luvas e mantenha a janela ou porta do banheiro aberta durante a aplicação.',
     cover: 'https://media-cdn.tripadvisor.com/media/photo-s/04/b6/92/2e/hotel-jatiuca.jpg',
     medias: [{ type: 'youtube', value: 'https://www.youtube.com/watch?v=L6133A3h9eA' }],
     ratings: [{ by: 'marina', rate: 3 }],
@@ -306,7 +306,7 @@ const AULAS = [
     content:
       'Deixe o feijão de molho em água por pelo menos 4 horas (ou durante a noite) para reduzir o tempo de cozimento e facilitar a digestão. Escorra essa água antes de cozinhar. Na panela de pressão, refogue alho e cebola em um fio de óleo, adicione o feijão escorrido e água nova cobrindo cerca de três dedos acima do feijão. Tampe a panela, espere pegar pressão em fogo alto e depois abaixe para fogo médio, cozinhando por cerca de 20 a 25 minutos a partir do início do chiado. Só abra a panela depois que toda a pressão for liberada naturalmente.',
     danger:
-      'Nunca tente abrir a panela de pressão à força ou coloque debaixo de água corrente para acelerar o resfriamento sem antes ter certeza de que a válvula de segurança já liberou toda a pressão — isso pode causar um estouro e queimaduras graves.',
+      'Nunca tente abrir a panela de pressão à força ou coloque debaixo de água corrente para acelerar o resfriamento sem antes ter certeza de que a válvula de segurança já liberou toda a pressão, isso pode causar um estouro e queimaduras graves.',
     cover: 'https://receitanatureba.com/wp-content/uploads/2025/07/como-cozinhar-feijao-na-pressao.jpg',
     medias: [
       { type: 'imagem', value: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRu1wBL6ODzAJAe0E5Tst63uNLeOdLog_B1fjt9XGxJNQ&s" },
@@ -341,7 +341,7 @@ const AULAS = [
     content:
       'Vista a calça com o calçado que normalmente usa com ela para marcar a altura correta, dobrando a barra para dentro na medida desejada e prendendo com alfinetes. Retire a calça e passe a ferro a dobra para marcar bem o vinco. Usando uma linha da cor da calça, faça um ponto invisível (ponto de bainha), pegando só um fiozinho do tecido externo a cada passada e depois um pedaço maior na dobra interna, para que a costura não apareça do lado de fora. Vá contornando toda a barra até fechar o círculo completo, terminando com um nó firme por dentro da dobra.',
     danger:
-      'Risco baixo. Tome cuidado ao marcar e cortar excesso de tecido, se precisar, para não cortar mais do que o planejado — é mais seguro cortar aos poucos e conferir antes de cada corte adicional.',
+      'Risco baixo. Tome cuidado ao marcar e cortar excesso de tecido, se precisar, para não cortar mais do que o planejado, é mais seguro cortar aos poucos e conferir antes de cada corte adicional.',
     cover: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9lYSkP1ZCRjzzkm94rXwgOWZXOMX4uDoVzldlfZGQH9f9rm54HfgxkMg&s=10',
     medias: [
       { type: 'imagem', value: "https://i0.wp.com/blog.elgin.com.br/wp-content/uploads/fazer-bainha-de-calca-scaled.jpg" },
@@ -372,12 +372,12 @@ const AULAS = [
     key: 'contas-casa',
     autor: 'marina',
     title: 'Como organizar as contas da casa para não esquecer o vencimento',
-    subject: 'Outro',
+    subject: 'Finanças',
     dangerLevel: 'Baixo Risco',
     content:
-      'Reúna todas as contas fixas (água, luz, internet, aluguel) e anote o dia de vencimento de cada uma em um só lugar — pode ser um aplicativo de lembretes no celular ou um calendário na parede da cozinha. Sempre que possível, ative o débito automático nas contas que têm valor fixo todo mês, e para as de valor variável, configure um alerta de 3 a 5 dias antes do vencimento. Reserve um dia fixo no mês (por exemplo, todo dia 5) só para revisar se todas as contas foram pagas e conferir se não veio nenhuma cobrança inesperada.',
+      'Reúna todas as contas fixas (água, luz, internet, aluguel) e anote o dia de vencimento de cada uma em um só lugar, pode ser um aplicativo de lembretes no celular ou um calendário na parede da cozinha. Sempre que possível, ative o débito automático nas contas que têm valor fixo todo mês, e para as de valor variável, configure um alerta de 3 a 5 dias antes do vencimento. Reserve um dia fixo no mês (por exemplo, todo dia 5) só para revisar se todas as contas foram pagas e conferir se não veio nenhuma cobrança inesperada.',
     danger:
-      'Risco baixo. O maior risco aqui é financeiro, não físico — atraso recorrente pode gerar multas e juros, então vale revisar o sistema de lembretes de vez em quando para garantir que está funcionando.',
+      'Risco baixo. O maior risco aqui é financeiro, não físico, atraso recorrente pode gerar multas e juros, então vale revisar o sistema de lembretes de vez em quando para garantir que está funcionando.',
     cover: 'https://blog.mag.com.br/wp-content/uploads/2019/01/Despesas-domesticas-scaled.jpg',
     ratings: [{ by: 'ricardo', rate: 3 }],
   },
@@ -388,7 +388,7 @@ const AULAS = [
     subject: 'Outro',
     dangerLevel: 'Baixo Risco',
     content:
-      'Antes de trocar, feche o registro de água que alimenta o purificador (geralmente uma torneirinha própria embaixo da pia). Gire a carcaça do filtro no sentido anti-horário para abri-la — a maioria dos modelos tem uma seta indicando o sentido. Retire o filtro usado, descarte, e limpe a carcaça por dentro com um pano limpo antes de colocar o filtro novo, prestando atenção na posição correta de encaixe. Feche a carcaça girando no sentido horário até travar, abra o registro devagar e deixe a água correr por cerca de 2 minutos antes de usar, para eliminar carvão ativado solto do filtro novo.',
+      'Antes de trocar, feche o registro de água que alimenta o purificador (geralmente uma torneirinha própria embaixo da pia). Gire a carcaça do filtro no sentido anti-horário para abri-la, a maioria dos modelos tem uma seta indicando o sentido. Retire o filtro usado, descarte, e limpe a carcaça por dentro com um pano limpo antes de colocar o filtro novo, prestando atenção na posição correta de encaixe. Feche a carcaça girando no sentido horário até travar, abra o registro devagar e deixe a água correr por cerca de 2 minutos antes de usar, para eliminar carvão ativado solto do filtro novo.',
     danger:
       'Risco baixo. Tenha um pano por perto, pois sempre escorre um pouco de água ao abrir a carcaça. Não use o purificador nos primeiros minutos após a troca sem deixar a água correr, pois pode sair com resíduo do filtro novo.',
     cover: 'https://cdn.awsli.com.br/600x450/617/617022/produto/1871935841b820d16df.jpg',
@@ -407,7 +407,7 @@ const AULAS = [
     content:
       'Separe o lixo em pelo menos duas categorias básicas: reciclável (papel, plástico limpo, vidro e metal) e orgânico/rejeito (restos de comida, papel higiênico, embalagens sujas de gordura). Lave rapidamente embalagens de plástico e vidro que tiveram alimento antes de descartar, já que resíduo de comida pode contaminar todo o lote reciclável. Reserve dois potes ou sacos pequenos na cozinha, um para cada categoria, para não precisar separar tudo depois. Verifique com a administração do prédio ou a coleta do bairro os dias específicos de coleta seletiva, para saber quando descartar cada tipo.',
     danger:
-      'Risco baixo. Cuidado ao descartar vidro quebrado — embale bem em papel ou papelão e sinalize por fora (escrevendo "vidro" no pacote) para não machucar quem for manusear o lixo depois.',
+      'Risco baixo. Cuidado ao descartar vidro quebrado, embale bem em papel ou papelão e sinalize por fora (escrevendo "vidro" no pacote) para não machucar quem for manusear o lixo depois.',
     cover: 'https://i0.wp.com/www.larplasticos.com.br/wp-content/uploads/2018/07/lixeiras-de-coleta-seletiva-larplasticos.jpg?resize=660%2C396',
     ratings: [{ by: 'marina', rate: 4 }, { by: 'ricardo', rate: 4 }],
   },
@@ -466,17 +466,20 @@ const DENUNCIAS = [
     by: 'juliana',
     reason: 'Conteúdo incorreto ou perigoso',
     text: 'As cores dos fios podem variar dependendo da instalação elétrica da casa, acho que devia ter um aviso mais forte sobre isso antes de generalizar.',
+    type: "Aula",
   },
   {
     aula: 'descongelar-geladeira',
     by: 'marina',
     reason: 'Informações desatualizadas',
+    type: "Aula",
   },
   {
     aula: 'feijao-pressao',
     by: 'ricardo',
     reason: 'Outro',
     text: 'Achei o tempo de cozimento meio curto pro tipo de feijão que uso aqui em casa.',
+    type: "Aula",
   },
 ];
 
@@ -490,7 +493,7 @@ const PLAYLISTS = [
     description: 'Tudo que você precisa saber pra lidar com os problemas elétricos mais comuns de casa.',
     private: false,
     aulas: ['chuveiro', 'tomada-queimada', 'disjuntor'],
-    cover: 'https://picsum.photos/seed/sd-playlist-eletrica/800/450',
+    cover: 'https://dutotec.com.br/blog/wp-content/uploads/2021/02/manutencao-eletrica.jpg',
   },
   {
     owner: 'ricardo',
@@ -498,7 +501,7 @@ const PLAYLISTS = [
     description: 'Receitas simples pra quem tá começando a cozinhar sozinho.',
     private: false,
     aulas: ['arroz', 'frango-assado', 'feijao-pressao'],
-    cover: 'https://picsum.photos/seed/sd-playlist-cozinha/800/450',
+    cover: 'https://ms.senac.br/Portals/0/Cursos/33168/Anexo_33168_133601858618739087.webp',
   },
   {
     owner: 'juliana',
@@ -506,7 +509,7 @@ const PLAYLISTS = [
     description: 'Rotina de limpeza pra manter a casa em ordem sem complicação.',
     private: false,
     aulas: ['rejunte', 'mofo-box', 'geladeira-organizada', 'desentupir-ralo'],
-    cover: 'https://picsum.photos/seed/sd-playlist-limpeza/800/450',
+    cover: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRs-i2-eDuhghqbwCGs-Rrmkty5d1VdeA-5Apl2hI9bNny3jwRsSS0MH5kL&s=10',
   },
   {
     owner: 'marina',
@@ -674,6 +677,7 @@ async function criarDenuncias(usuarios, aulas) {
       class: aula._id,
       reason: dados.reason,
       text: dados.text,
+      type: dados.type
     });
     await denuncia.save();
 

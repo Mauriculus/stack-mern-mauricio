@@ -5,6 +5,10 @@ const reportSchema = new mongoose.Schema({
 
     class : { type: mongoose.Schema.Types.ObjectId, ref: 'Class', required: true },
 
+    comment : { type: mongoose.Schema.Types.ObjectId, ref: 'Comment' },
+
+    response : { type: mongoose.Schema.Types.ObjectId, ref: 'Response' },
+
     reason : { type: String, required: true,
         enum: [
             "Conteúdo incorreto ou perigoso", 
@@ -18,7 +22,15 @@ const reportSchema = new mongoose.Schema({
             "Outro"
         ]},
 
-    text: { type: String }
+    text: { type: String },
+
+    type: { type: String, required: true,
+        enum: [
+            "Aula",
+            "Comentário",
+            "Reposta"
+        ]
+    }
 
 }, {timestamps: true });
 

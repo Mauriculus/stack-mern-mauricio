@@ -120,7 +120,7 @@
   }
 
   .sd-sidebar__logo img {
-    width: 36px;
+    width: 45px;
   }
 
   .sd-sidebar__group {
@@ -130,7 +130,7 @@
   }
 
   .sd-sidebar__group--inferior {
-    gap: 0.5rem;
+    gap: 0.7rem;
   }
 
   .sd-sidebar__icon {
@@ -139,12 +139,12 @@
   }
 
   .sd-sidebar__icon img {
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
   }
 
   .sd-sidebar__icon--grande img {
-    width: 34px;
-    height: 34px;
+    width: 38px;
+    height: 38px;
   }
 }
