@@ -7,6 +7,7 @@ export const ASSUNTOS = [
   'Limpeza',
   'Culinária',
   'Costura',
+  'Finanças',
   'Outro',
 ];
 
@@ -17,6 +18,7 @@ export const COR_ASSUNTO = {
   Limpeza: '#8a3fbf',
   Culinária: '#3f8f4f',
   Costura: '#c23f7a',
+  Finanças: '#0f766e',
   Outro: '#5b5f77',
 };
 

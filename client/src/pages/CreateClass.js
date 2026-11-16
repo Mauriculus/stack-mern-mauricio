@@ -206,7 +206,7 @@ export default function CreateClass() {
                         <strong>Médio risco:</strong> exige atenção e alguns cuidados básicos, mas é controlável.
                       </p>
                       <p>
-                        <strong>Alto risco:</strong> risco real de choque, queimadura, corte grave ou intoxicação — recomende supervisão e proteção.
+                        <strong>Alto risco:</strong> risco real de choque, queimadura, corte grave ou intoxicação. Recomende supervisão e proteção.
                       </p>
                     </div>
                   )}
@@ -218,7 +218,7 @@ export default function CreateClass() {
                 <textarea
                   value={riscoTexto}
                   onChange={(e) => setRiscoTexto(e.target.value.slice(0, LIMITE_RISCO))}
-                  placeholder="Ex.: risco de choque elétrico — desligue o disjuntor antes de começar."
+                  placeholder="Ex.: risco de choque elétrico. Desligue o disjuntor antes de começar."
                   maxLength={LIMITE_RISCO}
                 />
                 <span className="sd-create__content-counter">

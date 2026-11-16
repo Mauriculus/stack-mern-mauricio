@@ -1,0 +1,68 @@
+@import './theme.css';
+
+.sd-admin-report__footer {
+  margin-top: 0.6rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sd-admin-report__excluir {
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #b3261e;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.sd-admin-report__excluir:hover {
+  text-decoration: underline;
+}
+
+.sd-admin-report__confirm {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--sd-text-soft);
+}
+
+.sd-admin-report__confirm button {
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.75rem;
+  border: none;
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  cursor: pointer;
+}
+
+.sd-admin-report__confirm button:first-of-type {
+  color: #ffffff;
+  background: #b3261e;
+}
+
+.sd-admin-report__confirm button:last-of-type {
+  color: var(--sd-navy);
+  background: var(--sd-bg);
+}
+
+.sd-admin-report__confirm button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sd-admin-report__text--removido {
+  font-style: italic;
+  color: var(--sd-text-soft);
+}
+
+.sd-admin-report__type {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--sd-text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

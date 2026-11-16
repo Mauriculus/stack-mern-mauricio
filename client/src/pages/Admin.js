@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import AdminClassRow from '../components/AdminClassRow';
 import AdminReportRow from '../components/AdminReportRow';
+import AdminReportedCommentRow from '../components/AdminReportedCommentRow';
 import { API_BASE } from '../utils/classTaxonomia';
 import '../styles/Admin.css';
 
@@ -22,6 +23,11 @@ export default function Admin() {
   const [reportsPagina, setReportsPagina] = useState(0);
   const [reportsTotalPaginas, setReportsTotalPaginas] = useState(0);
   const [reportsCarregando, setReportsCarregando] = useState(false);
+
+  const [comentariosReportados, setComentariosReportados] = useState([]);
+  const [comentariosPagina, setComentariosPagina] = useState(0);
+  const [comentariosTotalPaginas, setComentariosTotalPaginas] = useState(0);
+  const [comentariosCarregando, setComentariosCarregando] = useState(false);
 
   const authHeaders = () => {
     const token = localStorage.getItem('token');
@@ -99,11 +105,53 @@ export default function Admin() {
     }
   };
 
+  const buscarComentariosReportados = useCallback(async (pagina) => {
+    setComentariosCarregando(true);
+    try {
+      const params = new URLSearchParams({ page: String(pagina), limit: String(LIMITE) });
+      const response = await fetch(`${API_BASE}/api/admin/getReportedCommentsAndResponses?${params.toString()}`, {
+        headers: authHeaders(),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setComentariosReportados((atual) => (pagina === 1 ? data.reports || [] : [...atual, ...(data.reports || [])]));
+        setComentariosPagina(pagina);
+        setComentariosTotalPaginas(data.totalPages || 0);
+      }
+    } catch (error) {
+      // não trava a página inteira se essa aba falhar
+    } finally {
+      setComentariosCarregando(false);
+    }
+  }, []);
+
+  const excluirComentarioOuResposta = async (id, tipo) => {
+    try {
+      const endpoint = tipo === 'resposta' ? 'deleteResponse' : 'deleteComment';
+      const bodyKey = tipo === 'resposta' ? 'responseId' : 'commentId';
+      const response = await fetch(`${API_BASE}/api/admin/${endpoint}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify({ [bodyKey]: id }),
+      });
+      if (response.ok) {
+        setComentariosReportados((atual) =>
+          atual.filter((r) => (r.comment?._id || r.response?._id) !== id)
+        );
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
+    }
+  };
+
   useEffect(() => {
     if (!autorizado) return;
     if (aba === 'aulas' && aulasPagina === 0) buscarAulasReportadas(1);
     if (aba === 'denuncias' && reportsPagina === 0) buscarReports(1);
-  }, [autorizado, aba, aulasPagina, reportsPagina, buscarAulasReportadas, buscarReports]);
+    if (aba === 'comentarios' && comentariosPagina === 0) buscarComentariosReportados(1);
+  }, [autorizado, aba, aulasPagina, reportsPagina, comentariosPagina, buscarAulasReportadas, buscarReports, buscarComentariosReportados]);
 
   if (verificando) {
     return (
@@ -144,6 +192,16 @@ export default function Admin() {
           >
             Aulas mais denunciadas
           </button>
+
+          <button
+            type="button"
+            role="tab"
+            aria-selected={aba === 'comentarios'}
+            className={`sd-admin__tab ${aba === 'comentarios' ? 'is-active' : ''}`}
+            onClick={() => setAba('comentarios')}
+          >
+            Comentários e respostas denunciados
+          </button>
           <button
             type="button"
             role="tab"
@@ -177,23 +235,45 @@ export default function Admin() {
               )}
             </>
           )
-        ) : reports.length === 0 && !reportsCarregando ? (
+        ) : aba === 'denuncias' ? (
+          reports.length === 0 && !reportsCarregando ? (
+            <div className="sd-admin__empty">
+              <p>Nenhuma denúncia registrada até agora.</p>
+            </div>
+          ) : (
+            <>
+              {reports.map((r) => (
+                <AdminReportRow key={r._id} report={r} />
+              ))}
+              {reportsPagina < reportsTotalPaginas && (
+                <button
+                  type="button"
+                  className="sd-admin__load-more"
+                  onClick={() => buscarReports(reportsPagina + 1)}
+                  disabled={reportsCarregando}
+                >
+                  {reportsCarregando ? 'Carregando…' : 'Carregar mais'}
+                </button>
+              )}
+            </>
+          )
+        ) : comentariosReportados.length === 0 && !comentariosCarregando ? (
           <div className="sd-admin__empty">
-            <p>Nenhuma denúncia registrada até agora.</p>
+            <p>Nenhum comentário ou resposta denunciado até agora.</p>
           </div>
         ) : (
           <>
-            {reports.map((r) => (
-              <AdminReportRow key={r._id} report={r} />
+            {comentariosReportados.map((r) => (
+              <AdminReportedCommentRow key={r._id} report={r} onExcluir={excluirComentarioOuResposta} />
             ))}
-            {reportsPagina < reportsTotalPaginas && (
+            {comentariosPagina < comentariosTotalPaginas && (
               <button
                 type="button"
                 className="sd-admin__load-more"
-                onClick={() => buscarReports(reportsPagina + 1)}
-                disabled={reportsCarregando}
+                onClick={() => buscarComentariosReportados(comentariosPagina + 1)}
+                disabled={comentariosCarregando}
               >
-                {reportsCarregando ? 'Carregando…' : 'Carregar mais'}
+                {comentariosCarregando ? 'Carregando…' : 'Carregar mais'}
               </button>
             )}
           </>

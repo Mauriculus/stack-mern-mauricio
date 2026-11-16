@@ -10,6 +10,7 @@ export default function AdminReportRow({ report }) {
     <div className="sd-admin-report">
       <div className="sd-admin-report__header">
         <span className="sd-admin-report__reason">{report.reason}</span>
+        <span className="sd-admin-report__type">{report.type}</span>
         <span className="sd-admin-report__date">{formatarData(report.createdAt)}</span>
       </div>
 

@@ -11,7 +11,7 @@ const CATEGORIAS = [
   {
     indice: '02',
     titulo: 'Hidráulica',
-    descricao: 'Vazamento, entupimento, registro — o básico pra não inundar a casa.',
+    descricao: 'Vazamento, entupimento, registro, o básico pra não inundar a casa.',
   },
   {
     indice: '03',
@@ -44,11 +44,11 @@ export default function Home() {
         <section className="sd-home__hero">
           <span className="sd-home__eyebrow">
             <span className="sd-home__eyebrow-dot" aria-hidden="true" />
-            central de aprendizado
+            Sobrevivência Doméstica
           </span>
           <h1 className="sd-home__title">Sua casa, sob o seu controle.</h1>
           <p className="sd-home__subtitle">
-            Aulas curtas, feitas por gente que também teve que aprender do zero — pra quem está
+            Aulas curtas, feitas por gente que também teve que aprender do zero. Pra quem está
             saindo de casa dos pais e não quer descobrir tudo na marra.
           </p>
           <div className="sd-home__actions">

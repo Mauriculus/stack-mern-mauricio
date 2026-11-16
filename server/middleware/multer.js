@@ -6,7 +6,7 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: "sobrevivencia-domestica",
-        allowed_formats: ["png", "jpeg", "jpg", "webp", "gif"],
+        allowed_formats: ["png", "jpeg", "jpg", "webp", "gif", "heic"],
     },
 })
 

@@ -49,7 +49,7 @@ const classSchema = new mongoose.Schema({
 
     subject: {
         type: String,
-        enum: ["Elétrica", "Hidráulica", "Eletrodomésticos", "Limpeza", "Culinária", "Costura", "Outro"],
+        enum: ["Elétrica", "Hidráulica", "Eletrodomésticos", "Limpeza", "Culinária", "Costura", "Finanças", "Outro"],
         required: true
     },
 

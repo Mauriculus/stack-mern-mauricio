@@ -22,6 +22,8 @@ const {
     getCommentsByClass, 
     rateClass, 
     reportClass,
+    reportComment,
+    reportResponse,
     deleteComment,
     deleteResponse,
 } = require("../controllers/userInteractions")
@@ -42,6 +44,8 @@ router.delete("/deleteResponse/:responseId", authMiddleware, validateObjectIds('
 
 router.put('/rate/:classId', authMiddleware, writeLimiter, validateObjectIds('classId'), rateClass)
 router.post('/report/:classId', authMiddleware, writeLimiter, validateObjectIds('classId'), reportClass)
+router.post('/reportComment/:commentId', authMiddleware, writeLimiter, validateObjectIds('commentId'), reportComment)
+router.post('/reportResponse/:responseId', authMiddleware, writeLimiter, validateObjectIds('responseId'), reportResponse)
 
 router.get('/search', searchLimiter, searchClass)
 router.get('/getByTitle/:classTitle', getClassByTitle)

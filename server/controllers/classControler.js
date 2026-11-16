@@ -12,6 +12,7 @@ const availableSubjects = [
     "Limpeza",
     "Culinária",
     "Costura",
+    "Finanças",
     "Outro",
 ]
 const avaliableDanger = [

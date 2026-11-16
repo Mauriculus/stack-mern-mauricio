@@ -1,0 +1,95 @@
+@import './theme.css';
+
+.sd-safety-modal__overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+}
+
+.sd-safety-modal {
+  background: var(--sd-surface);
+  border-radius: 12px;
+  border: 1.5px solid var(--sd-card-border);
+  max-width: 440px;
+  width: 100%;
+  padding: 1.75rem;
+  box-shadow: 0 12px 32px rgba(13, 18, 70, 0.25);
+}
+
+.sd-safety-modal__title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: #b3261e;
+  margin: 0 0 0.75rem;
+}
+
+.sd-safety-modal__intro {
+  font-size: 0.95rem;
+  color: var(--sd-text);
+  margin: 0 0 1.1rem;
+}
+
+.sd-safety-modal__list {
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sd-safety-modal__list li {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--sd-text);
+  padding-left: 1.1rem;
+  position: relative;
+}
+
+.sd-safety-modal__list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #b3261e;
+}
+
+.sd-safety-modal__list strong {
+  color: #b3261e;
+}
+
+.sd-safety-modal__close {
+  display: block;
+  width: 100%;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #fff;
+  background: var(--sd-navy);
+  border: none;
+  border-radius: var(--sd-radius);
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.sd-safety-modal__close:hover {
+  background: var(--sd-navy-deep);
+}
+
+[data-theme='dark'] .sd-safety-modal__close {
+  background: var(--sd-amber);
+  color: var(--sd-navy);
+}

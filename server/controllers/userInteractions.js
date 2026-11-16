@@ -286,6 +286,7 @@ const deleteComment = async (req, res) => {
       return res.status(403).json({ mensagem: 'Você não pode excluir esse comentário' });
     }
 
+    await Report.deleteMany({ $or: [{ comment: commentId }, { response: { $in: comment.responses } }] });
     await Response.deleteMany({ _id: { $in: comment.responses } });
     await Class.updateOne({ _id: comment.commentedClass }, { $pull: { comments: comment._id } });
     await Comment.deleteOne({ _id: commentId });
@@ -319,6 +320,7 @@ const deleteResponse = async (req, res) => {
       return res.status(403).json({ mensagem: 'Você não pode excluir essa resposta' });
     }
 
+    await Report.deleteMany({ response: responseId });
     await Comment.updateOne({ _id: response.comment }, { $pull: { responses: response._id } });
     await Response.deleteOne({ _id: responseId });
 
@@ -510,8 +512,6 @@ const reportClass = async (req, res) => {
     return res.status(400).json({ mensagem: "Selecione uma das razões da denúncia"})
   }
   try {
-
-
     const reportedClass = await Class.findById(classId)
     if (!reportedClass){
       return res.status(404).json({ mensagem: "Aula inválida"})
@@ -520,6 +520,7 @@ const reportClass = async (req, res) => {
     const newReport = new Report({
       author: userId,
       class: classId,
+      type: 'Aula',
       reason,
       text
     })
@@ -540,6 +541,100 @@ const reportClass = async (req, res) => {
   }
 }
 
+const reportComment = async (req, res) => {
+  const userId = req.userId
+  const { commentId } = req.params
+  const { reason, text } = req.body
+
+  if (!userId) {
+    return res.status(401).json({ mensagem: "Deve estar logado para denunciar um comentário"})
+  }
+  if (!commentId) {
+    return res.status(400).json({ mensagem: "Não foi possível conseguir o comentário a ser denunciado"})
+  }
+  if (!reason) {
+    return res.status(400).json({ mensagem: "Selecione a razão da denuncia"})
+  }
+  if (!availableReasons.includes(reason)) {
+    return res.status(400).json({ mensagem: "Selecione uma das razões da denúncia"})
+  }
+  try {
+    const reportedComment = await Comment.findById(commentId)
+    if (!reportedComment){
+      return res.status(404).json({ mensagem: "Comentário inválido"})
+    }
+
+    const newReport = new Report({
+      author: userId,
+      class: reportedComment.commentedClass,
+      comment: commentId,
+      type: 'Comentário',
+      reason,
+      text
+    })
+
+    await newReport.save()
+
+    reportedComment.reports.push(newReport._id);
+    reportedComment.reportCount += 1;
+
+    await reportedComment.save()
+
+    return res.status(201).json({mensagem: "Comentário denunciado"})
+
+  } catch (err) {
+    console.error(err)
+    return res.status(500).json({ mensagem: "Erro no servidor"})
+  }
+}
+
+const reportResponse = async (req, res) => {
+  const userId = req.userId
+  const { responseId } = req.params
+  const { reason, text } = req.body
+
+  if (!userId) {
+    return res.status(401).json({ mensagem: "Deve estar logado para denunciar uma resposta"})
+  }
+  if (!responseId) {
+    return res.status(400).json({ mensagem: "Não foi possível conseguir a resposta a ser denunciada"})
+  }
+  if (!reason) {
+    return res.status(400).json({ mensagem: "Selecione a razão da denuncia"})
+  }
+  if (!availableReasons.includes(reason)) {
+    return res.status(400).json({ mensagem: "Selecione uma das razões da denúncia"})
+  }
+  try {
+    const reportedResponse = await Response.findById(responseId)
+    if (!reportedResponse){
+      return res.status(404).json({ mensagem: "Resposta inválida"})
+    }
+
+    const newReport = new Report({
+      author: userId,
+      class: reportedResponse.class,
+      response: responseId,
+      type: 'Reposta',
+      reason,
+      text
+    })
+
+    await newReport.save()
+
+    reportedResponse.reports.push(newReport._id);
+    reportedResponse.reportCount += 1;
+
+    await reportedResponse.save()
+
+    return res.status(201).json({mensagem: "Resposta denunciada"})
+
+  } catch (err) {
+    console.error(err)
+    return res.status(500).json({ mensagem: "Erro no servidor"})
+  }
+}
+
 module.exports = {
   followUser,
   unfollowUser,
@@ -549,6 +644,8 @@ module.exports = {
   getCommentsByClass,
   rateClass,
   reportClass,
+  reportComment,
+  reportResponse,
   deleteComment,
   deleteResponse,
 };

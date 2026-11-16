@@ -8,7 +8,7 @@ function formatarData(iso) {
   return new Date(iso).toLocaleDateString('pt-BR');
 }
 
-function LinhaComentario({ comentario, indentado, podeResponder, aoResponder, podeExcluir, aoExcluir }) {
+function LinhaComentario({ comentario, indentado, podeResponder, aoResponder, podeExcluir, aoExcluir, aoDenunciar }) {
   const [confirmando, setConfirmando] = useState(false);
   const [excluindo, setExcluindo] = useState(false);
 
@@ -48,6 +48,18 @@ function LinhaComentario({ comentario, indentado, podeResponder, aoResponder, po
             </button>
           )}
 
+          <button
+            type="button"
+            className="sd-comment__excluir"
+            onClick={aoDenunciar}
+            aria-label="Denunciar"
+            data-hint="Denunciar"
+          >
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 21V4m0 0h13l-2 4 2 4H4" />
+            </svg>
+          </button>
+
           {podeExcluir &&
             (confirmando ? (
               <span className="sd-comment__confirm">
@@ -79,7 +91,16 @@ function LinhaComentario({ comentario, indentado, podeResponder, aoResponder, po
   );
 }
 
-export default function CommentItem({ comentario, onEnviarResposta, souAdmin, meuId, onExcluirComentario, onExcluirResposta }) {
+export default function CommentItem({
+  comentario,
+  onEnviarResposta,
+  souAdmin,
+  meuId,
+  onExcluirComentario,
+  onExcluirResposta,
+  onDenunciarComentario,
+  onDenunciarResposta,
+}) {
   const [respostasAbertas, setRespostasAbertas] = useState(false);
   const [respondendo, setRespondendo] = useState(false);
   const [textoResposta, setTextoResposta] = useState('');
@@ -107,6 +128,7 @@ export default function CommentItem({ comentario, onEnviarResposta, souAdmin, me
         aoResponder={() => setRespondendo((v) => !v)}
         podeExcluir={souAdmin || comentario.author?._id === meuId}
         aoExcluir={() => onExcluirComentario(comentario._id)}
+        aoDenunciar={() => onDenunciarComentario(comentario._id)}
       />
 
       {respondendo && (
@@ -148,6 +170,7 @@ export default function CommentItem({ comentario, onEnviarResposta, souAdmin, me
               indentado
               podeExcluir={souAdmin || resposta.author?._id === meuId}
               aoExcluir={() => onExcluirResposta(resposta._id)}
+              aoDenunciar={() => onDenunciarResposta(resposta._id)}
             />
           ))}
         </div>

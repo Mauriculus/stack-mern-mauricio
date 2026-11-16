@@ -157,6 +157,9 @@ const deleteComment = async (req, res) => {
 
         const commentedClassId = deletedComment.commentedClass
 
+        const responseIds = await Response.find({ comment: commentId }).distinct('_id')
+        await Report.deleteMany({ $or: [{ comment: commentId }, { response: { $in: responseIds } }] })
+
         const responses = await Response.deleteMany({ comment: commentId })
         const deletedResponses = responses.deletedCount
 
@@ -192,6 +195,7 @@ const deleteResponse = async (req, res) => {
             return res.status(404).json({ mensagem: "Resposta não encontrada"})
         }
 
+        await Report.deleteMany({ response: responseId })
         await Comment.findByIdAndUpdate(deletedResponse.comment, { $pull: { responses: responseId } })
         await deletedResponse.deleteOne()
 
@@ -347,6 +351,46 @@ const getReports = async (req, res) => {
     }
 }
 
+const getReportedCommentsAndResponses = async (req, res) => {
+    const userId = req.userId
+    const userType = req.userType
+    const page = parseInt(req.query.page) || 1;
+    const limit = Math.min(parseInt(req.query.limit) || 10, 50);
+
+    if (!userId) {
+        return res.status(401).json({ mensagem: "É necessário estar autenticado"})
+    }
+    if(userType !== "admin") {
+        return res.status(403).json({ mensagem: "É necessário ser administrador para realizar essa ação"})
+    }
+
+    try {
+        const skipIndex = (page - 1) * limit
+        const filter = { type: { $in: ['Comentário', 'Reposta'] } }
+
+        const reportList = await Report.find(filter)
+                                .populate('class', 'title normalizedTitle')
+                                .populate('comment', 'content authorUsername')
+                                .populate('response', 'content authorUsername')
+                                .sort({ createdAt: -1 })
+                                .skip(skipIndex)
+                                .limit(limit)
+
+        const totalItems = await Report.countDocuments(filter);
+
+        return res.status(200).json({
+            reports: reportList,
+            currentPage: page,
+            totalPages: Math.ceil(totalItems / limit),
+            totalItems,
+        })
+
+    } catch(err){
+        console.error("Erro ao pegar comentários/respostas denunciados", err)
+        return res.status(500).json({ mensagem: "Erro no servidor"})
+    }
+}
+
 module.exports = {
     cascadeDeleteClass,
     cascadeDeleteClassPendencies,
@@ -358,4 +402,5 @@ module.exports = {
     unbanUser,
     getReportedClasses,
     getReports,
+    getReportedCommentsAndResponses,
 }

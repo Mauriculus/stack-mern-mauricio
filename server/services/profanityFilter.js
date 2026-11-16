@@ -6,6 +6,8 @@ const PALAVRAS_BLOQUEADAS = [
   'merda',
   'buceta',
   'piroca',
+  'penis',
+  'pênis',
   'foda',
   'foder',
   'fudido',
